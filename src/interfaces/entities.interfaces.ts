@@ -36,3 +36,10 @@ export interface ILoginCredentials {
     login: string
     password: string
 }
+
+export interface ICachedUserData {
+  login?: string
+  token?: string
+} 
+
+export type TokenType = string

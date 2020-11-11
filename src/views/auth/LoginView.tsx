@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Avatar from '@material-ui/core/Avatar'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
@@ -13,6 +13,8 @@ import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
 import { Copyright } from '../../components/auth/Copyright'
 import { NavLink } from 'react-router-dom'
+import { useAuth } from '../../hooks/auth.hooks'
+import { useFormHandlers } from '../../hooks/form-handlers.hooks'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -46,6 +48,12 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export const LoginView: React.FC = () => {
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+
+  const { login } = useAuth()
+  const { onChange } = useFormHandlers()
+
   const classes = useStyles()
 
   return (
@@ -61,33 +69,31 @@ export const LoginView: React.FC = () => {
           </Typography>
           <form className={classes.form} noValidate>
             <TextField
+              value={username}
+              onChange={onChange(setUsername)}
               variant="outlined"
               margin="normal"
               required
               fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
+              label="Логин"
               autoFocus
             />
             <TextField
+              value={password}
+              onChange={onChange(setPassword)}
               variant="outlined"
               margin="normal"
               required
               fullWidth
-              name="password"
-              label="Password"
+              label="Пароль"
               type="password"
-              id="password"
-              autoComplete="current-password"
             />
-            <FormControlLabel
+            {/* <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
-            />
+            /> */}
             <Button
-              type="submit"
+              onClick={login.bind(null, { login: username, password })}
               fullWidth
               variant="contained"
               color="primary"
@@ -98,7 +104,7 @@ export const LoginView: React.FC = () => {
             <Grid container>
               <Grid item xs>
                 <Link href="#" variant="body2">
-                  Забыли пароль?
+                  {'Забыли пароль?'}
                 </Link>
               </Grid>
               <Grid item>

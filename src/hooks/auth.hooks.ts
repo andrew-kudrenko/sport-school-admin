@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { ILoginCredentials } from '../interfaces/entities.interfaces'
+import { ICachedUserData, ILoginCredentials } from '../interfaces/entities.interfaces'
 import { IState } from '../interfaces/redux.interfaces'
 import { createLoginAction, createLogoutAction } from '../redux/actions/auth.actions'
 
@@ -12,8 +12,10 @@ export function useAuth() {
 
   const login = useCallback((credentials: ILoginCredentials) => {
     dispatch(createLoginAction(credentials))
-    localStorage.setItem(collectionName, JSON.stringify({ login: credentials.login, token }))
-  }, [])
+
+    const updatedData: ICachedUserData = { login: credentials.login }
+    localStorage.setItem(collectionName, JSON.stringify(updatedData))
+  }, [token, dispatch])
 
   const logout = useCallback(() => {
     localStorage.removeItem(collectionName)
@@ -21,12 +23,15 @@ export function useAuth() {
   }, [])
 
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem(collectionName) || 'null')
-
-    if (userData?.token) {
-      login(userData)
+    const cachedData: ICachedUserData = JSON.parse(localStorage.getItem(collectionName) || '{}')
+    
+    if (!authorized) {
+      if (cachedData.token) {
+        dispatch(createLoginAction(cachedData.token))
+        localStorage.setItem(collectionName, JSON.stringify(cachedData))
+      }
     }
-  }, [login])
+  }, [authorized])
 
   return { authorized, token, login, logout }
 }

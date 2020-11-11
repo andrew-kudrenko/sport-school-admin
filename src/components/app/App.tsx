@@ -1,14 +1,25 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useDispatch } from 'react-redux'
+import { useAuth } from '../../hooks/auth.hooks'
+import { fetchCities } from '../../redux/actions/cities.actions'
 import { AdminRoutes } from '../../routes/AdminRoutes'
 import { AuthRoutes } from '../../routes/AuthRoutes'
 import { SuperAdminRoutes } from '../../routes/SuperAdminRoutes'
 
 export const App: React.FC = () => {
-  const authenticated = true
+  const dispatch = useDispatch()
+  
+  const { authorized } = useAuth() 
   const isSuperAdmin = true
 
+  useEffect(() => {
+    if (authorized) {
+      dispatch(fetchCities())
+    }
+  }, [authorized])
+
   return (
-    !authenticated
+    !authorized
       ? <AuthRoutes /> 
       : isSuperAdmin
         ? <SuperAdminRoutes />
