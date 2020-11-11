@@ -15,7 +15,7 @@ export function useAuth() {
 
     const updatedData: ICachedUserData = { login: credentials.login }
     localStorage.setItem(collectionName, JSON.stringify(updatedData))
-  }, [token, dispatch])
+  }, [])
 
   const logout = useCallback(() => {
     localStorage.removeItem(collectionName)
@@ -24,12 +24,17 @@ export function useAuth() {
 
   useEffect(() => {
     const cachedData: ICachedUserData = JSON.parse(localStorage.getItem(collectionName) || '{}')
-    
+
     if (!authorized) {
       if (cachedData.token) {
         dispatch(createLoginAction(cachedData.token))
         localStorage.setItem(collectionName, JSON.stringify(cachedData))
       }
+    }
+
+    if (token) {
+      cachedData.token = token
+      localStorage.setItem(collectionName, JSON.stringify(cachedData))
     }
   }, [authorized])
 

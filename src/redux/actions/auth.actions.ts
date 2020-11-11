@@ -1,5 +1,5 @@
 import { Dispatch } from "redux"
-import { requestFormDataAuth } from "../../helpers/request.hepler"
+import { requestFormData } from "../../helpers/request.hepler"
 import { ErrorType, ILoginCredentials, TokenType } from "../../interfaces/entities.interfaces"
 import { IAction } from "../../interfaces/redux.interfaces"
 import { SET_LOGIN_LOADING, SET_REGISTER_LOADING, SET_REGISTER_ERROR, SET_LOGIN_ERROR, LOGIN, LOGOUT, SET_LOGOUT_ERROR, SET_LOGOUT_LOADING, REGISTER } from "../types/auth.types"
@@ -21,9 +21,9 @@ export const createLoginAction = (data: ILoginCredentials | TokenType, remember:
 
         if (typeof data === 'string') {
             dispatch({ type: LOGIN, payload: data })
-        } else if (data?.login && data?.password) {
+        } else if (data.login && data.password) {
             const { login, password } = data
-            const response = await requestFormDataAuth('/auth/jwt/login', 'POST', `username=${login}&password=${password}`)
+            const response = await requestFormData('/auth/jwt/login', 'POST', `username=${login}&password=${password}`)
 
             if (response.detail) {
                 throw new Error('Ошибка при входе в систему')

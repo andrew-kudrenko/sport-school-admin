@@ -12,3 +12,8 @@ export interface IDrawerOptionProps {
 export interface IEditorLayoutProps {
   title: string
 }
+
+export interface ICreatingLayoutProps {
+  onSaveAndResume: (() => void) | (() => Promise<void>)
+  onSave: (() => void) | (() => Promise<void>)
+}

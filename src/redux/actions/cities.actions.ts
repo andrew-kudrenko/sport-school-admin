@@ -9,12 +9,12 @@ export const setCitiesFetchingError = (payload: string): IAction<string> => ({ t
 export const fetchCities = () => async (dispatch: Dispatch) => {
   try {
     dispatch(setCitiesFetching(true))
-    const cities = await requestJSONAuth('/structures/cities')
+    const cities: Array<ICity> = await requestJSONAuth('/structures/cities')
     dispatch({ type: FETCH_CITIES, payload: cities })
   } catch (e) {
-    setCitiesFetchingError(e instanceof Error ? e.message : String(e))
+    dispatch(setCitiesFetchingError(e instanceof Error ? e.message : String(e)))
   } finally {
-    setCitiesFetching(false)
+    dispatch(setCitiesFetching(false))
   }
 }
 
@@ -26,9 +26,9 @@ export const addCity = (city: ICity) => async (dispatch: Dispatch) => {
     await requestJSONAuth('/structures/cities', 'POST', city)
     dispatch({ type: ADD_CITY, payload: city })
   } catch (e) {
-    setCityAddingError(e instanceof Error ? e.message : String(e))
+    dispatch(setCityAddingError(e instanceof Error ? e.message : String(e)))
   } finally {
-    setCityAdding(false)
+    dispatch(setCityAdding(false))
   }
 }
 
@@ -40,9 +40,9 @@ export const removeCity = (id: IDType) => async (dispatch: Dispatch) => {
     await requestJSONAuth(`/structures/cities/${id}`, 'DELETE', id)
     dispatch({ type: REMOVE_CITY, payload: id })
   } catch (e) {
-    setCityRemovingError(e instanceof Error ? e.message : String(e))
+    dispatch(setCityRemovingError(e instanceof Error ? e.message : String(e)))
   } finally {
-    setCityRemoving(false)
+    dispatch(setCityRemoving(false))
   }
 }
 
@@ -54,8 +54,8 @@ export const modifyCity = (city: ICity) => async (dispatch: Dispatch) => {
     await requestJSONAuth(`/structures/cities/${city.id}`, 'PATCH', city)
     dispatch({ type: REMOVE_CITY, payload: city })
   } catch (e) {
-    setCityModifyingError(e instanceof Error ? e.message : String(e))
+    dispatch(setCityModifyingError(e instanceof Error ? e.message : String(e)))
   } finally {
-    setCityModifying(false)
+    (setCityModifying(false))
   }
 }

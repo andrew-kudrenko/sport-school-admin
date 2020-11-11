@@ -8,6 +8,7 @@ import IconButton from '@material-ui/core/IconButton'
 import MenuIcon from '@material-ui/icons/Menu'
 import { Box, Button } from '@material-ui/core'
 import { INavProps } from '../../interfaces/components.interfaces'
+import { useAuth } from '../../hooks/auth.hooks'
 
 const drawerWidth = 240
 
@@ -38,6 +39,7 @@ const useStyles = makeStyles((theme) => ({
 
 export const Navbar: React.FC<INavProps> = ({ open, setOpen }) => {
   const classes = useStyles()
+  const { logout } = useAuth()
 
   return (
     <AppBar
@@ -60,13 +62,13 @@ export const Navbar: React.FC<INavProps> = ({ open, setOpen }) => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap>
-            Администрирование
+            {'Администрирование'}
           </Typography>
         </Box>
         <Box>
-          <Button color="inherit">
-            Выйти
-            </Button>
+          <Button color="inherit" onClick={logout}>
+            {'Выйти'}
+          </Button>
         </Box>
       </Toolbar>
     </AppBar>

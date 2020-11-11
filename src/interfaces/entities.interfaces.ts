@@ -3,12 +3,12 @@ export type IDType = string | number
 export type ErrorType = string | null
 
 export interface ICity {
-  id: IDType
+  id?: IDType
   name: string
 }
 
 export interface ISchool {
-  id: IDType
+  id?: IDType
   name: string
   address: string
   description: string
@@ -16,7 +16,7 @@ export interface ISchool {
 }
 
 export interface IGroup {
-  id: IDType
+  id?: IDType
   year: number
   schedule: string
   tgUrl: string
@@ -24,7 +24,7 @@ export interface IGroup {
 }
 
 export interface IUser {
-  id: IDType
+  id?: IDType
   email: string
   isActive: boolean
   isSuperUser: boolean

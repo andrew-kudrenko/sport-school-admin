@@ -21,7 +21,7 @@ async function requestBase<T = any>(headers: Headers, endPoint: string, method: 
     }
 }
 
-interface IRequestHeaders {
+type IRequestHeaders = {
     json: Headers
     formData: Headers
 }
@@ -40,16 +40,25 @@ const headers: IRequestHeaders = {
 function createRequest(headers: IRequestHeaders, token: string | null = null) {
     if (token) {
         Object.keys(headers)
-            .forEach(key => (headers as any)[key]['Authorization'] = `Bearer ${token}`)
+        .forEach(key => {
+            (headers as any)[key].append('Authorization', `Bearer ${token}`)
+        })
     }
 
     async function requestJSON<T = any>(endPoint: string, method: HTTPMethodType = 'GET', body: any = null): Promise<T> {
-        return await requestBase<T>(headers.json, endPoint, method, body)
+        if (body) {
+            return await requestBase<T>(headers.json, endPoint, method, JSON.stringify(body))
+        } else {
+            return await requestBase<T>(headers.json, endPoint, method, body)
+        }
     }
 
     async function requestFormData<T = any>(endPoint: string, method: HTTPMethodType = 'GET', body: any = null): Promise<T> {
-        return await requestBase<T>(headers.formData, endPoint, method, body)
-    }
+        if (body) {
+            return await requestBase<T>(headers.formData, endPoint, method, body)
+        } else {
+            return await requestBase<T>(headers.formData, endPoint, method, body)
+        }    }
 
     return { requestJSON, requestFormData }
 }

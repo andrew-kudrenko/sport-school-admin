@@ -7,6 +7,11 @@ import TableContainer from '@material-ui/core/TableContainer'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import Paper from '@material-ui/core/Paper'
+import { IState } from '../../interfaces/redux.interfaces'
+import { useSelector } from 'react-redux'
+import { useSelected } from '../../hooks/selected.hook'
+import { Checkbox } from '@material-ui/core'
+import { IDType } from '../../interfaces/entities.interfaces'
 
 const StyledTableCell = withStyles((theme: Theme) =>
   createStyles({
@@ -30,18 +35,6 @@ const StyledTableRow = withStyles((theme: Theme) =>
   }),
 )(TableRow)
 
-function createData(name: string, calories: number, fat: number, carbs: number, protein: number) {
-  return { name, calories, fat, carbs, protein }
-}
-
-const rows = [
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-  createData('Eclair', 262, 16.0, 24, 6.0),
-  createData('Cupcake', 305, 3.7, 67, 4.3),
-  createData('Gingerbread', 356, 16.0, 49, 3.9),
-]
-
 const useStyles = makeStyles({
   table: {
     minWidth: 700,
@@ -50,29 +43,49 @@ const useStyles = makeStyles({
 
 export const CitiesTable: React.FC = () => {
   const classes = useStyles()
+  const { list } = useSelector((state: IState) => state.cities)
+
+  const { selected, select, unselect, has } = useSelected()
+
+  const onToggleAll = () => {
+    const keys: Array<IDType> = list.map(c => c.id as IDType)
+
+    if (!selected) {
+      select(keys)
+    } else {
+      unselect(keys)
+    }
+  }
+
+  const allSelected: boolean = list.length === selected.length
 
   return (
     <TableContainer component={Paper}>
       <Table className={classes.table} aria-label="customized table">
         <TableHead>
           <TableRow>
-            <StyledTableCell>Dessert (100g serving)</StyledTableCell>
-            <StyledTableCell align="right">Calories</StyledTableCell>
-            <StyledTableCell align="right">Fat&nbsp(g)</StyledTableCell>
-            <StyledTableCell align="right">Carbs&nbsp(g)</StyledTableCell>
-            <StyledTableCell align="right">Protein&nbsp(g)</StyledTableCell>
+            <StyledTableCell>
+              <Checkbox
+                checked={allSelected}
+                onClick={onToggleAll}
+              />
+            </StyledTableCell>
+            <StyledTableCell>
+              {'Название'}
+            </StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
-            <StyledTableRow key={row.name}>
+          {list.map((city) => (
+            <StyledTableRow key={city.id}>
               <StyledTableCell component="th" scope="row">
-                {row.name}
+                <Checkbox
+                  checked={has(city?.id)}
+                  onClick={select.bind(null, city.id as IDType)}
+                />              </StyledTableCell>
+              <StyledTableCell component="th" scope="row">
+                {city.name}
               </StyledTableCell>
-              <StyledTableCell align="right">{row.calories}</StyledTableCell>
-              <StyledTableCell align="right">{row.fat}</StyledTableCell>
-              <StyledTableCell align="right">{row.carbs}</StyledTableCell>
-              <StyledTableCell align="right">{row.protein}</StyledTableCell>
             </StyledTableRow>
           ))}
         </TableBody>
