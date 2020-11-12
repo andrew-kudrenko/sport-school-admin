@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { IDType } from "../interfaces/entities.interfaces"
+import { IdentifiedEntity, IDType } from "../interfaces/entities.interfaces"
 
 export function useSelected() {
     const [selected, setSelected] = useState<Array<IDType>>([])
@@ -28,5 +28,27 @@ export function useSelected() {
         return selected.includes(id)
     }
 
-    return { selected, select, unselect, has }
+    function allSelected<T = any>(list: Array<T>): boolean {
+        return list.length === selected.length
+    }
+
+    function onToggleAll<T extends IdentifiedEntity>(list: Array<T>) {
+        const keys: Array<IDType> = list.map(c => c.id)
+
+        if (!allSelected(list)) {
+            select(keys)
+        } else {
+            unselect(keys)
+        }
+    }
+
+    function onToggle(id: IDType) {
+        if (selected.includes(id)) {
+            unselect(id)
+        } else {
+            select(id)
+        }
+    }
+
+    return { selected, select, unselect, has, allSelected, onToggle, onToggleAll }
 }

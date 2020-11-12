@@ -7,11 +7,9 @@ import TableContainer from '@material-ui/core/TableContainer'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import Paper from '@material-ui/core/Paper'
-import { IState } from '../../interfaces/redux.interfaces'
-import { useSelector } from 'react-redux'
-import { useSelected } from '../../hooks/selected.hook'
 import { Checkbox } from '@material-ui/core'
-import { IDType } from '../../interfaces/entities.interfaces'
+import { ICity } from '../../interfaces/entities.interfaces'
+import { ITableProps } from '../../interfaces/components.interfaces'
 
 const StyledTableCell = withStyles((theme: Theme) =>
   createStyles({
@@ -41,42 +39,18 @@ const useStyles = makeStyles({
   },
 })
 
-export const CitiesTable: React.FC = () => {
+export const CitiesTable: React.FC<ITableProps<ICity>> = ({ allSelected, list, has, onToggle, onToggleAll }) => {
   const classes = useStyles()
-  const { list } = useSelector((state: IState) => state.cities)
   
-  const { selected, select, unselect, has } = useSelected()
-  
-  const allSelected: boolean = list.length === selected.length
-  
-  const onToggleAll = () => {
-    const keys: Array<IDType> = list.map(c => c.id)
-
-    if (!allSelected) {
-      select(keys)
-    } else {
-      unselect(keys)
-    }
-  }
-
-  const onToggle = (id: IDType) => {
-    if (selected.includes(id)) {
-      unselect(id)
-    } else {
-      select(id)
-    }
-  }
-
-
   return (
     <TableContainer component={Paper}>
-      <Table className={classes.table} aria-label="customized table">
+      <Table className={classes.table}>
         <TableHead>
           <TableRow>
             <StyledTableCell>
               <Checkbox
-                checked={allSelected}
-                onClick={onToggleAll}
+                checked={allSelected(list)}
+                onClick={onToggleAll.bind(null, list)}
               />
             </StyledTableCell>
             <StyledTableCell>

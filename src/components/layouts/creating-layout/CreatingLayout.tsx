@@ -5,16 +5,19 @@ import { ICreatingLayoutProps } from '../../../interfaces/components.interfaces'
 
 export const CreatingLayout: React.FC<ICreatingLayoutProps> = ({ children, onSaveAndResume, onSave }) => {
     return (
-        <>
+        <Box
+            display="flex"
+            flexDirection="column"
+        >
             <Typography variant="h5">
                 {'Добавить'}
             </Typography>
             { children}
-            <Box 
-                display="flex" 
-                justifyContent="flex-end" 
-                alignItems="center" 
-                marginBottom={2}
+            <Box
+                display="flex"
+                justifyContent="flex-end"
+                alignItems="center"
+                marginY={2}
             >
                 <Button
                     variant="contained"
@@ -33,6 +36,6 @@ export const CreatingLayout: React.FC<ICreatingLayoutProps> = ({ children, onSav
                     {'Сохранить и добавить другой объект'}
                 </Button>
             </Box>
-        </>
+        </Box>
     )
 }

@@ -2,6 +2,10 @@ export type IDType = string | number
 
 export type ErrorType = string | null
 
+export interface IdentifiedEntity {
+  id: IDType
+}
+
 export interface ICity extends INonIDCity {
   id: IDType
 }
@@ -27,7 +31,6 @@ export interface IGroup extends INonIDGroup {
   id: IDType
 }
 
-
 export interface INonIDGroup {
   id?: IDType
   year: number
@@ -36,17 +39,57 @@ export interface INonIDGroup {
   schoolId: IDType
 }
 
-export interface IUser extends INonIDUser {
+export interface ICoach extends INonIDGroup {
   id: IDType
 }
 
-export interface INonIDUser {
+export interface INonIDCoach {
+  id?: IDType
+}
+
+export interface INews extends INonIDNews {
+  id: IDType
+}
+
+export interface INonIDNews {
+  id?: IDType
+}
+
+export interface ICoach extends INonIDGroup {
+  id: IDType
+}
+
+export interface INonIDCoach {
+  id?: IDType
+}
+
+export interface IStudent extends INonIDStudent {
+  id: IDType
+}
+
+export interface INonIDStudent {
   id?: IDType
   email: string
   isActive: boolean
   isSuperUser: boolean
   isStaff: boolean
   cityId: IDType
+}
+
+export interface INonIDStatistics {
+  id?: IDType
+}
+
+export interface IStatistics extends INonIDStatistics {
+  id: IDType
+}
+
+export interface INonIDTournament {
+  id?: IDType
+}
+
+export interface ITournament extends INonIDTournament {
+  id: IDType
 }
 
 export interface ILoginCredentials {

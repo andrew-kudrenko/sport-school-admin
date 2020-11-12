@@ -1,5 +1,5 @@
 import { Action } from "redux"
-import { ErrorType, ICity } from "./entities.interfaces"
+import { ErrorType, ICity, ICoach, IGroup, INews, ISchool, IStatistics, IStudent, ITournament } from "./entities.interfaces"
 
 export interface IAction<T = any> extends Action {
   payload?: T
@@ -40,4 +40,11 @@ export interface IAuthState {
 export interface IState {
   auth: IAuthState
   cities: IStatePartial<ICity>
+  coaches: IStatePartial<ICoach>
+  groups: IStatePartial<IGroup>
+  students: IStatePartial<IStudent>
+  statistics: IStatePartial<IStatistics>
+  tournaments: IStatePartial<ITournament>
+  news: IStatePartial<INews>
+  schools: IStatePartial<ISchool>
 }
