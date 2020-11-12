@@ -10,6 +10,7 @@ export const fetchSchools = () => async (dispatch: Dispatch) => {
   try {
     dispatch(setSchoolsFetchingError(null))
     dispatch(setSchoolsFetching(true))
+    
     const schools: Array<ISchool> = await requestJSONAuth('/structures/schools')
 
     if (!Array.isArray(schools)) {
@@ -29,9 +30,8 @@ export const setSchoolAddingError = (payload: ErrorType): IAction<ErrorType> => 
 export const addSchool = (city: INonIDSchool) => async (dispatch: Dispatch<any>) => {
   try {
     dispatch(setSchoolAdding(true))
-    await requestJSONAuth('/structures/schools', 'POST', city)
-    dispatch({ type: ADD_SCHOOL, payload: city })
-    dispatch(fetchSchools())
+    const response: ISchool = await requestJSONAuth('/structures/schools', 'POST', city)
+    dispatch({ type: ADD_SCHOOL, payload: response })
   } catch (e) {
     dispatch(setSchoolAddingError(e instanceof Error ? e.message : String(e)))
   } finally {
@@ -54,8 +54,6 @@ export const removeSchool = (id: IDType | Array<IDType>) => async (dispatch: Dis
       await requestJSONAuth(`/structures/schools/${id}`, 'DELETE', id)
       dispatch({ type: REMOVE_SCHOOL, payload: id })
     }
-
-    dispatch(fetchSchools())
   } catch (e) {
     dispatch(setSchoolRemovingError(e instanceof Error ? e.message : String(e)))
   } finally {

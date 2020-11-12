@@ -50,5 +50,5 @@ export function useSelected() {
         }
     }
 
-    return { selected, select, unselect, has, allSelected, onToggle, onToggleAll }
+    return { selected, has, allSelected, onToggle, onToggleAll }
 }

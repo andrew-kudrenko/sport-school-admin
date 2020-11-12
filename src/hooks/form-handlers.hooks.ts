@@ -9,5 +9,11 @@ export function useFormHandlers() {
         }
     }
 
-    return { onChange }
+    function onSelect(callback: EventHandlerType) {
+        return (event: ChangeEvent<{ value: unknown }>) => {
+            callback(event.target.value as string)
+        }
+    }
+
+    return { onChange, onSelect }
 }

@@ -1,4 +1,4 @@
-export type IDType = string | number
+export type IDType = number
 
 export type ErrorType = string | null
 
@@ -24,7 +24,7 @@ export interface INonIDSchool {
   name: string
   address: string
   description: string
-  cityId: IDType
+  city_id: IDType
 }
 
 export interface IGroup extends INonIDGroup {

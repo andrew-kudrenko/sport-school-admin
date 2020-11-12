@@ -10,6 +10,7 @@ export const fetchCities = () => async (dispatch: Dispatch) => {
   try {
     dispatch(setCitiesFetchingError(null))
     dispatch(setCitiesFetching(true))
+
     const cities: Array<ICity> = await requestJSONAuth('/structures/cities')
 
     if (!Array.isArray(cities)) {
@@ -29,9 +30,8 @@ export const setCityAddingError = (payload: ErrorType): IAction<ErrorType> => ({
 export const addCity = (city: INonIDCity) => async (dispatch: Dispatch<any>) => {
   try {
     dispatch(setCityAdding(true))
-    await requestJSONAuth('/structures/cities', 'POST', city)
-    dispatch({ type: ADD_CITY, payload: city })
-    dispatch(fetchCities())
+    const response: ICity = await requestJSONAuth('/structures/cities', 'POST', city)
+    dispatch({ type: ADD_CITY, payload: response })
   } catch (e) {
     dispatch(setCityAddingError(e instanceof Error ? e.message : String(e)))
   } finally {
@@ -54,8 +54,6 @@ export const removeCity = (id: IDType | Array<IDType>) => async (dispatch: Dispa
       await requestJSONAuth(`/structures/cities/${id}`, 'DELETE', id)
       dispatch({ type: REMOVE_CITY, payload: id })
     }
-
-    dispatch(fetchCities())
   } catch (e) {
     dispatch(setCityRemovingError(e instanceof Error ? e.message : String(e)))
   } finally {
