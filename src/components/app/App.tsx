@@ -16,7 +16,7 @@ export const App: React.FC = () => {
     if (authorized) {
       dispatch(fetchCities())
     }
-  }, [authorized])
+  }, [authorized, dispatch])
 
   return (
     !authorized

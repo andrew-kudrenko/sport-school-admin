@@ -2,12 +2,20 @@ export type IDType = string | number
 
 export type ErrorType = string | null
 
-export interface ICity {
-  id?: IDType
+export interface ICity extends INonIDCity {
+  id: IDType
+}
+
+export interface INonIDCity {
+  id?: IDType | undefined
   name: string
 }
 
-export interface ISchool {
+export interface ISchool extends INonIDSchool {
+  id: IDType
+}
+
+export interface INonIDSchool {
   id?: IDType
   name: string
   address: string
@@ -15,7 +23,12 @@ export interface ISchool {
   cityId: IDType
 }
 
-export interface IGroup {
+export interface IGroup extends INonIDGroup {
+  id: IDType
+}
+
+
+export interface INonIDGroup {
   id?: IDType
   year: number
   schedule: string
@@ -23,7 +36,11 @@ export interface IGroup {
   schoolId: IDType
 }
 
-export interface IUser {
+export interface IUser extends INonIDUser {
+  id: IDType
+}
+
+export interface INonIDUser {
   id?: IDType
   email: string
   isActive: boolean

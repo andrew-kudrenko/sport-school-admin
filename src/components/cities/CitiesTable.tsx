@@ -16,7 +16,7 @@ import { IDType } from '../../interfaces/entities.interfaces'
 const StyledTableCell = withStyles((theme: Theme) =>
   createStyles({
     head: {
-      backgroundColor: theme.palette.common.black,
+      backgroundColor: theme.palette.primary.main,
       color: theme.palette.common.white,
     },
     body: {
@@ -44,20 +44,29 @@ const useStyles = makeStyles({
 export const CitiesTable: React.FC = () => {
   const classes = useStyles()
   const { list } = useSelector((state: IState) => state.cities)
-
+  
   const { selected, select, unselect, has } = useSelected()
-
+  
+  const allSelected: boolean = list.length === selected.length
+  
   const onToggleAll = () => {
-    const keys: Array<IDType> = list.map(c => c.id as IDType)
+    const keys: Array<IDType> = list.map(c => c.id)
 
-    if (!selected) {
+    if (!allSelected) {
       select(keys)
     } else {
       unselect(keys)
     }
   }
 
-  const allSelected: boolean = list.length === selected.length
+  const onToggle = (id: IDType) => {
+    if (selected.includes(id)) {
+      unselect(id)
+    } else {
+      select(id)
+    }
+  }
+
 
   return (
     <TableContainer component={Paper}>
@@ -80,9 +89,10 @@ export const CitiesTable: React.FC = () => {
             <StyledTableRow key={city.id}>
               <StyledTableCell component="th" scope="row">
                 <Checkbox
-                  checked={has(city?.id)}
-                  onClick={select.bind(null, city.id as IDType)}
-                />              </StyledTableCell>
+                  checked={has(city.id)}
+                  onClick={onToggle.bind(null, city.id)}
+                />
+              </StyledTableCell>
               <StyledTableCell component="th" scope="row">
                 {city.name}
               </StyledTableCell>
