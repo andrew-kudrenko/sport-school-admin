@@ -1,4 +1,4 @@
-export type IDType = number
+export type IDType = string
 
 export type ErrorType = string | null
 

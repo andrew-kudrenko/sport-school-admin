@@ -1,4 +1,5 @@
-import { ErrorType, IdentifiedEntity, IDType } from "./entities.interfaces";
+import { ButtonProps } from "@material-ui/core"
+import { ErrorType, IdentifiedEntity, IDType } from "./entities.interfaces"
 
 export interface INavProps {
   open: boolean
@@ -65,4 +66,23 @@ export interface IEnhancedTableProps<T extends IdentifiedEntity> {
   rows: Array<T>
   headCells: Array<IHeadCell<T>>
   title: string
+}
+
+export type EditorModeType = 'edit' | 'add'
+
+export interface IEditorFormProps {
+  redirectTo: string
+  title: string
+  mode: EditorModeType
+  isValid: boolean
+  onAdd: () => void
+  onRemove?: () => void
+  onClearAll: () => void
+  pending: boolean
+}
+
+export interface InteractiveButtonProps extends ButtonProps {
+  success: boolean
+  loading: boolean
+  onClick: () => void
 }
