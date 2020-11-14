@@ -1,44 +1,29 @@
 import React from 'react'
-import { useSelector } from 'react-redux'
-import { CheckableTableHeader } from '../../components/tables/CheckableTableHeader'
-import { CheckableTableRow } from '../../components/tables/CheckableTableRow'
-import { StyledTableCell } from '../../components/tables/StyledTableCell'
-import { TableTemplate } from '../../components/tables/TableTemplate'
-import { useSelected } from '../../hooks/selected.hook'
+import { useDispatch, useSelector } from 'react-redux'
+import { EnhancedTable } from '../../components/tables/EnhancedTable'
+import {  IHeadCell, RemoveCallbackType } from '../../interfaces/components.interfaces'
+import { ICity } from '../../interfaces/entities.interfaces'
 import { IState } from '../../interfaces/redux.interfaces'
+import { removeCity } from '../../redux/actions/cities.actions'
 
-export const ManageCitiesView: React.FC = () => {
+const headCells: Array<IHeadCell<ICity>> = [
+    { id: 'name', label: 'Название', numeric: false }
+]
+
+export const ManageCitiesView: React.FC = (props) => {
+    const dispatch = useDispatch()
     const { list } = useSelector((state: IState) => state.cities)
-    const { allSelected, onToggleAll, has, onToggle } = useSelected()
+
+    const onRemove: RemoveCallbackType = id => {
+        dispatch(removeCity(id))
+    }
 
     return (
-        <>
-            <TableTemplate
-                header={
-                    <CheckableTableHeader
-                        allSelected={allSelected(list)}
-                        onToggleAll={onToggleAll.bind(null, list)}
-                    >
-                        <StyledTableCell>
-                            {'Название'}
-                        </StyledTableCell>
-                    </CheckableTableHeader>
-                }
-            >
-                {
-                    list.map(c =>
-                        <CheckableTableRow
-                            key={c.id}
-                            checked={has(c.id)}
-                            onToggle={onToggle.bind(null, c.id)}
-                        >
-                            <StyledTableCell>
-                                {c.name}
-                            </StyledTableCell>
-                        </CheckableTableRow>
-                    )
-                }
-            </TableTemplate>
-        </>
+        <EnhancedTable<ICity>
+            headCells={headCells}
+            rows={list}
+            title={'Список городов'}
+            onRemove={onRemove}
+        />
     )
 }
