@@ -14,7 +14,7 @@ export const groupsReducer: ReducerType<IStatePartial<IGroup>> = (state = initia
         case SET_GROUP_ADDING: return { ...state, loading: { ...state.loading, create: payload } }
         case SET_GROUP_ADDING_ERROR: return { ...state, error: { ...state.error, create: payload } }
 
-        case REMOVE_GROUP: return { ...state, list: state.list.filter(c => c.id !== payload) }
+        case REMOVE_GROUP: return { ...state, list: state.list.filter(c => c.id.toString() !== payload) }
         case SET_GROUP_REMOVING: return { ...state, loading: { ...state.loading, delete: payload } }
         case SET_GROUP_REMOVING_ERROR: return { ...state, error: { ...state.error, delete: payload } }
 

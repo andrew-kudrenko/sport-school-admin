@@ -14,7 +14,7 @@ export const studentsReducer: ReducerType<IStatePartial<IStudent>> = (state = in
         case SET_STUDENT_ADDING: return { ...state, loading: { ...state.loading, create: payload } }
         case SET_STUDENT_ADDING_ERROR: return { ...state, error: { ...state.error, create: payload } }
 
-        case REMOVE_STUDENT: return { ...state, list: state.list.filter(c => c.id !== payload) }
+        case REMOVE_STUDENT: return { ...state, list: state.list.filter(c => c.id.toString() !== payload) }
         case SET_STUDENT_REMOVING: return { ...state, loading: { ...state.loading, delete: payload } }
         case SET_STUDENT_REMOVING_ERROR: return { ...state, error: { ...state.error, delete: payload } }
 

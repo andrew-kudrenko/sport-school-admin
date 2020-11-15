@@ -68,6 +68,8 @@ export const EditorFormLayout: React.FC<IEditorFormProps> = ({ isValid, title, r
                                     className={classes.submit}
                                     onClick={onRemove}
                                     disabled={loading.delete}
+                                    component={NavLink}
+                                    to={redirectTo}    
                                 >
                                     {'Удалить'}
                                 </Button>
