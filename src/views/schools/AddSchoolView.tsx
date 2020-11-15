@@ -36,7 +36,7 @@ export const AddSchoolView: React.FC = () => {
             onAdd={onAdd}
             onClearAll={onClearAll}
             isValid={isValid}
-            redirectTo="/schools"
+            redirectTo="/schools/"
             title="Добавить школу"
             pending={loading.create}
         >

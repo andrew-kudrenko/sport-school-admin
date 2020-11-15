@@ -86,3 +86,7 @@ export interface InteractiveButtonProps extends ButtonProps {
   loading: boolean
   onClick: () => void
 }
+
+export interface IEntityEditorProps {
+  mode: EditorModeType
+}

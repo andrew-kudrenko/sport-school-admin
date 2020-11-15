@@ -1,10 +1,12 @@
 import React from 'react'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-import { TableHead, TableRow, TableCell, Checkbox, TableSortLabel, Paper, TableContainer, Table, TableBody, TablePagination } from '@material-ui/core'
+import { TableHead, TableRow, TableCell, Checkbox, TableSortLabel, Paper, TableContainer, Table, TableBody, TablePagination, IconButton, Tooltip } from '@material-ui/core'
+import { EditOutlined } from '@material-ui/icons'
 import { IdentifiedEntity } from '../../interfaces/entities.interfaces'
 import { useSelected } from '../../hooks/selected.hook'
 import { EnhancedTableToolbar } from './EnhancedTableToolbar'
 import { IEnhancedTableHeadProps, IEnhancedTableProps, OrderType } from '../../interfaces/components.interfaces'
+import { NavLink } from 'react-router-dom'
 
 export function EnhancedTableHead<T extends IdentifiedEntity>(props: IEnhancedTableHeadProps<T>) {
   const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort, headCells } = props
@@ -147,6 +149,13 @@ export function EnhancedTable<T extends IdentifiedEntity>(props: IEnhancedTableP
                         <Checkbox checked={isItemSelected} />
                       </TableCell>
                         {headCells.map(cell => <TableCell key={cell.id.toString()}>{row[cell.id]}</TableCell>)}
+                      <TableCell padding="checkbox" align="right">
+                        <Tooltip title="Редактировать">
+                          <IconButton component={NavLink} to={`edit/${row.id}`}>
+                            <EditOutlined fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                    </TableCell>
                     </TableRow>
                   )
                 })}
