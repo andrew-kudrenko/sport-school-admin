@@ -2,7 +2,7 @@ import { Dispatch } from "redux"
 import { requestJSONAuth } from "../../helpers/request.hepler"
 import { ErrorType, IGroup, IDType, INonIDGroup } from "../../interfaces/entities.interfaces"
 import { IAction } from "../../interfaces/redux.interfaces"
-import { ADD_GROUP, FETCH_GROUPS, REMOVE_GROUP, SET_GROUPS_FETCHING, SET_GROUPS_FETCHING_ERROR, SET_GROUP_ADDING, SET_GROUP_ADDING_ERROR, SET_GROUP_REMOVING, SET_GROUP_REMOVING_ERROR } from "../types/groups.types"
+import { ADD_GROUP, FETCH_GROUPS, MODIFY_GROUP, REMOVE_GROUP, SET_GROUPS_FETCHING, SET_GROUPS_FETCHING_ERROR, SET_GROUP_ADDING, SET_GROUP_ADDING_ERROR, SET_GROUP_REMOVING, SET_GROUP_REMOVING_ERROR } from "../types/groups.types"
 
 export const setGroupsFetching = (payload: boolean): IAction<boolean> => ({ type: SET_GROUPS_FETCHING, payload })
 export const setGroupsFetchingError = (payload: ErrorType): IAction<ErrorType> => ({ type: SET_GROUPS_FETCHING_ERROR, payload })
@@ -65,11 +65,11 @@ export const removeGroup = (id: IDType | Array<IDType>) => async (dispatch: Disp
 
 export const setGroupModifying = (payload: boolean): IAction<boolean> => ({ type: SET_GROUP_ADDING, payload })
 export const setGroupModifyingError = (payload: ErrorType): IAction<ErrorType> => ({ type: SET_GROUP_ADDING_ERROR, payload })
-export const modifyGroup = (city: INonIDGroup) => async (dispatch: Dispatch) => {
+export const modifyGroup = (group: INonIDGroup) => async (dispatch: Dispatch) => {
   try {
     dispatch(setGroupModifying(true))
-    await requestJSONAuth(`/structures/groups/${city.id}`, 'PUT', city)
-    dispatch({ type: REMOVE_GROUP, payload: city })
+    const payload: IGroup = await requestJSONAuth(`/structures/groups/${group.id}`, 'PUT', group)
+    dispatch({ type: MODIFY_GROUP, payload })
   } catch (e) {
     dispatch(setGroupModifyingError(e instanceof Error ? e.message : String(e)))
   } finally {

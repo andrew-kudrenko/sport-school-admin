@@ -2,7 +2,7 @@ import { Dispatch } from "redux"
 import { requestJSONAuth } from "../../helpers/request.hepler"
 import { ErrorType, INews, IDType, INonIDNews } from "../../interfaces/entities.interfaces"
 import { IAction } from "../../interfaces/redux.interfaces"
-import { ADD_NEWS, FETCH_NEWS, REMOVE_NEWS, SET_NEWS_FETCHING, SET_NEWS_FETCHING_ERROR, SET_NEWS_ADDING, SET_NEWS_ADDING_ERROR, SET_NEWS_REMOVING, SET_NEWS_REMOVING_ERROR } from "../types/news.types"
+import { ADD_NEWS, FETCH_NEWS, REMOVE_NEWS, SET_NEWS_FETCHING, SET_NEWS_FETCHING_ERROR, SET_NEWS_ADDING, SET_NEWS_ADDING_ERROR, SET_NEWS_REMOVING, SET_NEWS_REMOVING_ERROR, MODIFY_NEWS } from "../types/news.types"
 
 export const setNewsFetching = (payload: boolean): IAction<boolean> => ({ type: SET_NEWS_FETCHING, payload })
 export const setNewsFetchingError = (payload: ErrorType): IAction<ErrorType> => ({ type: SET_NEWS_FETCHING_ERROR, payload })
@@ -65,11 +65,11 @@ export const removeNews = (id: IDType | Array<IDType>) => async (dispatch: Dispa
 
 export const setNewsModifying = (payload: boolean): IAction<boolean> => ({ type: SET_NEWS_ADDING, payload })
 export const setNewsModifyingError = (payload: ErrorType): IAction<ErrorType> => ({ type: SET_NEWS_ADDING_ERROR, payload })
-export const modifyNews = (city: INonIDNews) => async (dispatch: Dispatch) => {
+export const modifyNews = (news: INonIDNews) => async (dispatch: Dispatch) => {
   try {
     dispatch(setNewsModifying(true))
-    await requestJSONAuth(`/structures/news/${city.id}`, 'PUT', city)
-    dispatch({ type: REMOVE_NEWS, payload: city })
+    const payload: INews = await requestJSONAuth(`/structures/news/${news.id}`, 'PUT', news)
+    dispatch({ type: MODIFY_NEWS, payload })
   } catch (e) {
     dispatch(setNewsModifyingError(e instanceof Error ? e.message : String(e)))
   } finally {

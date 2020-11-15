@@ -2,7 +2,7 @@ import { Dispatch } from "redux"
 import { requestJSONAuth } from "../../helpers/request.hepler"
 import { ErrorType, ITournament, IDType, INonIDTournament } from "../../interfaces/entities.interfaces"
 import { IAction } from "../../interfaces/redux.interfaces"
-import { ADD_TOURNAMENT, FETCH_TOURNAMENTS, REMOVE_TOURNAMENT, SET_TOURNAMENTS_FETCHING, SET_TOURNAMENTS_FETCHING_ERROR, SET_TOURNAMENT_ADDING, SET_TOURNAMENT_ADDING_ERROR, SET_TOURNAMENT_REMOVING, SET_TOURNAMENT_REMOVING_ERROR } from "../types/tournaments.types"
+import { ADD_TOURNAMENT, FETCH_TOURNAMENTS, MODIFY_TOURNAMENT, REMOVE_TOURNAMENT, SET_TOURNAMENTS_FETCHING, SET_TOURNAMENTS_FETCHING_ERROR, SET_TOURNAMENT_ADDING, SET_TOURNAMENT_ADDING_ERROR, SET_TOURNAMENT_REMOVING, SET_TOURNAMENT_REMOVING_ERROR } from "../types/tournaments.types"
 
 export const setTournamentsFetching = (payload: boolean): IAction<boolean> => ({ type: SET_TOURNAMENTS_FETCHING, payload })
 export const setTournamentsFetchingError = (payload: ErrorType): IAction<ErrorType> => ({ type: SET_TOURNAMENTS_FETCHING_ERROR, payload })
@@ -65,11 +65,11 @@ export const removeTournament = (id: IDType | Array<IDType>) => async (dispatch:
 
 export const setTournamentModifying = (payload: boolean): IAction<boolean> => ({ type: SET_TOURNAMENT_ADDING, payload })
 export const setTournamentModifyingError = (payload: ErrorType): IAction<ErrorType> => ({ type: SET_TOURNAMENT_ADDING_ERROR, payload })
-export const modifyTournament = (city: INonIDTournament) => async (dispatch: Dispatch) => {
+export const modifyTournament = (tournament: INonIDTournament) => async (dispatch: Dispatch) => {
   try {
     dispatch(setTournamentModifying(true))
-    await requestJSONAuth(`/structures/tournaments/${city.id}`, 'PUT', city)
-    dispatch({ type: REMOVE_TOURNAMENT, payload: city })
+    const payload: ITournament = await requestJSONAuth(`/structures/tournaments/${tournament.id}`, 'PUT', tournament)
+    dispatch({ type: MODIFY_TOURNAMENT, payload })
   } catch (e) {
     dispatch(setTournamentModifyingError(e instanceof Error ? e.message : String(e)))
   } finally {

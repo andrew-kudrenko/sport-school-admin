@@ -2,7 +2,7 @@ import { Dispatch } from "redux"
 import { requestJSONAuth } from "../../helpers/request.hepler"
 import { ErrorType, ISchool, IDType, INonIDSchool } from "../../interfaces/entities.interfaces"
 import { IAction } from "../../interfaces/redux.interfaces"
-import { ADD_SCHOOL, FETCH_SCHOOLS, REMOVE_SCHOOL, SET_SCHOOLS_FETCHING, SET_SCHOOLS_FETCHING_ERROR, SET_SCHOOL_ADDING, SET_SCHOOL_ADDING_ERROR, SET_SCHOOL_REMOVING, SET_SCHOOL_REMOVING_ERROR } from "../types/schools.types"
+import { ADD_SCHOOL, FETCH_SCHOOLS, MODIFY_SCHOOL, REMOVE_SCHOOL, SET_SCHOOLS_FETCHING, SET_SCHOOLS_FETCHING_ERROR, SET_SCHOOL_ADDING, SET_SCHOOL_ADDING_ERROR, SET_SCHOOL_REMOVING, SET_SCHOOL_REMOVING_ERROR } from "../types/schools.types"
 
 export const setSchoolsFetching = (payload: boolean): IAction<boolean> => ({ type: SET_SCHOOLS_FETCHING, payload })
 export const setSchoolsFetchingError = (payload: ErrorType): IAction<ErrorType> => ({ type: SET_SCHOOLS_FETCHING_ERROR, payload })
@@ -63,11 +63,11 @@ export const removeSchool = (id: IDType | Array<IDType>) => async (dispatch: Dis
 
 export const setSchoolModifying = (payload: boolean): IAction<boolean> => ({ type: SET_SCHOOL_ADDING, payload })
 export const setSchoolModifyingError = (payload: ErrorType): IAction<ErrorType> => ({ type: SET_SCHOOL_ADDING_ERROR, payload })
-export const modifySchool = (city: INonIDSchool) => async (dispatch: Dispatch) => {
+export const modifySchool = (school: INonIDSchool) => async (dispatch: Dispatch) => {
   try {
     dispatch(setSchoolModifying(true))
-    await requestJSONAuth(`/structures/schools/${city.id}`, 'PUT', city)
-    dispatch({ type: REMOVE_SCHOOL, payload: city })
+    const payload: ISchool = await requestJSONAuth(`/structures/schools/${school.id}`, 'PUT', school)
+    dispatch({ type: MODIFY_SCHOOL, payload })
   } catch (e) {
     dispatch(setSchoolModifyingError(e instanceof Error ? e.message : String(e)))
   } finally {
