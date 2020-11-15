@@ -63,6 +63,21 @@ export interface INonIDCoach {
   id?: IDType
 }
 
+export interface INonIDUser {
+  id?: IDType
+  login: string
+  name: string
+  is_trainer: boolean
+  is_child: boolean
+  is_verify: boolean
+  was_activate: boolean
+  city_id: IDType
+  address: string
+  tel: string
+  date_joined: string
+  school_id: IDType
+}
+
 export interface IStudent extends INonIDStudent {
   id: IDType
 }

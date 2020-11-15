@@ -1,5 +1,5 @@
+import React, { useEffect, useState } from 'react'
 import { Grid, TextField, Select, MenuItem } from '@material-ui/core'
-import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { EditorFormLayout } from '../../components/layouts/EditorFormLayout'
@@ -10,6 +10,8 @@ import { IState } from '../../interfaces/redux.interfaces'
 import { addSchool, modifySchool, removeSchool } from '../../redux/actions/schools.actions'
 
 export const SchoolsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
+    const editing = mode === 'edit'
+
     const { id } = useParams<{ id?: IDType }>()
     const { onChange, onSelect } = useFormHandlers()
 
@@ -20,7 +22,7 @@ export const SchoolsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
 
     const dispatch = useDispatch()
     const { list: cities } = useSelector((state: IState) => state.cities)
-    const { loading } = useSelector((state: IState) => state.schools)
+    const { loading, list: schools } = useSelector((state: IState) => state.schools)
 
     const isValid: boolean = !!name && !!address && !!description && !!city
 
@@ -33,13 +35,28 @@ export const SchoolsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
 
     const onAdd = dispatch.bind(null, addSchool({ name, city_id: city as string, address, description }))
 
-    const onModify = dispatch.bind(null, modifySchool({ name, city_id: city as string, address, description }))
+    let onModify = () => {}
+
+    if (editing && id) {
+        onModify = dispatch.bind(null, modifySchool(id, { name, city_id: city as string, address, description }))
+    }
 
     let onRemove = () => {}
 
-    if (mode === 'edit' && !!id?.toString()) {
+    if (editing && !!id?.toString()) {
         onRemove = dispatch.bind(null, removeSchool(id))
     }
+
+    useEffect(() => {
+        const school = schools.find(c => c.id.toString() === id)
+
+        if (editing && school) {
+            setName(school.name)    
+            setCity(school.city_id)    
+            setDescription(school.description)    
+            setAddress(school.address)    
+        }
+    }, [])
 
     return (
         <EditorFormLayout

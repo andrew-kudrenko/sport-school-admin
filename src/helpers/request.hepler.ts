@@ -46,6 +46,10 @@ function createRequest(headers: IRequestHeaders, token: string | null = null) {
     }
 
     async function requestJSON<T = any>(endPoint: string, method: HTTPMethodType = 'GET', body: any = null): Promise<T> {
+        if (token) {
+            await requestBase<any>(headers.json, '/auth/jwt/refresh', 'POST', null)
+        }
+
         if (body) {
             return await requestBase<T>(headers.json, endPoint, method, JSON.stringify(body))
         } else {
@@ -54,6 +58,10 @@ function createRequest(headers: IRequestHeaders, token: string | null = null) {
     }
 
     async function requestFormData<T = any>(endPoint: string, method: HTTPMethodType = 'GET', body: any = null): Promise<T> {
+        if (token) {
+            await requestBase<any>(headers.formData, '/auth/jwt/refresh', 'POST', null)
+        }
+
         if (body) {
             return await requestBase<T>(headers.formData, endPoint, method, body)
         } else {

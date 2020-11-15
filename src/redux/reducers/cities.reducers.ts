@@ -14,7 +14,7 @@ export const citiesReducer: ReducerType<IStatePartial<ICity>> = (state = initial
         case SET_CITY_ADDING: return { ...state, loading: { ...state.loading, create: payload } }
         case SET_CITY_ADDING_ERROR: return { ...state, error: { ...state.error, create: payload } }
 
-        case REMOVE_CITY: return { ...state, list: state.list.filter(c => c.id.toString() !== payload) }
+        case REMOVE_CITY: return { ...state, list: state.list.filter(c => c.id.toString() !== payload.toString()) }
         case SET_CITY_REMOVING: return { ...state, loading: { ...state.loading, delete: payload } }
         case SET_CITY_REMOVING_ERROR: return { ...state, error: { ...state.error, delete: payload } }
 

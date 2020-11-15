@@ -1,7 +1,7 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { IdentifiedEntity, IDType } from "../interfaces/entities.interfaces"
 
-export function useSelected() {
+export function useSelected(observable: Array<IdentifiedEntity>) {
     const [selected, setSelected] = useState<Array<IDType>>([])
 
     function select(id: IDType | Array<IDType>) {
@@ -49,6 +49,10 @@ export function useSelected() {
             select(id)
         }
     }
+    
+    useEffect(() => {
+        setSelected(selected.filter(s => observable.find(o => o.id === s)))
+    }, [observable])
 
     return { selected, has, allSelected, onToggle, onToggleAll }
 }

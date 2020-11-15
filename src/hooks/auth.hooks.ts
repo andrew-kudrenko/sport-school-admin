@@ -36,7 +36,7 @@ export function useAuth() {
       cachedData.token = token
       localStorage.setItem(collectionName, JSON.stringify(cachedData))
     }
-  }, [authorized])
+  }, [authorized, dispatch, token])
 
   return { authorized, token, login, logout }
 }

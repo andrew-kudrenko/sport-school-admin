@@ -63,10 +63,10 @@ export const removeSchool = (id: IDType | Array<IDType>) => async (dispatch: Dis
 
 export const setSchoolModifying = (payload: boolean): IAction<boolean> => ({ type: SET_SCHOOL_ADDING, payload })
 export const setSchoolModifyingError = (payload: ErrorType): IAction<ErrorType> => ({ type: SET_SCHOOL_ADDING_ERROR, payload })
-export const modifySchool = (school: INonIDSchool) => async (dispatch: Dispatch) => {
+export const modifySchool = (id: IDType, school: INonIDSchool) => async (dispatch: Dispatch) => {
   try {
     dispatch(setSchoolModifying(true))
-    const payload: ISchool = await requestJSONAuth(`/structures/schools/${school.id}`, 'PUT', school)
+    const payload: ISchool = await requestJSONAuth(`/structures/schools/${id}`, 'PUT', school)
     dispatch({ type: MODIFY_SCHOOL, payload })
   } catch (e) {
     dispatch(setSchoolModifyingError(e instanceof Error ? e.message : String(e)))

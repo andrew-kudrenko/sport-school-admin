@@ -85,7 +85,7 @@ export function EnhancedTable<T extends IdentifiedEntity>(props: IEnhancedTableP
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(5)
 
-  const { selected, onToggle, onToggleAll, has } = useSelected()
+  const { selected, onToggle, onToggleAll, has } = useSelected(rows)
 
   const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof T) => {
     const isAsc = orderBy === property && order === 'asc'

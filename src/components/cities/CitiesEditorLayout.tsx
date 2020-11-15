@@ -10,6 +10,8 @@ import { useParams } from 'react-router-dom'
 import { IDType } from '../../interfaces/entities.interfaces'
 
 export const CitiesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
+    const editing = mode === 'edit'
+
     const { id } = useParams<{ id?: IDType }>()
     const { list: cities } = useSelector((state: IState) => state.cities)
     const [name, setName] = useState('')
@@ -29,14 +31,14 @@ export const CitiesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
     
     let onRemove = () => {}
 
-    if (mode === 'edit' && !!id?.toString()) {
+    if (editing && !!id?.toString()) {
         onRemove = dispatch.bind(null, removeCity(id))
     }
 
     useEffect(() => {
         const city = cities.find(c => c.id.toString() === id)
 
-        if (city) {
+        if (editing && city) {
             setName(city.name)    
         }
     }, [])
