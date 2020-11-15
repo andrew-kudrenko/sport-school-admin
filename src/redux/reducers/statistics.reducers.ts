@@ -18,7 +18,7 @@ export const statisticsReducer: ReducerType<IStatePartial<IStatistics>> = (state
         case SET_STATISTICS_REMOVING: return { ...state, loading: { ...state.loading, delete: payload } }
         case SET_STATISTICS_REMOVING_ERROR: return { ...state, error: { ...state.error, delete: payload } }
 
-        case MODIFY_STATISTICS: return { ...state, list: state.list.filter(c => c.id !== payload.id).concat(payload) }
+        case MODIFY_STATISTICS: return { ...state, list: state.list.map(c => c.id !== payload.id ? c : { ...c, ...payload }) }
         case SET_STATISTICS_MODIFYING: return { ...state, loading: { ...state.loading, update: payload } }
         case SET_STATISTICS_MODIFYING_ERROR: return { ...state, error: { ...state.error, update: payload } }
 

@@ -18,7 +18,7 @@ export const schoolsReducer: ReducerType<IStatePartial<ISchool>> = (state = init
         case SET_SCHOOL_REMOVING: return { ...state, loading: { ...state.loading, delete: payload } }
         case SET_SCHOOL_REMOVING_ERROR: return { ...state, error: { ...state.error, delete: payload } }
 
-        case MODIFY_SCHOOL: return { ...state, list: state.list.filter(c => c.id !== payload.id).concat(payload) }
+        case MODIFY_SCHOOL: return { ...state, list: state.list.map(c => c.id !== payload.id ? c : { ...c, ...payload }) }
         case SET_SCHOOL_MODIFYING: return { ...state, loading: { ...state.loading, update: payload } }
         case SET_SCHOOL_MODIFYING_ERROR: return { ...state, error: { ...state.error, update: payload } }
 

@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import { Grid, TextField } from '@material-ui/core'
 import { useDispatch, useSelector } from 'react-redux'
-import { useFormHandlers } from '../hooks/form-handlers.hooks'
-import { IEntityEditorProps } from '../interfaces/components.interfaces'
-import { IState } from '../interfaces/redux.interfaces'
-import { addCity, removeCity } from '../redux/actions/cities.actions'
-import { EditorFormLayout } from './layouts/EditorFormLayout'
+import { useFormHandlers } from '../../hooks/form-handlers.hooks'
+import { IEntityEditorProps } from '../../interfaces/components.interfaces'
+import { IState } from '../../interfaces/redux.interfaces'
+import { addCity, modifyCity, removeCity } from '../../redux/actions/cities.actions'
+import { EditorFormLayout } from '../layouts/EditorFormLayout'
 import { useParams } from 'react-router-dom'
-import { IDType } from '../interfaces/entities.interfaces'
+import { IDType } from '../../interfaces/entities.interfaces'
 
-export const CitiesEditorLayout: React.FC<IEntityEditorProps> = ({ mode }) => {
+export const CitiesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
     const { id } = useParams<{ id?: IDType }>()
     const { list: cities } = useSelector((state: IState) => state.cities)
-    console.log(id)
     const [name, setName] = useState('')
 
     const dispatch = useDispatch()
@@ -23,30 +22,36 @@ export const CitiesEditorLayout: React.FC<IEntityEditorProps> = ({ mode }) => {
 
     const onAdd = dispatch.bind(null, addCity({ name }))
 
-    let onRemove
+    let onModify = () => {}
+    if (!!id?.toString()) {
+        onModify = dispatch.bind(null, modifyCity(id, { name }))
+    }
+    
+    let onRemove = () => {}
 
     if (mode === 'edit' && !!id?.toString()) {
         onRemove = dispatch.bind(null, removeCity(id))
     }
 
     useEffect(() => {
-        const city = cities.find(c => c.id === id)
+        const city = cities.find(c => c.id.toString() === id)
 
         if (city) {
             setName(city.name)    
         }
-    }, [cities])
+    }, [])
 
     return (
         <EditorFormLayout
             mode={mode}
             isValid={!!name}
             redirectTo="/cities/"
-            title="Добавить населенный пункт"
-            pending={loading.create}
+            title={title}
+            loading={loading}
             onAdd={onAdd}
             onClearAll={onClearAll}
             onRemove={onRemove}
+            onModify={onModify}
         >
             <Grid container spacing={2}>
                 <Grid item xs={12}>

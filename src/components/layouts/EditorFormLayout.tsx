@@ -24,22 +24,30 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-export const EditorFormLayout: React.FC<IEditorFormProps> = ({ isValid, title, redirectTo, children, onAdd, onRemove, onClearAll, pending, mode = 'edit' }) => {
+export const EditorFormLayout: React.FC<IEditorFormProps> = ({ isValid, title, redirectTo, children, onAdd, onRemove, onModify, onClearAll, loading, mode = 'edit' }) => {
     const classes = useStyles()
 
-    const onAddAndResume = () => {
-        onAdd()
-        onClearAll()
+    const isEditing = mode === 'edit'
+
+    const onSave = isEditing ? onModify : onAdd
+
+    const onSaveAndResume = () => {
+        onSave()
+        if (!isEditing) {
+            onClearAll()
+        }
     }
 
-    const buttonSize = mode === 'add' ? 6 : 4
+    const saveLoading = loading[isEditing ? 'update' : 'create']
+
+    const buttonSize = !isEditing ? 6 : 4
 
     return (
         <Container component="main" maxWidth="sm">
             <div className={classes.paper}>
                 <Avatar className={classes.avatar}>
                     {
-                        mode === 'add'
+                        !isEditing
                             ? <AddOutlined />
                             : <EditOutlined />
                     }
@@ -51,7 +59,7 @@ export const EditorFormLayout: React.FC<IEditorFormProps> = ({ isValid, title, r
                     {children}
                     <Grid container xs={12} spacing={2}>
                         {
-                            mode === 'edit' &&
+                            isEditing &&
                             <Grid item xs={12} sm={buttonSize}>
                                 <Button
                                     fullWidth
@@ -59,6 +67,7 @@ export const EditorFormLayout: React.FC<IEditorFormProps> = ({ isValid, title, r
                                     color="secondary"
                                     className={classes.submit}
                                     onClick={onRemove}
+                                    disabled={loading.delete}
                                 >
                                     {'Удалить'}
                                 </Button>
@@ -70,8 +79,8 @@ export const EditorFormLayout: React.FC<IEditorFormProps> = ({ isValid, title, r
                                 variant="contained"
                                 color="primary"
                                 className={classes.submit}
-                                onClick={onAddAndResume}
-                                disabled={!isValid}
+                                onClick={onSaveAndResume}
+                                disabled={!isValid || saveLoading}
                             >
                                 {'Сохранить и продолжить'}
                             </Button>
@@ -82,8 +91,8 @@ export const EditorFormLayout: React.FC<IEditorFormProps> = ({ isValid, title, r
                                 variant="outlined"
                                 color="primary"
                                 className={classes.submit}
-                                onClick={onAdd}
-                                disabled={!isValid}
+                                onClick={onSave}
+                                disabled={!isValid || saveLoading}
                                 component={NavLink}
                                 to={redirectTo}
                             >

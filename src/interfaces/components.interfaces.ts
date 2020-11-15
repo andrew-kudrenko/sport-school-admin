@@ -1,5 +1,6 @@
 import { ButtonProps } from "@material-ui/core"
 import { ErrorType, IdentifiedEntity, IDType } from "./entities.interfaces"
+import { ICRUDActions } from "./redux.interfaces"
 
 export interface INavProps {
   open: boolean
@@ -76,9 +77,10 @@ export interface IEditorFormProps {
   mode: EditorModeType
   isValid: boolean
   onAdd: () => void
-  onRemove?: () => void
+  onRemove: () => void
+  onModify: () => void
   onClearAll: () => void
-  pending: boolean
+  loading: ICRUDActions<boolean>
 }
 
 export interface InteractiveButtonProps extends ButtonProps {
@@ -89,4 +91,5 @@ export interface InteractiveButtonProps extends ButtonProps {
 
 export interface IEntityEditorProps {
   mode: EditorModeType
+  title: string
 }

@@ -18,7 +18,7 @@ export const coachesReducer: ReducerType<IStatePartial<ICoach>> = (state = initi
         case SET_COACH_REMOVING: return { ...state, loading: { ...state.loading, delete: payload } }
         case SET_COACH_REMOVING_ERROR: return { ...state, error: { ...state.error, delete: payload } }
 
-        case MODIFY_COACH: return { ...state, list: state.list.filter(c => c.id !== payload.id).concat(payload) }
+        case MODIFY_COACH: return { ...state, list: state.list.map(c => c.id !== payload.id ? c : { ...c, ...payload }) }
         case SET_COACH_MODIFYING: return { ...state, loading: { ...state.loading, update: payload } }
         case SET_COACH_MODIFYING_ERROR: return { ...state, error: { ...state.error, update: payload } }
 

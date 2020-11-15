@@ -2,7 +2,7 @@ import { Dispatch } from "redux"
 import { requestJSONAuth } from "../../helpers/request.hepler"
 import { ErrorType, ICity, IDType, INonIDCity } from "../../interfaces/entities.interfaces"
 import { IAction } from "../../interfaces/redux.interfaces"
-import { ADD_CITY, FETCH_CITIES, REMOVE_CITY, SET_CITIES_FETCHING, SET_CITIES_FETCHING_ERROR, SET_CITY_ADDING, SET_CITY_ADDING_ERROR, SET_CITY_REMOVING, SET_CITY_REMOVING_ERROR } from "../types/cities.types"
+import { ADD_CITY, FETCH_CITIES, MODIFY_CITY, REMOVE_CITY, SET_CITIES_FETCHING, SET_CITIES_FETCHING_ERROR, SET_CITY_ADDING, SET_CITY_ADDING_ERROR, SET_CITY_MODIFYING, SET_CITY_MODIFYING_ERROR, SET_CITY_REMOVING, SET_CITY_REMOVING_ERROR } from "../types/cities.types"
 
 export const setCitiesFetching = (payload: boolean): IAction<boolean> => ({ type: SET_CITIES_FETCHING, payload })
 export const setCitiesFetchingError = (payload: ErrorType): IAction<ErrorType> => ({ type: SET_CITIES_FETCHING_ERROR, payload })
@@ -61,13 +61,13 @@ export const removeCity = (id: IDType | Array<IDType>) => async (dispatch: Dispa
   }
 }
 
-export const setCityModifying = (payload: boolean): IAction<boolean> => ({ type: SET_CITY_ADDING, payload })
-export const setCityModifyingError = (payload: ErrorType): IAction<ErrorType> => ({ type: SET_CITY_ADDING_ERROR, payload })
-export const modifyCity = (city: INonIDCity) => async (dispatch: Dispatch) => {
+export const setCityModifying = (payload: boolean): IAction<boolean> => ({ type: SET_CITY_MODIFYING, payload })
+export const setCityModifyingError = (payload: ErrorType): IAction<ErrorType> => ({ type: SET_CITY_MODIFYING_ERROR, payload })
+export const modifyCity = (id: IDType, city: INonIDCity) => async (dispatch: Dispatch) => {
   try {
     dispatch(setCityModifying(true))
-    await requestJSONAuth(`/structures/cities/${city.id}`, 'PUT', city)
-    dispatch({ type: REMOVE_CITY, payload: city })
+    const payload: ICity = await requestJSONAuth(`/structures/cities/${id}`, 'PUT', city)
+    dispatch({ type: MODIFY_CITY, payload })
   } catch (e) {
     dispatch(setCityModifyingError(e instanceof Error ? e.message : String(e)))
   } finally {
