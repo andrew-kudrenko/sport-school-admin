@@ -32,6 +32,8 @@ export const EditorFormLayout: React.FC<IEditorFormProps> = ({ isValid, title, r
         onClearAll()
     }
 
+    const buttonSize = mode === 'add' ? 6 : 4
+
     return (
         <Container component="main" maxWidth="sm">
             <div className={classes.paper}>
@@ -48,18 +50,21 @@ export const EditorFormLayout: React.FC<IEditorFormProps> = ({ isValid, title, r
                 <form className={classes.form} noValidate>
                     {children}
                     <Grid container xs={12} spacing={2}>
-                        <Grid item xs={12} sm={6}>
-                            {
+                        {
+                            mode === 'edit' &&
+                            <Grid item xs={12} sm={buttonSize}>
                                 <Button
                                     fullWidth
-                                    variant="contained"
-                                    color="primary"
+                                    variant="outlined"
+                                    color="secondary"
                                     className={classes.submit}
                                     onClick={onRemove}
                                 >
                                     {'Удалить'}
                                 </Button>
-                            }
+                            </Grid>
+                        }
+                        <Grid item xs={12} sm={buttonSize}>
                             <Button
                                 fullWidth
                                 variant="contained"
@@ -71,10 +76,10 @@ export const EditorFormLayout: React.FC<IEditorFormProps> = ({ isValid, title, r
                                 {'Сохранить и продолжить'}
                             </Button>
                         </Grid>
-                        <Grid item xs={12} sm={6}>
+                        <Grid item xs={12} sm={buttonSize}>
                             <Button
                                 fullWidth
-                                variant="contained"
+                                variant="outlined"
                                 color="primary"
                                 className={classes.submit}
                                 onClick={onAdd}
