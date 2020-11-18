@@ -40,14 +40,18 @@ const headers: IRequestHeaders = {
 function createRequest(headers: IRequestHeaders, token: string | null = null) {
     if (token) {
         Object.keys(headers)
-        .forEach(key => {
-            (headers as any)[key].append('Authorization', `Bearer ${token}`)
-        })
+            .forEach(key => {
+                (headers as any)[key].append('Authorization', `Bearer ${token}`)
+            })
     }
 
     async function requestJSON<T = any>(endPoint: string, method: HTTPMethodType = 'GET', body: any = null): Promise<T> {
-        if (token) {
-            await requestBase<any>(headers.json, '/auth/jwt/refresh', 'POST', null)
+        try {
+            if (token) {
+                await requestBase<any>(headers.json, '/auth/jwt/refresh', 'POST', null)
+            }
+        } catch (e) {
+            localStorage.removeItem('user-data')
         }
 
         if (body) {
@@ -58,20 +62,25 @@ function createRequest(headers: IRequestHeaders, token: string | null = null) {
     }
 
     async function requestFormData<T = any>(endPoint: string, method: HTTPMethodType = 'GET', body: any = null): Promise<T> {
-        if (token) {
-            await requestBase<any>(headers.formData, '/auth/jwt/refresh', 'POST', null)
+        try {
+            if (token) {
+                await requestBase<any>(headers.formData, '/auth/jwt/refresh', 'POST', null)
+            }
+        } catch (e) {
+            localStorage.removeItem('user-data')
         }
 
         if (body) {
             return await requestBase<T>(headers.formData, endPoint, method, body)
         } else {
             return await requestBase<T>(headers.formData, endPoint, method, body)
-        }    }
+        }
+    }
 
     return { requestJSON, requestFormData }
 }
 
-const userData: ICachedUserData | null = JSON.parse(localStorage.getItem('user-data') || 'null') 
+const userData: ICachedUserData | null = JSON.parse(localStorage.getItem('user-data') || 'null')
 const token: string | undefined = userData?.token
 
 export const { requestJSON, requestFormData } = createRequest(headers)

@@ -37,6 +37,15 @@ export interface IAuthState {
   error: IAuthActions<ErrorType>
 }
 
+export enum Themes {
+  Dark,
+  Light
+}
+
+export interface IThemeState {
+  theme: Themes
+}
+
 export interface IState {
   auth: IAuthState
   cities: IStatePartial<ICity>
@@ -47,4 +56,5 @@ export interface IState {
   tournaments: IStatePartial<ITournament>
   news: IStatePartial<INews>
   schools: IStatePartial<ISchool>
+  themes: IThemeState
 }

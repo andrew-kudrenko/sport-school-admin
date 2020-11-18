@@ -7,6 +7,7 @@ import { newsReducer } from "./news.reducers"
 import { schoolsReducer } from "./schools.reducers"
 import { statisticsReducer } from "./statistics.reducers"
 import { studentsReducer } from "./students.reducers"
+import { themesReducer } from "./themes.reducers"
 import { tournamentsReducer } from "./tournamets.actions"
 
 export const rootReducer = combineReducers({
@@ -18,5 +19,6 @@ export const rootReducer = combineReducers({
     students: studentsReducer,
     statistics: statisticsReducer,
     tournaments: tournamentsReducer,
-    coaches: coachesReducer
+    coaches: coachesReducer,
+    themes: themesReducer
 })

@@ -101,6 +101,10 @@ export interface IStatistics extends INonIDStatistics {
 
 export interface INonIDTournament {
   id?: IDType
+  author_id: IDType
+  text: string
+  year: number
+  img: string
 }
 
 export interface ITournament extends INonIDTournament {
