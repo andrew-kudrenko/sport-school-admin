@@ -68,6 +68,7 @@ export const NewsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) 
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <TextField
+            autoFocus
             variant="outlined"
             fullWidth
             label="Изображение"

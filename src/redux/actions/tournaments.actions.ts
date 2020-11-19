@@ -10,13 +10,13 @@ export const fetchTournaments = () => async (dispatch: Dispatch) => {
   try {
     dispatch(setTournamentsFetchingError(null))
     dispatch(setTournamentsFetching(true))
-    const tournaments: Array<ITournament> = await requestJSONAuth('/structures/tournaments')
+    const tournament: Array<ITournament> = await requestJSONAuth('/posts/tournament')
 
-    if (!Array.isArray(tournaments)) {
+    if (!Array.isArray(tournament)) {
       throw new Error('Ошибка при получении списка турниров')
     }
 
-    dispatch({ type: FETCH_TOURNAMENTS, payload: tournaments })
+    dispatch({ type: FETCH_TOURNAMENTS, payload: tournament })
   } catch (e) {
     dispatch(setTournamentsFetchingError(e instanceof Error ? e.message : String(e)))
   } finally {
@@ -29,7 +29,7 @@ export const setTournamentAddingError = (payload: ErrorType): IAction<ErrorType>
 export const addTournament = (city: INonIDTournament) => async (dispatch: Dispatch<any>) => {
   try {
     dispatch(setTournamentAdding(true))
-    await requestJSONAuth('/structures/tournaments', 'POST', city)
+    await requestJSONAuth('/posts/tournament', 'POST', city)
     dispatch({ type: ADD_TOURNAMENT, payload: city })
     dispatch(fetchTournaments())
   } catch (e) {
@@ -47,11 +47,11 @@ export const removeTournament = (id: IDType | Array<IDType>) => async (dispatch:
 
     if (Array.isArray(id)) {
       for (const item of id) {
-        await requestJSONAuth(`/structures/tournaments/${item}`, 'DELETE', item)
+        await requestJSONAuth(`/posts/tournament/${item}`, 'DELETE', item)
         dispatch({ type: REMOVE_TOURNAMENT, payload: item })
       }
     } else {
-      await requestJSONAuth(`/structures/tournaments/${id}`, 'DELETE', id)
+      await requestJSONAuth(`/posts/tournament/${id}`, 'DELETE', id)
       dispatch({ type: REMOVE_TOURNAMENT, payload: id })
     }
 
@@ -65,10 +65,10 @@ export const removeTournament = (id: IDType | Array<IDType>) => async (dispatch:
 
 export const setTournamentModifying = (payload: boolean): IAction<boolean> => ({ type: SET_TOURNAMENT_ADDING, payload })
 export const setTournamentModifyingError = (payload: ErrorType): IAction<ErrorType> => ({ type: SET_TOURNAMENT_ADDING_ERROR, payload })
-export const modifyTournament = (tournament: INonIDTournament) => async (dispatch: Dispatch) => {
+export const modifyTournament = (id: IDType, tournament: INonIDTournament) => async (dispatch: Dispatch) => {
   try {
     dispatch(setTournamentModifying(true))
-    const payload: ITournament = await requestJSONAuth(`/structures/tournaments/${tournament.id}`, 'PUT', tournament)
+    const payload: ITournament = await requestJSONAuth(`/posts/tournament/${id}`, 'PUT', tournament)
     dispatch({ type: MODIFY_TOURNAMENT, payload })
   } catch (e) {
     dispatch(setTournamentModifyingError(e instanceof Error ? e.message : String(e)))

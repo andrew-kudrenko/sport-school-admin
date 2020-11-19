@@ -10,6 +10,9 @@ import { ManageNewsView } from '../views/news/ManageNewsView'
 import { AddSchoolView } from '../views/schools/AddSchoolView'
 import { EditSchoolView } from '../views/schools/EditSchoolView'
 import { ManageSchoolsView } from '../views/schools/ManageSchoolsView'
+import { AddTournamentView } from '../views/tournaments/AddTournamentView'
+import { EditTournamentView } from '../views/tournaments/EditTournamentView'
+import { ManageTournamentsView } from '../views/tournaments/ManageTournmentsView'
 import { AddUserView } from '../views/users/AddUserView'
 import { EditUserView } from '../views/users/EditUserView'
 import { ManageUsersView } from '../views/users/ManageUsersView'
@@ -32,6 +35,10 @@ export const SuperAdminRoutes: React.FC = () =>
             <Route exact path="/news/edit/:id" component={EditNewsView} />
             <Route exact path="/news/add" component={AddNewsView} />
             <Route exact path="/news" component={ManageNewsView} />
+
+            <Route exact path="/tournaments/edit/:id" component={EditTournamentView} />
+            <Route exact path="/tournaments/add" component={AddTournamentView} />
+            <Route exact path="/tournaments" component={ManageTournamentsView} />
 
             <Redirect from="/auth/*" to="/cities/" />
         </Switch>

@@ -13,8 +13,8 @@ export const Copyright: React.FC = () =>
       href="https://material-ui.com/"
       target="_blank"
     >
-      Your Website
-      </Link>{' '}
+      {'Футбольная школа "Чертаново"'}
+    </Link>{' '}
     {new Date().getFullYear()}
     {'.'}
   </Typography>

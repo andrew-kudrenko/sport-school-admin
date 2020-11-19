@@ -2,9 +2,6 @@ import React, { useState } from 'react'
 import Avatar from '@material-ui/core/Avatar'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import Checkbox from '@material-ui/core/Checkbox'
-import Link from '@material-ui/core/Link'
 import Paper from '@material-ui/core/Paper'
 import Box from '@material-ui/core/Box'
 import Grid from '@material-ui/core/Grid'
@@ -12,16 +9,17 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
 import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
 import { Copyright } from '../../components/auth/Copyright'
-import { NavLink } from 'react-router-dom'
 import { useAuth } from '../../hooks/auth.hooks'
 import { useFormHandlers } from '../../hooks/form-handlers.hooks'
+import { IState } from '../../interfaces/redux.interfaces'
+import { useSelector } from 'react-redux'
 
 const useStyles = makeStyles((theme) => ({
   root: {
     height: '100vh',
   },
   image: {
-    backgroundImage: 'url(https://source.unsplash.com/random)',
+    backgroundImage: 'url(https://www.bsilifestyle.com/wp-content/uploads/2016/05/3_uefa_large.jpg)',
     backgroundRepeat: 'no-repeat',
     backgroundColor:
       theme.palette.type === 'light' ? theme.palette.grey[50] : theme.palette.grey[900],
@@ -48,13 +46,18 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export const LoginView: React.FC = () => {
+  const { error, loading } = useSelector((state: IState) => state.auth)
+
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+
+  const [alert, setAlert] = useState(null)
 
   const { login } = useAuth()
   const { onChange } = useFormHandlers()
 
   const classes = useStyles()
+  const disabled = !login || !password
 
   return (
     <Grid container component="main" className={classes.root}>
@@ -65,7 +68,7 @@ export const LoginView: React.FC = () => {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Войдите
+            {'Войдите'}
           </Typography>
           <form className={classes.form} noValidate>
             <TextField
@@ -88,35 +91,16 @@ export const LoginView: React.FC = () => {
               label="Пароль"
               type="password"
             />
-            {/* <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            /> */}
             <Button
+              disabled={disabled || loading.login}
               onClick={login.bind(null, { login: username, password })}
               fullWidth
               variant="contained"
               color="primary"
               className={classes.submit}
             >
-              Войти
+              {'Войти'}
             </Button>
-            <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  {'Забыли пароль?'}
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link 
-                  to="/auth/register" 
-                  variant="body2"
-                  component={NavLink}
-                >
-                  {"Ещё нет аккаунта? Зарегстрируйтесь"}
-                </Link>
-              </Grid>
-            </Grid>
             <Box mt={5}>
               <Copyright />
             </Box>

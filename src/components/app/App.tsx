@@ -11,6 +11,7 @@ import { SuperAdminRoutes } from '../../routes/SuperAdminRoutes'
 import { fetchUsers } from '../../redux/actions/users.actions'
 import { fetchNews } from '../../redux/actions/news.actions'
 import { setUser } from '../../redux/actions/auth.actions'
+import { fetchTournaments } from '../../redux/actions/tournaments.actions'
 
 export const App: React.FC = () => {
   const dispatch = useDispatch()
@@ -26,6 +27,7 @@ export const App: React.FC = () => {
       dispatch(fetchSchools())
       dispatch(fetchUsers())
       dispatch(fetchNews())
+      dispatch(fetchTournaments())
     }
   }, [authorized, dispatch])
 
