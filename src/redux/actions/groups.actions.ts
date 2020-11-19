@@ -65,10 +65,10 @@ export const removeGroup = (id: IDType | Array<IDType>) => async (dispatch: Disp
 
 export const setGroupModifying = (payload: boolean): IAction<boolean> => ({ type: SET_GROUP_ADDING, payload })
 export const setGroupModifyingError = (payload: ErrorType): IAction<ErrorType> => ({ type: SET_GROUP_ADDING_ERROR, payload })
-export const modifyGroup = (group: INonIDGroup) => async (dispatch: Dispatch) => {
+export const modifyGroup = (id: IDType, group: INonIDGroup) => async (dispatch: Dispatch) => {
   try {
     dispatch(setGroupModifying(true))
-    const payload: IGroup = await requestJSONAuth(`/structures/groups/${group.id}`, 'PUT', group)
+    const payload: IGroup = await requestJSONAuth(`/structures/groups/${id}`, 'PUT', group)
     dispatch({ type: MODIFY_GROUP, payload })
   } catch (e) {
     dispatch(setGroupModifyingError(e instanceof Error ? e.message : String(e)))

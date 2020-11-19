@@ -8,6 +8,9 @@ import { fetchSchools } from '../../redux/actions/schools.actions'
 import { AdminRoutes } from '../../routes/AdminRoutes'
 import { AuthRoutes } from '../../routes/AuthRoutes'
 import { SuperAdminRoutes } from '../../routes/SuperAdminRoutes'
+import { fetchUsers } from '../../redux/actions/users.actions'
+import { fetchNews } from '../../redux/actions/news.actions'
+import { setUser } from '../../redux/actions/auth.actions'
 
 export const App: React.FC = () => {
   const dispatch = useDispatch()
@@ -18,8 +21,11 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     if (authorized) {
+      dispatch(setUser())
       dispatch(fetchCities())
       dispatch(fetchSchools())
+      dispatch(fetchUsers())
+      dispatch(fetchNews())
     }
   }, [authorized, dispatch])
 

@@ -8,13 +8,15 @@ const collectionName: string = 'user-data'
 
 export function useAuth() {
   const dispatch = useDispatch()
-  const { authorized, token } = useSelector((state: IState) => state.auth)
+  const { authorized, token, user } = useSelector((state: IState) => state.auth)
 
   const login = useCallback((credentials: ILoginCredentials) => {
     dispatch(createLoginAction(credentials))
 
     const updatedData: ICachedUserData = { login: credentials.login }
     localStorage.setItem(collectionName, JSON.stringify(updatedData))
+
+    localStorage.setItem('me', JSON.stringify(user))
   }, [])
 
   const logout = useCallback(() => {

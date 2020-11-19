@@ -10,7 +10,7 @@ export const fetchNews = () => async (dispatch: Dispatch) => {
   try {
     dispatch(setNewsFetchingError(null))
     dispatch(setNewsFetching(true))
-    const news: Array<INews> = await requestJSONAuth('/structures/news')
+    const news: Array<INews> = await requestJSONAuth('/posts/news')
 
     if (!Array.isArray(news)) {
       throw new Error('Ошибка при получении списка новостей')
@@ -29,7 +29,7 @@ export const setNewsAddingError = (payload: ErrorType): IAction<ErrorType> => ({
 export const addNews = (city: INonIDNews) => async (dispatch: Dispatch<any>) => {
   try {
     dispatch(setNewsAdding(true))
-    await requestJSONAuth('/structures/news', 'POST', city)
+    await requestJSONAuth('/posts/news', 'POST', city)
     dispatch({ type: ADD_NEWS, payload: city })
     dispatch(fetchNews())
   } catch (e) {
@@ -47,11 +47,11 @@ export const removeNews = (id: IDType | Array<IDType>) => async (dispatch: Dispa
 
     if (Array.isArray(id)) {
       for (const item of id) {
-        await requestJSONAuth(`/structures/news/${item}`, 'DELETE', item)
+        await requestJSONAuth(`/posts/news/${item}`, 'DELETE', item)
         dispatch({ type: REMOVE_NEWS, payload: item })
       }
     } else {
-      await requestJSONAuth(`/structures/news/${id}`, 'DELETE', id)
+      await requestJSONAuth(`/posts/news/${id}`, 'DELETE', id)
       dispatch({ type: REMOVE_NEWS, payload: id })
     }
 
@@ -65,10 +65,10 @@ export const removeNews = (id: IDType | Array<IDType>) => async (dispatch: Dispa
 
 export const setNewsModifying = (payload: boolean): IAction<boolean> => ({ type: SET_NEWS_ADDING, payload })
 export const setNewsModifyingError = (payload: ErrorType): IAction<ErrorType> => ({ type: SET_NEWS_ADDING_ERROR, payload })
-export const modifyNews = (news: INonIDNews) => async (dispatch: Dispatch) => {
+export const modifyNews = (id: IDType, news: INonIDNews) => async (dispatch: Dispatch) => {
   try {
     dispatch(setNewsModifying(true))
-    const payload: INews = await requestJSONAuth(`/structures/news/${news.id}`, 'PUT', news)
+    const payload: INews = await requestJSONAuth(`/posts/news/${id}`, 'PUT', news)
     dispatch({ type: MODIFY_NEWS, payload })
   } catch (e) {
     dispatch(setNewsModifyingError(e instanceof Error ? e.message : String(e)))

@@ -53,6 +53,9 @@ export interface INews extends INonIDNews {
 
 export interface INonIDNews {
   id?: IDType
+  author_id: string
+  text: string
+  img: string
 }
 
 export interface ICoach extends INonIDGroup {
@@ -109,6 +112,30 @@ export interface INonIDTournament {
 
 export interface ITournament extends INonIDTournament {
   id: IDType
+}
+
+export interface IStatistics extends INonIDUser {
+  id: IDType
+}
+
+export interface IUser extends INonIDUser {
+  id: IDType
+}
+
+export interface INonIDUser {
+  id?: IDType
+  login: string
+  name: string
+  is_trainer: boolean
+  is_child: boolean
+  is_verify: boolean
+  was_activate: boolean
+  city_id: IDType
+  address: string
+  tel: string
+  date_joined: string
+  school_id: IDType
+  childs_id: Array<IDType>
 }
 
 export interface ILoginCredentials {

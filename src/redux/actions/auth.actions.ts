@@ -1,8 +1,8 @@
 import { Dispatch } from "redux"
 import { requestFormData, requestJSON } from "../../helpers/request.hepler"
-import { ErrorType, ILoginCredentials, TokenType } from "../../interfaces/entities.interfaces"
+import { ErrorType, IdentifiedEntity, ILoginCredentials, TokenType } from "../../interfaces/entities.interfaces"
 import { IAction } from "../../interfaces/redux.interfaces"
-import { SET_LOGIN_LOADING, SET_REGISTER_LOADING, SET_REGISTER_ERROR, SET_LOGIN_ERROR, LOGIN, LOGOUT, SET_LOGOUT_ERROR, SET_LOGOUT_LOADING, REGISTER } from "../types/auth.types"
+import { SET_LOGIN_LOADING, SET_REGISTER_LOADING, SET_REGISTER_ERROR, SET_LOGIN_ERROR, LOGIN, LOGOUT, SET_LOGOUT_ERROR, SET_LOGOUT_LOADING, REGISTER, SET_USER } from "../types/auth.types"
 
 export const setLogoutLoading = (payload: boolean): IAction<boolean> => ({ type: SET_LOGOUT_LOADING, payload })
 export const setLogoutError = (payload: ErrorType): IAction<ErrorType> => ({ type: SET_LOGOUT_ERROR, payload })
@@ -14,7 +14,7 @@ export const createRegisterAction = (): IAction => ({ type: REGISTER })
 
 export const setLoginLoading = (payload: boolean): IAction<boolean> => ({ type: SET_LOGIN_LOADING, payload })
 export const setLoginError = (payload: ErrorType): IAction<ErrorType> => ({ type: SET_LOGIN_ERROR, payload })
-export const createLoginAction = (data: ILoginCredentials | TokenType, remember: boolean = true) => async (dispatch: Dispatch<IAction>) => {
+export const createLoginAction = (data: ILoginCredentials | TokenType, remember: boolean = true) => async (dispatch: Dispatch) => {
     
     try {
         dispatch(setLoginLoading(true))
@@ -23,15 +23,13 @@ export const createLoginAction = (data: ILoginCredentials | TokenType, remember:
             dispatch({ type: LOGIN, payload: data })
         } else if (data.login && data.password) {
             const { login, password } = data
-            let response = await requestFormData('/auth/jwt/login', 'POST', `username=${login}&password=${password}`)
-
-            if (response.detail) {
-                response = await requestJSON('/auth/jwt/refresh', 'POST')
-            }
+            const response = await requestFormData('/auth/jwt/login', 'POST', `username=${login}&password=${password}`)
 
             if (response.detail) {
                 throw new Error('Ошибка при входе в систему')
             }
+                        
+            dispatch(setUser() as any)
 
             const token: string = response['access_token']
 
@@ -42,4 +40,9 @@ export const createLoginAction = (data: ILoginCredentials | TokenType, remember:
     } finally {
         dispatch(setLoginLoading(false))
     }
+}
+
+export const setUser = () => async (dispatch: Dispatch) => {
+    const me = await requestJSON('/users/me')
+    dispatch({ type: SET_USER, payload: me })
 }

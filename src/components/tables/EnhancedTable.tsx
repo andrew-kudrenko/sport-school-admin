@@ -148,7 +148,21 @@ export function EnhancedTable<T extends IdentifiedEntity>(props: IEnhancedTableP
                       <TableCell padding="checkbox">
                         <Checkbox checked={isItemSelected} />
                       </TableCell>
-                        {headCells.map(cell => <TableCell key={cell.id.toString()}>{row[cell.id]}</TableCell>)}
+                        {
+                          headCells.map(cell => 
+                            <TableCell key={cell.id.toString()}>
+                              {
+                                typeof row[cell.id] === 'boolean'
+                                ? 
+                                  row[cell.id]
+                                    ? 'Да'
+                                    : 'Нет'
+                                :
+                                  row[cell.id]
+                              }
+                            </TableCell>
+                          )
+                        }
                       <TableCell padding="checkbox" align="right">
                         <Tooltip title="Редактировать">
                           <IconButton component={NavLink} to={`edit/${row.id}`}>

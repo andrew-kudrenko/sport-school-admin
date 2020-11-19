@@ -9,6 +9,7 @@ import { statisticsReducer } from "./statistics.reducers"
 import { studentsReducer } from "./students.reducers"
 import { themesReducer } from "./themes.reducers"
 import { tournamentsReducer } from "./tournamets.actions"
+import { usersReducer } from "./users.reducers"
 
 export const rootReducer = combineReducers({
     auth: authReducer,
@@ -20,5 +21,6 @@ export const rootReducer = combineReducers({
     statistics: statisticsReducer,
     tournaments: tournamentsReducer,
     coaches: coachesReducer,
-    themes: themesReducer
+    themes: themesReducer,
+    users: usersReducer
 })

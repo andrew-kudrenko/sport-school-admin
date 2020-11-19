@@ -1,12 +1,13 @@
 import { ErrorType } from "../../interfaces/entities.interfaces"
 import { IAuthState, ReducerType, IAuthActions } from "../../interfaces/redux.interfaces"
-import { LOGIN, LOGOUT, REGISTER, SET_LOGIN_ERROR, SET_LOGIN_LOADING, SET_LOGOUT_ERROR, SET_LOGOUT_LOADING, SET_REGISTER_ERROR, SET_REGISTER_LOADING,  } from "../types/auth.types"
+import { LOGIN, LOGOUT, REGISTER, SET_LOGIN_ERROR, SET_LOGIN_LOADING, SET_LOGOUT_ERROR, SET_LOGOUT_LOADING, SET_REGISTER_ERROR, SET_REGISTER_LOADING, SET_USER,  } from "../types/auth.types"
 
 const defaultErrorState: IAuthActions<ErrorType> = { register: null, login: null, logout: null }
 
 const defaultLoadingState: IAuthActions<boolean> = { register: false, login: false, logout: false }
 
 const initialState: IAuthState = { 
+    user: null,
     authorized: false, 
     token: null, 
     loading: defaultLoadingState, 
@@ -15,6 +16,7 @@ const initialState: IAuthState = {
 
 export const authReducer: ReducerType<IAuthState> = (state = initialState, { type, payload }) => {
   switch (type) {
+    case SET_USER: return { ...state, user: payload }
     case LOGIN: return { ...state, authorized: true, token: payload, error: defaultErrorState }
     case REGISTER:
     case LOGOUT: return { ...state, authorized: false, token: null, error: defaultErrorState }
