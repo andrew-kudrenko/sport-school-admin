@@ -4,6 +4,8 @@ import { RootLayout } from '../components/layouts/RootLayout'
 import { AddCityView } from '../views/cities/AddCityView'
 import { EditCityView } from '../views/cities/EditCityView'
 import { ManageCitiesView } from '../views/cities/ManageCitiesView'
+import { AddCoachView } from '../views/coaches/AddCoachView'
+import { ManageCoachesView } from '../views/coaches/ManageCoachesView'
 import { AddNewsView } from '../views/news/AddNewsView'
 import { EditNewsView } from '../views/news/EditNewsView'
 import { ManageNewsView } from '../views/news/ManageNewsView'
@@ -39,6 +41,10 @@ export const SuperAdminRoutes: React.FC = () =>
             <Route exact path="/tournaments/edit/:id" component={EditTournamentView} />
             <Route exact path="/tournaments/add" component={AddTournamentView} />
             <Route exact path="/tournaments" component={ManageTournamentsView} />
+            
+            <Route exact path="/coaches/edit/:id" component={AddCoachView} />
+            <Route exact path="/coaches/add" component={AddCoachView} />
+            <Route exact path="/coaches" component={ManageCoachesView} />
 
             <Redirect from="/auth/*" to="/cities/" />
         </Switch>

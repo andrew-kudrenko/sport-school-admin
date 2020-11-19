@@ -1,5 +1,5 @@
 import { Action } from "redux"
-import { ErrorType, ICity, ICoach, IdentifiedEntity, IDType, IGroup, INews, ISchool, IStatistics, IStudent, ITournament, IUser } from "./entities.interfaces"
+import { ErrorType, ICity, ICoach, IdentifiedEntity, IGroup, INews, ISchool, IStatistics, IStudent, ITournament, IUser } from "./entities.interfaces"
 
 export interface IAction<T = any> extends Action {
   payload?: T

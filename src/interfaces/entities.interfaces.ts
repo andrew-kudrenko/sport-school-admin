@@ -58,12 +58,20 @@ export interface INonIDNews {
   img: string
 }
 
-export interface ICoach extends INonIDGroup {
+export interface ICoach extends INonIDCoach {
   id: IDType
 }
 
 export interface INonIDCoach {
   id?: IDType
+  name: string
+  user_id: string
+  dob: string
+  description: string
+  address: string
+  tel: string
+  group_id: Array<IDType>
+  city_id: IDType
 }
 
 export interface INonIDUser {

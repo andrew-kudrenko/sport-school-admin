@@ -10,7 +10,7 @@ export const fetchCoaches = () => async (dispatch: Dispatch) => {
   try {
     dispatch(setCoachesFetchingError(null))
     dispatch(setCoachesFetching(true))
-    const coaches: Array<ICoach> = await requestJSONAuth('/structures/coaches')
+    const coaches: Array<ICoach> = await requestJSONAuth('/persons/trainer')
 
     if (!Array.isArray(coaches)) {
       throw new Error('Ошибка при получении списка школ')
@@ -29,7 +29,8 @@ export const setCoachAddingError = (payload: ErrorType): IAction<ErrorType> => (
 export const addCoach = (city: INonIDCoach) => async (dispatch: Dispatch<any>) => {
   try {
     dispatch(setCoachAdding(true))
-    await requestJSONAuth('/structures/coaches', 'POST', city)
+    console.log(city)
+    await requestJSONAuth('/persons/trainer', 'POST', city)
     dispatch({ type: ADD_COACH, payload: city })
     dispatch(fetchCoaches())
   } catch (e) {
@@ -47,11 +48,11 @@ export const removeCoach = (id: IDType | Array<IDType>) => async (dispatch: Disp
 
     if (Array.isArray(id)) {
       for (const item of id) {
-        await requestJSONAuth(`/structures/coaches/${item}`, 'DELETE', item)
+        await requestJSONAuth(`/persons/trainer/${item}`, 'DELETE', item)
         dispatch({ type: REMOVE_COACH, payload: item })
       }
     } else {
-      await requestJSONAuth(`/structures/coaches/${id}`, 'DELETE', id)
+      await requestJSONAuth(`/persons/trainer/${id}`, 'DELETE', id)
       dispatch({ type: REMOVE_COACH, payload: id })
     }
 
@@ -65,10 +66,10 @@ export const removeCoach = (id: IDType | Array<IDType>) => async (dispatch: Disp
 
 export const setCoachModifying = (payload: boolean): IAction<boolean> => ({ type: SET_COACH_ADDING, payload })
 export const setCoachModifyingError = (payload: ErrorType): IAction<ErrorType> => ({ type: SET_COACH_ADDING_ERROR, payload })
-export const modifyCoach = (coach: INonIDCoach) => async (dispatch: Dispatch) => {
+export const modifyCoach = (id: IDType, coach: INonIDCoach) => async (dispatch: Dispatch) => {
   try {
     dispatch(setCoachModifying(true))
-    const payload: ICoach = await requestJSONAuth(`/structures/coaches/${coach.id}`, 'PUT', coach)
+    const payload: ICoach = await requestJSONAuth(`/persons/trainer/${id}`, 'PUT', coach)
     dispatch({ type: MODIFY_COACH, payload })
   } catch (e) {
     dispatch(setCoachModifyingError(e instanceof Error ? e.message : String(e)))
