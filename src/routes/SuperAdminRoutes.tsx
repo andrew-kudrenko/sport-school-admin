@@ -15,6 +15,9 @@ import { ManageNewsView } from '../views/news/ManageNewsView'
 import { AddSchoolView } from '../views/schools/AddSchoolView'
 import { EditSchoolView } from '../views/schools/EditSchoolView'
 import { ManageSchoolsView } from '../views/schools/ManageSchoolsView'
+import { AddStatisticsView } from '../views/statistics/AddStatisticsView'
+import { EditStatisticsView } from '../views/statistics/EditStatisticsView'
+import { ManageStatisticsView } from '../views/statistics/ManageStatisticsView'
 import { AddStudentView } from '../views/students/AddStudentView'
 import { EditStudentView } from '../views/students/EditStudentView'
 import { ManageStudentsView } from '../views/students/ManageStudentsView'
@@ -59,6 +62,10 @@ export const SuperAdminRoutes: React.FC = () =>
             <Route exact path="/students/edit/:id" component={EditStudentView} />
             <Route exact path="/students/add" component={AddStudentView} />
             <Route exact path="/students" component={ManageStudentsView} />
+
+            <Route exact path="/statistics/edit/:id" component={EditStatisticsView} />
+            <Route exact path="/statistics/add" component={AddStatisticsView} />
+            <Route exact path="/statistics" component={ManageStatisticsView} />
 
             <Redirect from="/auth/*" to="/cities/" />
         </Switch>

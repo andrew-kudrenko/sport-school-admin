@@ -10,7 +10,7 @@ export const fetchStatistics = () => async (dispatch: Dispatch) => {
   try {
     dispatch(setStatisticsFetchingError(null))
     dispatch(setStatisticsFetching(true))
-    const statictics: Array<IStatistics> = await requestJSONAuth('/structures/statictics')
+    const statictics: Array<IStatistics> = await requestJSONAuth('/persons/stats')
 
     if (!Array.isArray(statictics)) {
       throw new Error('Ошибка при получении статистических данных')
@@ -29,7 +29,7 @@ export const setStatisticsAddingError = (payload: ErrorType): IAction<ErrorType>
 export const addStatistics = (city: INonIDStatistics) => async (dispatch: Dispatch<any>) => {
   try {
     dispatch(setStatisticsAdding(true))
-    await requestJSONAuth('/structures/statictics', 'POST', city)
+    await requestJSONAuth('/persons/stats', 'POST', city)
     dispatch({ type: ADD_STATISTICS, payload: city })
     dispatch(fetchStatistics())
   } catch (e) {
@@ -47,11 +47,11 @@ export const removeStatistics = (id: IDType | Array<IDType>) => async (dispatch:
 
     if (Array.isArray(id)) {
       for (const item of id) {
-        await requestJSONAuth(`/structures/statictics/${item}`, 'DELETE', item)
+        await requestJSONAuth(`/persons/stats/${item}`, 'DELETE', item)
         dispatch({ type: REMOVE_STATISTICS, payload: item })
       }
     } else {
-      await requestJSONAuth(`/structures/statictics/${id}`, 'DELETE', id)
+      await requestJSONAuth(`/persons/stats/${id}`, 'DELETE', id)
       dispatch({ type: REMOVE_STATISTICS, payload: id })
     }
 
@@ -65,10 +65,10 @@ export const removeStatistics = (id: IDType | Array<IDType>) => async (dispatch:
 
 export const setStatisticsModifying = (payload: boolean): IAction<boolean> => ({ type: SET_STATISTICS_ADDING, payload })
 export const setStatisticsModifyingError = (payload: ErrorType): IAction<ErrorType> => ({ type: SET_STATISTICS_ADDING_ERROR, payload })
-export const modifyStatistics = (statistics: INonIDStatistics) => async (dispatch: Dispatch) => {
+export const modifyStatistics = (id: IDType, statistics: INonIDStatistics) => async (dispatch: Dispatch) => {
   try {
     dispatch(setStatisticsModifying(true))
-    const payload: IStatistics = await requestJSONAuth(`/structures/statictics/${statistics.id}`, 'PUT', statistics)
+    const payload: IStatistics = await requestJSONAuth(`/persons/stats/${id}`, 'PUT', statistics)
     dispatch({ type: MODIFY_STATISTICS, payload })
   } catch (e) {
     dispatch(setStatisticsModifyingError(e instanceof Error ? e.message : String(e)))

@@ -17,6 +17,7 @@ import { fetchTournaments } from '../../redux/actions/tournaments.actions'
 import { fetchCoaches } from '../../redux/actions/coaches.actions'
 import { fetchGroups } from '../../redux/actions/groups.actions'
 import { fetchStudents } from '../../redux/actions/students.actions'
+import { fetchStatistics } from '../../redux/actions/statistics.actions'
 
 export const App: React.FC = () => {
   const dispatch = useDispatch()
@@ -36,6 +37,7 @@ export const App: React.FC = () => {
       dispatch(fetchCoaches())
       dispatch(fetchGroups())      
       dispatch(fetchStudents())      
+      dispatch(fetchStatistics())      
     }
   }, [authorized, dispatch])
 

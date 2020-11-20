@@ -105,6 +105,9 @@ export interface INonIDStudent {
 
 export interface INonIDStatistics {
   id?: IDType
+  children_id: string
+  date: string
+  file: string
 }
 
 export interface IStatistics extends INonIDStatistics {
@@ -123,7 +126,7 @@ export interface ITournament extends INonIDTournament {
   id: IDType
 }
 
-export interface IStatistics extends INonIDUser {
+export interface IStatistics extends INonIDStatistics {
   id: IDType
 }
 
@@ -155,6 +158,6 @@ export interface ILoginCredentials {
 export interface ICachedUserData {
   login?: string
   token?: string
-} 
+}
 
 export type TokenType = string
