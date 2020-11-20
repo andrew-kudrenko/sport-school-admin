@@ -6,12 +6,18 @@ import { EditCityView } from '../views/cities/EditCityView'
 import { ManageCitiesView } from '../views/cities/ManageCitiesView'
 import { AddCoachView } from '../views/coaches/AddCoachView'
 import { ManageCoachesView } from '../views/coaches/ManageCoachesView'
+import { AddGroupView } from '../views/groups/AddGroupView'
+import { EditGroupView } from '../views/groups/EditGroupView'
+import { ManageGroupsView } from '../views/groups/ManageGroupsView'
 import { AddNewsView } from '../views/news/AddNewsView'
 import { EditNewsView } from '../views/news/EditNewsView'
 import { ManageNewsView } from '../views/news/ManageNewsView'
 import { AddSchoolView } from '../views/schools/AddSchoolView'
 import { EditSchoolView } from '../views/schools/EditSchoolView'
 import { ManageSchoolsView } from '../views/schools/ManageSchoolsView'
+import { AddStudentView } from '../views/students/AddStudentView'
+import { EditStudentView } from '../views/students/EditStudentView'
+import { ManageStudentsView } from '../views/students/ManageStudentsView'
 import { AddTournamentView } from '../views/tournaments/AddTournamentView'
 import { EditTournamentView } from '../views/tournaments/EditTournamentView'
 import { ManageTournamentsView } from '../views/tournaments/ManageTournmentsView'
@@ -45,6 +51,14 @@ export const SuperAdminRoutes: React.FC = () =>
             <Route exact path="/coaches/edit/:id" component={AddCoachView} />
             <Route exact path="/coaches/add" component={AddCoachView} />
             <Route exact path="/coaches" component={ManageCoachesView} />
+
+            <Route exact path="/groups/edit/:id" component={EditGroupView} />
+            <Route exact path="/groups/add" component={AddGroupView} />
+            <Route exact path="/groups" component={ManageGroupsView} />
+
+            <Route exact path="/students/edit/:id" component={EditStudentView} />
+            <Route exact path="/students/add" component={AddStudentView} />
+            <Route exact path="/students" component={ManageStudentsView} />
 
             <Redirect from="/auth/*" to="/cities/" />
         </Switch>

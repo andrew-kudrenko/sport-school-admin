@@ -7,7 +7,7 @@ import { IState } from '../../interfaces/redux.interfaces'
 import { removeTournament } from '../../redux/actions/tournaments.actions'
 
 const headCells: Array<IHeadCell<ITournament>> = [
-    { id: 'year', label: 'Год', numeric: true },
+    { id: 'year', label: 'Год', numeric: false },
     { id: 'text', label: 'Описание', numeric: false },
     { id: 'img', label: 'Изображение', numeric: false }
 

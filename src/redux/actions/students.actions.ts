@@ -10,7 +10,7 @@ export const fetchStudents = () => async (dispatch: Dispatch) => {
   try {
     dispatch(setStudentsFetchingError(null))
     dispatch(setStudentsFetching(true))
-    const students: Array<IStudent> = await requestJSONAuth('/structures/students')
+    const students: Array<IStudent> = await requestJSONAuth('/persons/child')
 
     if (!Array.isArray(students)) {
       throw new Error('Ошибка при получении списка учеников')
@@ -29,7 +29,7 @@ export const setStudentAddingError = (payload: ErrorType): IAction<ErrorType> =>
 export const addStudent = (city: INonIDStudent) => async (dispatch: Dispatch<any>) => {
   try {
     dispatch(setStudentAdding(true))
-    await requestJSONAuth('/structures/students', 'POST', city)
+    await requestJSONAuth('/persons/child', 'POST', city)
     dispatch({ type: ADD_STUDENT, payload: city })
     dispatch(fetchStudents())
   } catch (e) {
@@ -47,11 +47,11 @@ export const removeStudent = (id: IDType | Array<IDType>) => async (dispatch: Di
 
     if (Array.isArray(id)) {
       for (const item of id) {
-        await requestJSONAuth(`/structures/students/${item}`, 'DELETE', item)
+        await requestJSONAuth(`/persons/child/${item}`, 'DELETE', item)
         dispatch({ type: REMOVE_STUDENT, payload: item })
       }
     } else {
-      await requestJSONAuth(`/structures/students/${id}`, 'DELETE', id)
+      await requestJSONAuth(`/persons/child/${id}`, 'DELETE', id)
       dispatch({ type: REMOVE_STUDENT, payload: id })
     }
 
@@ -65,10 +65,10 @@ export const removeStudent = (id: IDType | Array<IDType>) => async (dispatch: Di
 
 export const setStudentModifying = (payload: boolean): IAction<boolean> => ({ type: SET_STUDENT_ADDING, payload })
 export const setStudentModifyingError = (payload: ErrorType): IAction<ErrorType> => ({ type: SET_STUDENT_ADDING_ERROR, payload })
-export const modifyStudent = (student: INonIDStudent) => async (dispatch: Dispatch) => {
+export const modifyStudent = (id: IDType, student: INonIDStudent) => async (dispatch: Dispatch) => {
   try {
     dispatch(setStudentModifying(true))
-    const payload: IStudent = await requestJSONAuth(`/structures/students/${student.id}`, 'PUT', student)
+    const payload: IStudent = await requestJSONAuth(`/persons/child/${id}`, 'PUT', student)
     dispatch({ type: MODIFY_STUDENT, payload })
   } catch (e) {
     dispatch(setStudentModifyingError(e instanceof Error ? e.message : String(e)))

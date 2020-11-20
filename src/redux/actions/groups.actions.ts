@@ -10,7 +10,7 @@ export const fetchGroups = () => async (dispatch: Dispatch) => {
   try {
     dispatch(setGroupsFetchingError(null))
     dispatch(setGroupsFetching(true))
-    const groups: Array<IGroup> = await requestJSONAuth('/structures/groups')
+    const groups: Array<IGroup> = await requestJSONAuth('/persons/groups')
 
     if (!Array.isArray(groups)) {
       throw new Error('Ошибка при получении списка групп')
@@ -29,7 +29,7 @@ export const setGroupAddingError = (payload: ErrorType): IAction<ErrorType> => (
 export const addGroup = (city: INonIDGroup) => async (dispatch: Dispatch<any>) => {
   try {
     dispatch(setGroupAdding(true))
-    await requestJSONAuth('/structures/groups', 'POST', city)
+    await requestJSONAuth('/persons/groups', 'POST', city)
     dispatch({ type: ADD_GROUP, payload: city })
     dispatch(fetchGroups())
   } catch (e) {
@@ -47,11 +47,11 @@ export const removeGroup = (id: IDType | Array<IDType>) => async (dispatch: Disp
 
     if (Array.isArray(id)) {
       for (const item of id) {
-        await requestJSONAuth(`/structures/groups/${item}`, 'DELETE', item)
+        await requestJSONAuth(`/persons/groups/${item}`, 'DELETE', item)
         dispatch({ type: REMOVE_GROUP, payload: item })
       }
     } else {
-      await requestJSONAuth(`/structures/groups/${id}`, 'DELETE', id)
+      await requestJSONAuth(`/persons/groups/${id}`, 'DELETE', id)
       dispatch({ type: REMOVE_GROUP, payload: id })
     }
 
@@ -68,7 +68,7 @@ export const setGroupModifyingError = (payload: ErrorType): IAction<ErrorType> =
 export const modifyGroup = (id: IDType, group: INonIDGroup) => async (dispatch: Dispatch) => {
   try {
     dispatch(setGroupModifying(true))
-    const payload: IGroup = await requestJSONAuth(`/structures/groups/${id}`, 'PUT', group)
+    const payload: IGroup = await requestJSONAuth(`/persons/groups/${id}`, 'PUT', group)
     dispatch({ type: MODIFY_GROUP, payload })
   } catch (e) {
     dispatch(setGroupModifyingError(e instanceof Error ? e.message : String(e)))

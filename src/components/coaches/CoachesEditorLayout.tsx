@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Chip, createStyles, Grid, Input, makeStyles, MenuItem, Select, TextField, Theme } from '@material-ui/core'
+import { Chip, createStyles, Grid, makeStyles, MenuItem, Select, TextField, Theme } from '@material-ui/core'
 import { KeyboardDatePicker } from '@material-ui/pickers'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
@@ -47,7 +47,7 @@ export const CoachesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
 
   const { loading, list: coaches } = useSelector((state: IState) => state.coaches)
 
-  const isValid: boolean = [name, user, dob, description, address, tel, group, city].reduce((acc: boolean, item) => Boolean(acc) && Boolean(item), true)
+  const isValid: boolean = [name, dob, String(user), description, address, tel, group, city].reduce((acc: boolean, item) => Boolean(acc) && Boolean(item), true)
 
   const onClearAll = () => {
     setName('')
@@ -61,14 +61,14 @@ export const CoachesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
     setCity(null)
   }
 
-  const onAdd = dispatch.bind(null, addCoach({ name, dob: '2020-11-19', tel, address, group_id: group, city_id: city as string, description, user_id: user as string }))
+  const onAdd = dispatch.bind(null, addCoach({ name, dob: dob?.toJSON().split('T')[0] || '', tel, address, group_id: group, city_id: city as string, description, user_id: user as string }))
 
   let onModify = () => { }
 
   if (editing && id) {
     onModify = dispatch.bind(null, modifyCoach(id, {
       name,
-      dob: dob?.toISOString() || '',
+      dob: dob?.toJSON().split('T')[0] || '',     
       tel,
       address,
       group_id: group,
@@ -85,7 +85,7 @@ export const CoachesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
   }
 
   useEffect(() => {
-    const coach = coaches.find(t => t.id === id)
+    const coach = coaches.find(с => с.id === id)
 
     if (editing && coach) {
       setUser(coach.user_id)
@@ -163,7 +163,7 @@ export const CoachesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
           <Select
             variant="outlined"
             fullWidth
-            value={user || ''}
+            value={String(user) || ''}
             onChange={onSelect(setUser)}
             displayEmpty
           >
@@ -180,15 +180,19 @@ export const CoachesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
             variant="outlined"
             multiple
             fullWidth
-            label="Group"
             value={group || ''}
+            displayEmpty
             onChange={handleChange}
-            input={<Input />}
             renderValue={(selected) => (
               <div className={classes.chips}>
-                {(selected as string[]).map((value) => (
-                  <Chip key={value} label={value} className={classes.chip} />
-                ))}
+                {
+                  (selected as string[]).length
+                  ?
+                    (selected as string[]).map((value) => (
+                      <Chip key={value} label={groups.find(g => g.id === value)?.year || ''} className={classes.chip} />
+                    ))
+                  : 'Группа'
+                }
               </div>
             )}
           >

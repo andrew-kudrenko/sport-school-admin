@@ -35,8 +35,8 @@ export interface INonIDGroup {
   id?: IDType
   year: number
   schedule: string
-  tgUrl: string
-  schoolId: IDType
+  tg_url: string
+  school_id: IDType
 }
 
 export interface ICoach extends INonIDGroup {
@@ -95,11 +95,12 @@ export interface IStudent extends INonIDStudent {
 
 export interface INonIDStudent {
   id?: IDType
-  email: string
-  isActive: boolean
-  isSuperUser: boolean
-  isStaff: boolean
-  cityId: IDType
+  img: string
+  name: string
+  dob: string
+  address: string
+  group_id: IDType
+  parents_id: Array<IDType>
 }
 
 export interface INonIDStatistics {

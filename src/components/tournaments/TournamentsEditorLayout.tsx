@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Grid, TextField } from '@material-ui/core'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
@@ -24,7 +24,7 @@ export const TournamentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, ti
     const { user } = useSelector((state: IState) => state.auth)
     const { loading, list: tournaments } = useSelector((state: IState) => state.tournaments)
 
-    let author_id = user!.id
+    let author_id = useRef(user?.id)
     const isValid: boolean = [text, img, year].reduce((acc: boolean, item) => Boolean(acc) && Boolean(item), true)
 
     const onClearAll = () => {
@@ -33,12 +33,12 @@ export const TournamentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, ti
         setImg('')
     }
 
-    const onAdd = dispatch.bind(null, addTournament({ text, year: year as number, img, author_id }))
+    const onAdd = dispatch.bind(null, addTournament({ text, year: year as number, img, author_id: author_id.current as string }))
 
     let onModify = () => {}
 
     if (editing && id) {
-        onModify = dispatch.bind(null, modifyTournament(id, { text, year: year as number, img, author_id }))
+        onModify = dispatch.bind(null, modifyTournament(id, { text, year: year as number, img, author_id: author_id.current as string }))
     }
 
     let onRemove = () => {}
@@ -48,10 +48,10 @@ export const TournamentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, ti
     }
 
     useEffect(() => {
-        const tournament = tournaments.find(t => t.id === id)
+        const tournament = tournaments.find(t => t.id.toString() === String(id))
 
         if (editing && tournament) {
-            author_id = tournament.author_id
+            author_id.current = tournament.author_id
             setText(tournament.text)    
             setImg(tournament.img)    
             setYear(tournament.year)    

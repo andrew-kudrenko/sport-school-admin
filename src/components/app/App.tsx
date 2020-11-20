@@ -15,6 +15,8 @@ import { fetchNews } from '../../redux/actions/news.actions'
 import { setUser } from '../../redux/actions/auth.actions'
 import { fetchTournaments } from '../../redux/actions/tournaments.actions'
 import { fetchCoaches } from '../../redux/actions/coaches.actions'
+import { fetchGroups } from '../../redux/actions/groups.actions'
+import { fetchStudents } from '../../redux/actions/students.actions'
 
 export const App: React.FC = () => {
   const dispatch = useDispatch()
@@ -32,6 +34,8 @@ export const App: React.FC = () => {
       dispatch(fetchNews())
       dispatch(fetchTournaments())
       dispatch(fetchCoaches())
+      dispatch(fetchGroups())      
+      dispatch(fetchStudents())      
     }
   }, [authorized, dispatch])
 
