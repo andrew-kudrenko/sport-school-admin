@@ -1,9 +1,9 @@
 import React from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { EnhancedTable } from '../../components/tables/EnhancedTable'
+import { useFoundStudents, useFoundStatistics } from '../../hooks/found-by-city.hook'
 import {  IHeadCell, RemoveCallbackType } from '../../interfaces/components.interfaces'
 import { IStatistics } from '../../interfaces/entities.interfaces'
-import { IState } from '../../interfaces/redux.interfaces'
 import { removeStatistics } from '../../redux/actions/statistics.actions'
 
 const headCells: Array<IHeadCell<IStatistics>> = [
@@ -12,11 +12,11 @@ const headCells: Array<IHeadCell<IStatistics>> = [
     { id: 'file', label: 'Файл', numeric: false }
 ]
 
-export const ManageStatisticsView: React.FC = (props) => {
+export const ManageStatisticsView: React.FC = () => {
     const dispatch = useDispatch()
 
-    const { list: students } = useSelector((state: IState) => state.students)
-    const { list: statistics } = useSelector((state: IState) => state.statistics)
+    const students = useFoundStudents()
+    const statistics = useFoundStatistics()
 
     const mappedStatistics: Array<IStatistics> = statistics.map(s => (
       {

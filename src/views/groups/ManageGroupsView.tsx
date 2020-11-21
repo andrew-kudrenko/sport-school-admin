@@ -1,9 +1,9 @@
 import React from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { EnhancedTable } from '../../components/tables/EnhancedTable'
+import { useFoundSchools, useFoundGroups } from '../../hooks/found-by-city.hook'
 import { IHeadCell, RemoveCallbackType } from '../../interfaces/components.interfaces'
 import { IGroup } from '../../interfaces/entities.interfaces'
-import { IState } from '../../interfaces/redux.interfaces'
 import { removeGroup } from '../../redux/actions/groups.actions'
 
 const headCells: Array<IHeadCell<IGroup>> = [
@@ -13,11 +13,11 @@ const headCells: Array<IHeadCell<IGroup>> = [
   { id: 'schedule', label: 'Расписание', numeric: false }
 ]
 
-export const ManageGroupsView: React.FC = (props) => {
+export const ManageGroupsView: React.FC = () => {
   const dispatch = useDispatch()
 
-  const { list: groups } = useSelector((state: IState) => state.groups)
-  const { list: schools } = useSelector((state: IState) => state.schools)
+  const schools = useFoundSchools()
+  const groups = useFoundGroups()  
 
   const mappedGroups: Array<IGroup> = groups.map(g => (
     {

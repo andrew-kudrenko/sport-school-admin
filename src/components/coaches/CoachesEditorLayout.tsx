@@ -9,6 +9,7 @@ import { IEntityEditorProps } from '../../interfaces/components.interfaces'
 import { IDType } from '../../interfaces/entities.interfaces'
 import { IState } from '../../interfaces/redux.interfaces'
 import { addCoach, modifyCoach, removeCoach } from '../../redux/actions/coaches.actions'
+import { useFoundCities, useFoundUsers, useFoundGroups, useFoundCoaches } from '../../hooks/found-by-city.hook'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -41,11 +42,12 @@ export const CoachesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
 
   const dispatch = useDispatch()
 
-  const { list: cities } = useSelector((state: IState) => state.cities)
-  const { list: users } = useSelector((state: IState) => state.users)
-  const { list: groups } = useSelector((state: IState) => state.groups)
+  const cities = useFoundCities()
+  const users = useFoundUsers()
+  const groups = useFoundGroups()
+  const coaches = useFoundCoaches()
 
-  const { loading, list: coaches } = useSelector((state: IState) => state.coaches)
+  const { loading } = useSelector((state: IState) => state.coaches)
 
   const isValid: boolean = [name, dob, String(user), description, address, tel, group, city].reduce((acc: boolean, item) => Boolean(acc) && Boolean(item), true)
 

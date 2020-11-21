@@ -1,6 +1,8 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { EnhancedTable } from '../../components/tables/EnhancedTable'
+import { useFoundCities } from '../../hooks/found-by-city.hook'
+import { useRole } from '../../hooks/role.hook'
 import {  IHeadCell, RemoveCallbackType } from '../../interfaces/components.interfaces'
 import { ICity } from '../../interfaces/entities.interfaces'
 import { IState } from '../../interfaces/redux.interfaces'
@@ -12,7 +14,7 @@ const headCells: Array<IHeadCell<ICity>> = [
 
 export const ManageCitiesView: React.FC = (props) => {
     const dispatch = useDispatch()
-    const { list } = useSelector((state: IState) => state.cities)
+    const cities = useFoundCities()
 
     const onRemove: RemoveCallbackType = id => {
         dispatch(removeCity(id))
@@ -21,7 +23,7 @@ export const ManageCitiesView: React.FC = (props) => {
     return (
         <EnhancedTable<ICity>
             headCells={headCells}
-            rows={list}
+            rows={cities}
             title={'Список городов'}
             onRemove={onRemove}
         />

@@ -1,6 +1,8 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { EnhancedTable } from '../../components/tables/EnhancedTable'
+import { useFoundCities, useFoundSchools, useFoundUsers } from '../../hooks/found-by-city.hook'
+import { useRole } from '../../hooks/role.hook'
 import { IHeadCell, RemoveCallbackType } from '../../interfaces/components.interfaces'
 import { IUser } from '../../interfaces/entities.interfaces'
 import { IState } from '../../interfaces/redux.interfaces'
@@ -20,9 +22,9 @@ const headCells: Array<IHeadCell<IUser>> = [
 export const ManageUsersView: React.FC = () => {
     const dispatch = useDispatch()
 
-    const { list: users } = useSelector((state: IState) => state.users)
-    const { list: schools } = useSelector((state: IState) => state.schools)
-    const { list: cities } = useSelector((state: IState) => state.cities)
+    const users = useFoundUsers()
+    const schools = useFoundSchools()
+    const cities = useFoundCities()
 
     const mappedUsers: Array<IUser> = users.map(u => (
         {

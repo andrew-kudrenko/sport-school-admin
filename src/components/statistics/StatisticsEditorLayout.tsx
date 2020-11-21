@@ -9,6 +9,7 @@ import { IEntityEditorProps } from '../../interfaces/components.interfaces'
 import { IDType } from '../../interfaces/entities.interfaces'
 import { IState } from '../../interfaces/redux.interfaces'
 import { addStatistics, modifyStatistics, removeStatistics } from '../../redux/actions/statistics.actions'
+import { useFoundStatistics, useFoundStudents } from '../../hooks/found-by-city.hook'
 
 export const StatisticsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
   const editing = mode === 'edit'
@@ -21,8 +22,11 @@ export const StatisticsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, tit
   const [file, setFile] = useState('')
 
   const dispatch = useDispatch()
-  const { list: students } = useSelector((state: IState) => state.students)
-  const { loading, list: statistics } = useSelector((state: IState) => state.statistics)
+  
+  const statistics = useFoundStatistics()
+  const students = useFoundStudents() 
+
+  const { loading } = useSelector((state: IState) => state.statistics)
 
   const isValid: boolean = [child, date, file].reduce((acc: boolean, item) => Boolean(acc) && Boolean(item), true)
 

@@ -8,6 +8,8 @@ import { IEntityEditorProps } from '../../interfaces/components.interfaces'
 import { IDType, INonIDUser } from '../../interfaces/entities.interfaces'
 import { IState } from '../../interfaces/redux.interfaces'
 import { addUser, modifyUser, removeUser } from '../../redux/actions/users.actions'
+import { useRole } from '../../hooks/role.hook'
+import { useFoundCities, useFoundSchools, useFoundUsers } from '../../hooks/found-by-city.hook'
 
 export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
     const editing = mode === 'edit'
@@ -32,9 +34,11 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title })
 
     const dispatch = useDispatch()
 
-    const { list: cities } = useSelector(({ cities }: IState) => cities)
-    const { list: schools } = useSelector(({ schools }: IState) => schools)
-    const { loading, list: users } = useSelector(({ users }: IState) => users)
+    const cities = useFoundCities()
+    const schools = useFoundSchools()
+    const users = useFoundUsers()
+
+    const { loading } = useSelector(({ users }: IState) => users)
 
     const isValid: boolean = [login, name, city, school, address, tel, date].reduce((acc: boolean, item) => Boolean(acc) && Boolean(item), true)
 

@@ -8,6 +8,7 @@ import { IEntityEditorProps } from '../../interfaces/components.interfaces'
 import { IDType } from '../../interfaces/entities.interfaces'
 import { IState } from '../../interfaces/redux.interfaces'
 import { addSchool, modifySchool, removeSchool } from '../../redux/actions/schools.actions'
+import { useFoundCities, useFoundSchools } from '../../hooks/found-by-city.hook'
 
 export const SchoolsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
     const editing = mode === 'edit'
@@ -21,8 +22,11 @@ export const SchoolsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
     const [description, setDescription] = useState('')
 
     const dispatch = useDispatch()
-    const { list: cities } = useSelector((state: IState) => state.cities)
-    const { loading, list: schools } = useSelector((state: IState) => state.schools)
+
+    const schools = useFoundSchools()
+    const cities = useFoundCities()
+
+    const { loading } = useSelector((state: IState) => state.schools)
 
     const isValid: boolean = !!name && !!address && !!description && !!city
 

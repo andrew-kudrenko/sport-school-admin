@@ -18,13 +18,14 @@ import { fetchCoaches } from '../../redux/actions/coaches.actions'
 import { fetchGroups } from '../../redux/actions/groups.actions'
 import { fetchStudents } from '../../redux/actions/students.actions'
 import { fetchStatistics } from '../../redux/actions/statistics.actions'
+import { useRole } from '../../hooks/role.hook'
 
 export const App: React.FC = () => {
   const dispatch = useDispatch()
   const { theme } = useTheme()
 
   const { authorized } = useAuth()
-  const isSuperAdmin = true
+  const { isSuperAdmin } = useRole()
 
   useEffect(() => {
     if (authorized) {

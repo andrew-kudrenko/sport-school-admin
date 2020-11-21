@@ -3,20 +3,35 @@ import { List } from '@material-ui/core'
 import { DrawerOption } from './DrawerOption'
 import { AssignmentIndOutlined, ChildCareOutlined, EmojiEventsOutlined, EventNoteOutlined, GroupOutlined, RoomOutlined, SchoolOutlined, SportsOutlined, SportsSoccerOutlined, StarsOutlined, TrendingUpOutlined } from '@material-ui/icons'
 import { IDrawerOptionProps } from '../../interfaces/components.interfaces'
+import { useRole } from '../../hooks/role.hook'
 
-const options: Array<IDrawerOptionProps> = [
-  { text: 'Города', to: '/cities/', icon: <RoomOutlined /> },
-  { text: 'Новости', to: '/news/', icon: <EventNoteOutlined /> },
+const adminOptions: Array<IDrawerOptionProps> = [
   { text: 'Пользователи', to: '/users/', icon: <AssignmentIndOutlined /> },
   { text: 'Группы', to: '/groups/', icon: <SportsSoccerOutlined /> },
   { text: 'Статистика', to: '/statistics/', icon: <TrendingUpOutlined /> },
   { text: 'Тренеры', to: '/coaches/', icon: <SportsOutlined /> },
-  { text: 'Турниры', to: '/tournaments/', icon: <EmojiEventsOutlined /> },
   { text: 'Ученики', to: '/students/', icon: <ChildCareOutlined /> },
   { text: 'Школы', to: '/schools/', icon: <SchoolOutlined /> }
 ]
 
-export const DrawerOptionList: React.FC = () =>
-  <List>
-    {options.map(o => <DrawerOption {...o} key={o.text} />)}
-  </List>
+const superAdminOptions: Array<IDrawerOptionProps> = [
+  { text: 'Города', to: '/cities/', icon: <RoomOutlined /> },
+  { text: 'Новости', to: '/news/', icon: <EventNoteOutlined /> },
+  { text: 'Турниры', to: '/tournaments/', icon: <EmojiEventsOutlined /> }
+]
+
+export const DrawerOptionList: React.FC = () => {
+  const { isSuperAdmin } = useRole()
+
+  let options = [...adminOptions]
+  
+  if (isSuperAdmin) {
+    options = [...superAdminOptions, ...options]
+  }
+
+  return (
+    <List>
+      {options.map(o => <DrawerOption {...o} key={o.text} />)}
+    </List>
+  )
+}

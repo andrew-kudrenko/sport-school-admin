@@ -8,12 +8,20 @@ import { addCity, modifyCity, removeCity } from '../../redux/actions/cities.acti
 import { EditorFormLayout } from '../layouts/EditorFormLayout'
 import { useParams } from 'react-router-dom'
 import { IDType } from '../../interfaces/entities.interfaces'
+import { useRole } from '../../hooks/role.hook'
 
 export const CitiesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
     const editing = mode === 'edit'
 
     const { id } = useParams<{ id?: IDType }>()
-    const { list: cities } = useSelector((state: IState) => state.cities)
+    let { list: cities } = useSelector((state: IState) => state.cities)
+
+    let { city_id, isSuperAdmin } = useRole()
+
+    if (!isSuperAdmin) {
+        cities = cities.filter(s => s.id === city_id)
+    }
+
     const [name, setName] = useState('')
 
     const dispatch = useDispatch()

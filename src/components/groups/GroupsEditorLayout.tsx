@@ -8,13 +8,16 @@ import { EditorFormLayout } from '../layouts/EditorFormLayout'
 import { useParams } from 'react-router-dom'
 import { IDType } from '../../interfaces/entities.interfaces'
 import { addGroup, modifyGroup, removeGroup } from '../../redux/actions/groups.actions'
+import { useFoundGroups, useFoundSchools } from '../../hooks/found-by-city.hook'
 
 export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
   const editing = mode === 'edit'
 
   const { id } = useParams<{ id?: IDType }>()
-  const { list: schools } = useSelector((state: IState) => state.schools)
-  const { loading, list: groups } = useSelector((state: IState) => state.groups)
+  const { loading } = useSelector((state: IState) => state.groups)
+
+  const schools = useFoundSchools()
+  const groups = useFoundGroups()
 
   const [school, setSchool] = useState<IDType | null>(null)
   const [year, setYear] = useState<number | null>(null)

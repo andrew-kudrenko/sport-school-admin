@@ -1,9 +1,9 @@
 import React from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { EnhancedTable } from '../../components/tables/EnhancedTable'
+import { useFoundCities, useFoundSchools } from '../../hooks/found-by-city.hook'
 import { IHeadCell, RemoveCallbackType } from '../../interfaces/components.interfaces'
 import { ISchool } from '../../interfaces/entities.interfaces'
-import { IState } from '../../interfaces/redux.interfaces'
 import { removeSchool } from '../../redux/actions/schools.actions'
 
 const headCells: Array<IHeadCell<ISchool>> = [
@@ -15,8 +15,9 @@ const headCells: Array<IHeadCell<ISchool>> = [
 
 export const ManageSchoolsView: React.FC = () => {
     const dispatch = useDispatch()
-    const { list: schools } = useSelector((state: IState) => state.schools)
-    const { list: cities } = useSelector((state: IState) => state.cities)
+
+    const cities = useFoundCities()
+    const schools = useFoundSchools()
 
     const mappedSchools: Array<ISchool> = schools.map(s => (
         {

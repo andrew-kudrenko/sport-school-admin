@@ -1,5 +1,5 @@
 import { Action } from "redux"
-import { ErrorType, ICity, ICoach, IdentifiedEntity, IGroup, INews, ISchool, IStatistics, IStudent, ITournament, IUser } from "./entities.interfaces"
+import { ErrorType, ICity, ICoach, IdentifiedEntity, IDType, IGroup, INews, ISchool, IStatistics, IStudent, ITournament, IUser } from "./entities.interfaces"
 
 export interface IAction<T = any> extends Action {
   payload?: T
@@ -31,7 +31,7 @@ export interface IAuthActions<T> {
 }
 
 export interface IAuthState {
-  user: IdentifiedEntity | null
+  user: { is_superuser: boolean, is_staff: boolean, city_id: IDType } & IdentifiedEntity | null
   token: string | null
   authorized: boolean
   loading: IAuthActions<boolean>
