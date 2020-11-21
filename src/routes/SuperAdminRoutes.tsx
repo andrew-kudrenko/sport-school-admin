@@ -34,7 +34,7 @@ export const SuperAdminRoutes: React.FC = () =>
             <Route exact path="/cities/edit/:id" component={EditCityView} />
             <Route exact path="/cities/add" component={AddCityView} />
             <Route exact path="/cities" component={ManageCitiesView} />
-
+{/* 
             <Route exact path="/schools/edit/:id" component={EditSchoolView} />
             <Route exact path="/schools/add" component={AddSchoolView} />
             <Route exact path="/schools" component={ManageSchoolsView} />
@@ -65,7 +65,7 @@ export const SuperAdminRoutes: React.FC = () =>
 
             <Route exact path="/statistics/edit/:id" component={EditStatisticsView} />
             <Route exact path="/statistics/add" component={AddStatisticsView} />
-            <Route exact path="/statistics" component={ManageStatisticsView} />
+            <Route exact path="/statistics" component={ManageStatisticsView} /> */}
 
             <Redirect from="/auth/*" to="/cities/" />
         </Switch>
