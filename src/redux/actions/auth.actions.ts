@@ -1,6 +1,6 @@
 import { Dispatch } from "redux"
 import { requestFormData, requestJSON } from "../../helpers/request.hepler"
-import { ErrorType, IdentifiedEntity, ILoginCredentials, TokenType } from "../../interfaces/entities.interfaces"
+import { ErrorType, ILoginCredentials, TokenType } from "../../interfaces/entities.interfaces"
 import { IAction } from "../../interfaces/redux.interfaces"
 import { SET_LOGIN_LOADING, SET_REGISTER_LOADING, SET_REGISTER_ERROR, SET_LOGIN_ERROR, LOGIN, LOGOUT, SET_LOGOUT_ERROR, SET_LOGOUT_LOADING, REGISTER, SET_USER } from "../types/auth.types"
 

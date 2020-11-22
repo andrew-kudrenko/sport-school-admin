@@ -51,7 +51,8 @@ function createRequest(headers: IRequestHeaders, token: string | null = null) {
                 await requestBase<any>(headers.json, '/auth/jwt/refresh', 'POST', null)
             }
         } catch (e) {
-            localStorage.removeItem('user-data')
+            console.log(e)
+            localStorage.removeItem('credentials')
         }
 
         if (body) {

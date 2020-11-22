@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { EnhancedTable } from '../../components/tables/EnhancedTable'
+import { useAuth } from '../../hooks/auth.hooks'
 import {  IHeadCell, RemoveCallbackType } from '../../interfaces/components.interfaces'
 import { ICoach } from '../../interfaces/entities.interfaces'
 import { IState } from '../../interfaces/redux.interfaces'
-import { removeCoach } from '../../redux/actions/coaches.actions'
+import { fetchCoaches, removeCoach } from '../../redux/actions/coaches.actions'
 
 const headCells: Array<IHeadCell<ICoach>> = [
     { id: 'name', label: 'ФИО', numeric: false },
@@ -32,6 +33,15 @@ export const ManageCoachesView: React.FC = (props) => {
     const onRemove: RemoveCallbackType = id => {
         dispatch(removeCoach(id))
     }
+
+    const { authorized } = useAuth()
+  
+    useEffect(() => {
+      if (authorized) {
+        dispatch(fetchCoaches())
+      }
+    }, [authorized, dispatch])
+  
 
     return (
         <EnhancedTable<ICoach>

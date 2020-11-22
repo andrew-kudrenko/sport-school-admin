@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { EnhancedTable } from '../../components/tables/EnhancedTable'
+import { useAuth } from '../../hooks/auth.hooks'
 import { useFoundCities, useFoundSchools } from '../../hooks/found-by-city.hook'
 import { IHeadCell, RemoveCallbackType } from '../../interfaces/components.interfaces'
 import { ISchool } from '../../interfaces/entities.interfaces'
-import { removeSchool } from '../../redux/actions/schools.actions'
+import { fetchSchools, removeSchool } from '../../redux/actions/schools.actions'
 
 const headCells: Array<IHeadCell<ISchool>> = [
     { id: 'name', label: 'Название', numeric: false },
@@ -28,6 +29,15 @@ export const ManageSchoolsView: React.FC = () => {
     const onRemove: RemoveCallbackType = id => {
         dispatch(removeSchool(id))
     }
+
+    const { authorized } = useAuth()
+  
+    useEffect(() => {
+      if (authorized) {
+        dispatch(fetchSchools())
+      }
+    }, [authorized, dispatch])
+  
 
     return (
         <EnhancedTable<ISchool>

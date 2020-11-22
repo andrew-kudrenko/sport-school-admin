@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { EnhancedTable } from '../../components/tables/EnhancedTable'
+import { useAuth } from '../../hooks/auth.hooks'
 import {  IHeadCell, RemoveCallbackType } from '../../interfaces/components.interfaces'
 import { IStudent } from '../../interfaces/entities.interfaces'
 import { IState } from '../../interfaces/redux.interfaces'
-import { removeStudent } from '../../redux/actions/students.actions'
+import { fetchStudents, removeStudent } from '../../redux/actions/students.actions'
 
 const headCells: Array<IHeadCell<IStudent>> = [
     { id: 'name', label: 'Имя', numeric: false },
@@ -29,6 +30,15 @@ export const ManageStudentsView: React.FC = (props) => {
     const onRemove: RemoveCallbackType = id => {
         dispatch(removeStudent(id))
     }
+
+    const { authorized } = useAuth()
+  
+    useEffect(() => {
+      if (authorized) {
+        dispatch(fetchStudents())      
+      }
+    }, [authorized, dispatch])
+  
 
     return (
         <EnhancedTable<IStudent>

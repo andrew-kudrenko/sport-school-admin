@@ -1,12 +1,14 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { EnhancedTable } from '../../components/tables/EnhancedTable'
+import { useAuth } from '../../hooks/auth.hooks'
 import { useFoundCities, useFoundSchools, useFoundUsers } from '../../hooks/found-by-city.hook'
 import { useRole } from '../../hooks/role.hook'
 import { IHeadCell, RemoveCallbackType } from '../../interfaces/components.interfaces'
 import { IUser } from '../../interfaces/entities.interfaces'
 import { IState } from '../../interfaces/redux.interfaces'
 import { removeSchool } from '../../redux/actions/schools.actions'
+import { fetchUsers } from '../../redux/actions/users.actions'
 
 const headCells: Array<IHeadCell<IUser>> = [
     { id: 'name', label: 'ФИО', numeric: false },
@@ -37,6 +39,15 @@ export const ManageUsersView: React.FC = () => {
     const onRemove: RemoveCallbackType = id => {
         dispatch(removeSchool(id))
     }
+
+    const { authorized } = useAuth()
+  
+    useEffect(() => {
+      if (authorized) {
+        dispatch(fetchUsers())
+      }
+    }, [authorized, dispatch])
+  
 
     return (
         <EnhancedTable<IUser>

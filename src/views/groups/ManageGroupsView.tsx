@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { EnhancedTable } from '../../components/tables/EnhancedTable'
+import { useAuth } from '../../hooks/auth.hooks'
 import { useFoundSchools, useFoundGroups } from '../../hooks/found-by-city.hook'
 import { IHeadCell, RemoveCallbackType } from '../../interfaces/components.interfaces'
 import { IGroup } from '../../interfaces/entities.interfaces'
-import { removeGroup } from '../../redux/actions/groups.actions'
+import { fetchGroups, removeGroup } from '../../redux/actions/groups.actions'
 
 const headCells: Array<IHeadCell<IGroup>> = [
   { id: 'year', label: 'Год', numeric: false },
@@ -29,6 +30,15 @@ export const ManageGroupsView: React.FC = () => {
   const onRemove: RemoveCallbackType = id => {
     dispatch(removeGroup(id))
   }
+
+  const { authorized } = useAuth()
+
+  useEffect(() => {
+    if (authorized) {
+      dispatch(fetchGroups())      
+    }
+  }, [authorized, dispatch])
+
 
   return (
     <EnhancedTable<IGroup>

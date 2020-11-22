@@ -3,42 +3,44 @@ import { useDispatch, useSelector } from 'react-redux'
 import { ICachedUserData, ILoginCredentials } from '../interfaces/entities.interfaces'
 import { IState } from '../interfaces/redux.interfaces'
 import { createLoginAction, createLogoutAction } from '../redux/actions/auth.actions'
+import { useLocalStorage } from './local-storage.hook'
 
-const collectionName: string = 'user-data'
 
 export function useAuth() {
   const dispatch = useDispatch()
-  const { authorized, token, user } = useSelector((state: IState) => state.auth)
+  const { authorized, token, error } = useSelector((state: IState) => state.auth)
+  const [credentials, setCredentials, removeCredentials] = useLocalStorage<ICachedUserData | null>('credentials', null)
 
   const login = useCallback((credentials: ILoginCredentials) => {
     dispatch(createLoginAction(credentials))
 
     const updatedData: ICachedUserData = { login: credentials.login }
-    localStorage.setItem(collectionName, JSON.stringify(updatedData))
-
-    localStorage.setItem('me', JSON.stringify(user))
+    setCredentials(updatedData)
   }, [])
 
   const logout = useCallback(() => {
-    localStorage.removeItem(collectionName)
+    removeCredentials()
     dispatch(createLogoutAction())
   }, [])
 
   useEffect(() => {
-    const cachedData: ICachedUserData = JSON.parse(localStorage.getItem(collectionName) || '{}')
+    const cachedData: ICachedUserData | null = credentials
 
     if (!authorized) {
-      if (cachedData.token) {
+      if (cachedData?.token) {
         dispatch(createLoginAction(cachedData.token))
-        localStorage.setItem(collectionName, JSON.stringify(cachedData))
       }
     }
-
-    if (token) {
-      cachedData.token = token
-      localStorage.setItem(collectionName, JSON.stringify(cachedData))
+    
+    if (!error.login && authorized) {
+      setCredentials(cachedData)
     }
-  }, [authorized, dispatch, token])
+
+    if (token && cachedData?.token) {
+      cachedData.token = token
+      setCredentials(cachedData)
+    }
+  }, [authorized, dispatch, token, credentials, error.login, setCredentials])
 
   return { authorized, token, login, logout }
 }

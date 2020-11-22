@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { EnhancedTable } from '../../components/tables/EnhancedTable'
+import { useAuth } from '../../hooks/auth.hooks'
 import { useFoundStudents, useFoundStatistics } from '../../hooks/found-by-city.hook'
 import {  IHeadCell, RemoveCallbackType } from '../../interfaces/components.interfaces'
 import { IStatistics } from '../../interfaces/entities.interfaces'
-import { removeStatistics } from '../../redux/actions/statistics.actions'
+import { fetchStatistics, removeStatistics } from '../../redux/actions/statistics.actions'
 
 const headCells: Array<IHeadCell<IStatistics>> = [
     { id: 'children_id', label: 'Ученик', numeric: false },
@@ -27,6 +28,15 @@ export const ManageStatisticsView: React.FC = () => {
     const onRemove: RemoveCallbackType = id => {
         dispatch(removeStatistics(id))
     }
+
+    const { authorized } = useAuth()
+  
+    useEffect(() => {
+      if (authorized) {
+        dispatch(fetchStatistics())      
+      }
+    }, [authorized, dispatch])
+  
 
     return (
         <EnhancedTable<IStatistics>
