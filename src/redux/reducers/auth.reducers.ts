@@ -8,6 +8,7 @@ const defaultLoadingState: IAuthActions<boolean> = { register: false, login: fal
 
 const initialState: IAuthState = { 
     user: null,
+    login: null,
     authorized: false, 
     token: null, 
     loading: defaultLoadingState, 
@@ -17,7 +18,7 @@ const initialState: IAuthState = {
 export const authReducer: ReducerType<IAuthState> = (state = initialState, { type, payload }) => {
   switch (type) {
     case SET_USER: return { ...state, user: payload }
-    case LOGIN: return { ...state, authorized: true, token: payload, error: defaultErrorState }
+    case LOGIN: return { ...state, token: payload.token, login: payload.login, authorized: true, error: defaultErrorState }
     case REGISTER:
     case LOGOUT: return { ...state, authorized: false, token: null, error: defaultErrorState }
     case SET_LOGIN_LOADING: return { ...state, loading: { ...state.loading, login: payload } }

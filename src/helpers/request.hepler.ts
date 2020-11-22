@@ -22,33 +22,34 @@ async function requestBase<T = any>(headers: Headers, endPoint: string, method: 
 }
 
 type IRequestHeaders = {
-    json: Headers
-    formData: Headers
+    json: any
+    formData: any
 }
 
-const headers: IRequestHeaders = {
-    json: new Headers({
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-    }),
-    formData: new Headers({
-        'Accept': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-    })
-}
 
-function createRequest(headers: IRequestHeaders, token: string | null = null) {
-    if (token) {
-        Object.keys(headers)
-            .forEach(key => {
-                (headers as any)[key].append('Authorization', `Bearer ${token}`)
-            })
+function createAuthRequest() {
+    const headers: IRequestHeaders = {
+        json: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+        formData: {
+            'Accept': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        }
     }
 
     async function requestJSON<T = any>(endPoint: string, method: HTTPMethodType = 'GET', body: any = null): Promise<T> {
         try {
+            const userData: ICachedUserData | null = JSON.parse(localStorage.getItem('credentials') || 'null')
+            const token = userData?.token
+
+            headers.json['Authorization'] = `Bearer ${token}`
+
             if (token) {
                 await requestBase<any>(headers.json, '/auth/jwt/refresh', 'POST', null)
+            } else {
+                throw new Error('No JWT token!')
             }
         } catch (e) {
             console.log(e)
@@ -64,11 +65,19 @@ function createRequest(headers: IRequestHeaders, token: string | null = null) {
 
     async function requestFormData<T = any>(endPoint: string, method: HTTPMethodType = 'GET', body: any = null): Promise<T> {
         try {
+            const userData: ICachedUserData | null = JSON.parse(localStorage.getItem('credentials') || 'null')
+            const token = userData?.token
+
+            headers.formData['Authorization'] = `Bearer ${token}`
+
             if (token) {
                 await requestBase<any>(headers.formData, '/auth/jwt/refresh', 'POST', null)
+            } else {
+                throw new Error('No JWT token!')
             }
         } catch (e) {
-            localStorage.removeItem('user-data')
+            console.log(e)
+            localStorage.removeItem('credentials')
         }
 
         if (body) {
@@ -81,9 +90,37 @@ function createRequest(headers: IRequestHeaders, token: string | null = null) {
     return { requestJSON, requestFormData }
 }
 
-const userData: ICachedUserData | null = JSON.parse(localStorage.getItem('user-data') || 'null')
-const token: string | undefined = userData?.token
+function createRequest() {
+    const headers: IRequestHeaders = {
+        json: new Headers({
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        }),
+        formData: new Headers({
+            'Accept': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        })
+    }
 
-export const { requestJSON, requestFormData } = createRequest(headers)
+    async function requestJSON<T = any>(endPoint: string, method: HTTPMethodType = 'GET', body: any = null): Promise<T> {
+        if (body) {
+            return await requestBase<T>(headers.json, endPoint, method, JSON.stringify(body))
+        } else {
+            return await requestBase<T>(headers.json, endPoint, method, body)
+        }
+    }
 
-export const { requestJSON: requestJSONAuth, requestFormData: requestFormDataAuth } = createRequest(headers, token)
+    async function requestFormData<T = any>(endPoint: string, method: HTTPMethodType = 'GET', body: any = null): Promise<T> {
+        if (body) {
+            return await requestBase<T>(headers.formData, endPoint, method, body)
+        } else {
+            return await requestBase<T>(headers.formData, endPoint, method, body)
+        }
+    }
+
+    return { requestJSON, requestFormData }
+}
+
+export const { requestJSON, requestFormData } = createRequest()
+
+export const { requestJSON: requestJSONAuth, requestFormData: requestFormDataAuth } = createAuthRequest()

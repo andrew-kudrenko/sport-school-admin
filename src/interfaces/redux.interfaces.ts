@@ -33,6 +33,7 @@ export interface IAuthActions<T> {
 export interface IAuthState {
   user: { is_superuser: boolean, is_staff: boolean, city_id: IDType } & IdentifiedEntity | null
   token: string | null
+  login: string | null
   authorized: boolean
   loading: IAuthActions<boolean>
   error: IAuthActions<ErrorType>
