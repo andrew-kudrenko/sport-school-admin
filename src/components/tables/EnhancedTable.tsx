@@ -27,8 +27,8 @@ export function EnhancedTableHead<T extends IdentifiedEntity>(props: IEnhancedTa
         </TableCell>
         {headCells.map((headCell) => (
           <TableCell
-            key={headCell.id.toString()}
-            align={headCell.numeric ? 'right' : 'left'}
+            key={String(headCell.id)}
+            align="left"
             padding="default"
             sortDirection={orderBy === headCell.id ? order : false}
           >
@@ -61,7 +61,7 @@ const useStyles = makeStyles((theme: Theme) =>
       marginBottom: theme.spacing(2),
     },
     table: {
-      minWidth: 750,
+      minWidth: 400,
     },
     visuallyHidden: {
       border: 0,
@@ -79,7 +79,9 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export function EnhancedTable<T extends IdentifiedEntity>(props: IEnhancedTableProps<T>) {
   const { rows, headCells, title, onRemove } = props
+
   const classes = useStyles()
+
   const [order, setOrder] = React.useState<OrderType>('asc')
   const [orderBy, setOrderBy] = React.useState<keyof T>('id')
   const [page, setPage] = React.useState(0)
@@ -110,7 +112,7 @@ export function EnhancedTable<T extends IdentifiedEntity>(props: IEnhancedTableP
         <EnhancedTableToolbar
           numSelected={selected.length}
           title={title}
-          onRemove={onRemove.bind(null, selected)}
+          onRemove={() => selected.forEach(s => onRemove(s))}
         />
         <TableContainer>
           <Table

@@ -1,58 +1,72 @@
-import { useSelector } from "react-redux"
-import { ICity, ICoach, IGroup, ISchool, IStatistics, IUser } from "../interfaces/entities.interfaces"
-import { IState } from "../interfaces/redux.interfaces"
+import { ICity, ICoach, IGroup, ISchool, IStatistics, IStudent, IUser } from "../interfaces/entities.interfaces"
+import { useGetQuery } from "./query.hook"
 import { useRole } from "./role.hook"
 
-export function useFoundCities(): Array<ICity> {
+export function useFoundCities() {
   const { city_id, isSuperAdmin } = useRole()
-  const { list: cities } = useSelector((state: IState) => state.cities)
+  let { value: cities, ...rest } = useGetQuery<Array<ICity>>('structures/cities')
 
   if (!isSuperAdmin) {
-    return cities.filter(c => c.id === city_id)
+    cities = cities?.filter(c => c.id === city_id) || []
   }
 
-  return cities
+  if (!cities) {
+    cities = []
+  }
+
+  return { cities, ...rest }
 }
 
-export function useFoundSchools(): Array<ISchool> {
-  const { list: schools } = useSelector((state: IState) => state.schools)
-  const cities = useFoundCities()
-  
-  return schools.filter(s => cities.find(c => c.id === s.city_id))
+export function useFoundSchools() {
+  let { value: schools, ...rest } = useGetQuery<Array<ISchool>>('structures/schools')
+  const { cities } = useFoundCities()
+   
+  schools = schools?.filter(s => cities.find(c => c.id === s.city_id)) || []
+
+  return { schools, ...rest }
 }
 
-export function useFoundGroups(): Array<IGroup> {
-  const schools = useFoundSchools()
-  const { list: groups } = useSelector((state: IState) => state.groups)
+export function useFoundGroups() {
+  const { schools } = useFoundSchools()
+  let { value: groups, ...rest } = useGetQuery<Array<IGroup>>('persons/groups')
 
-  return groups.filter(g => schools.find(s => s.id === g.school_id))
+  groups = groups?.filter(g => schools.find(s => s.id === g.school_id)) || []
+
+  return { groups, ...rest }
 }
 
-export function useFoundUsers(): Array<IUser> {
-  const cities = useFoundCities()
-  const { list: users } = useSelector((state: IState) => state.users)
+export function useFoundUsers() {
+  const { cities } = useFoundCities()
+  let { value: users, ...rest } = useGetQuery<Array<IUser>>('tg/users')
 
-  return users.filter(u => cities.find(c => c.id === u.city_id))
+  users = users?.filter(u => cities.find(c => c.id === u.city_id)) || []
+
+  return { users, ...rest }
 }
 
-export function useFoundCoaches(): Array<ICoach> {
-  const cities = useFoundCities()
-  const { list: coaches } = useSelector((state: IState) => state.coaches)
+export function useFoundCoaches() {
+  const { cities } = useFoundCities()
+  let { value: coaches, ...rest } = useGetQuery<Array<ICoach>>('persons/trainer')
 
-  return coaches.filter(coach => cities.find(c => c.id === coach.city_id))
+  coaches = coaches?.filter(coach => cities.find(c => c.id === coach.city_id)) || []
+
+  return { coaches, ...rest }
 }
 
-export function useFoundStatistics(): Array<IStatistics> {
-  const students = useFoundStudents()
-  const { list: statistics } = useSelector((state: IState) => state.statistics)
+export function useFoundStatistics() {
+  const { students } = useFoundStudents()
+  let { value: statistics, ...rest } = useGetQuery<Array<IStatistics>>('persons/stats')
 
-  return statistics.filter(stats => students.find(s => stats.children_id === s.id))
+  statistics = statistics?.filter(stats => students.find(s => stats.children_id === s.id)) || []
+
+  return { statistics, ...rest }
 }
 
 export function useFoundStudents() {
-  const groups = useFoundGroups()
+  const { groups } = useFoundGroups()
+  let { value: students, ...rest } = useGetQuery<Array<IStudent>>('persons/child')
 
-  const { list: students } = useSelector((state: IState) => state.students)
+  students = students?.filter(s => groups.find(g => g.id === s.group_id)) || []
 
-  return students.filter(s => groups.find(g => g.id === s.group_id))
+  return { students, ...rest }
 }

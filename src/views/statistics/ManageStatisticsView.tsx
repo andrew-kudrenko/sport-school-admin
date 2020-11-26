@@ -1,42 +1,30 @@
-import React, { useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import React from 'react'
 import { EnhancedTable } from '../../components/tables/EnhancedTable'
-import { useAuth } from '../../hooks/auth.hooks'
-import { useFoundStudents, useFoundStatistics } from '../../hooks/found-by-city.hook'
-import {  IHeadCell, RemoveCallbackType } from '../../interfaces/components.interfaces'
+import { requestJSONAuth } from '../../helpers/request.hepler'
+import { useFoundStudents } from '../../hooks/found-by-city.hook'
+import { useGetQuery } from '../../hooks/query.hook'
+import {  IHeadCell } from '../../interfaces/components.interfaces'
 import { IStatistics } from '../../interfaces/entities.interfaces'
-import { fetchStatistics, removeStatistics } from '../../redux/actions/statistics.actions'
 
 const headCells: Array<IHeadCell<IStatistics>> = [
-    { id: 'children_id', label: 'Ученик', numeric: false },
-    { id: 'date', label: 'Дата', numeric: false },
-    { id: 'file', label: 'Файл', numeric: false }
+    { id: 'children_id', label: 'Ученик' },
+    { id: 'date', label: 'Дата' }
 ]
 
 export const ManageStatisticsView: React.FC = () => {
-    const dispatch = useDispatch()
+    const { students } = useFoundStudents()
+    const { value: statistics, execute: refresh } = useGetQuery<Array<IStatistics>>(`persons/stats`)  
 
-    const students = useFoundStudents()
-    const statistics = useFoundStatistics()
-
-    const mappedStatistics: Array<IStatistics> = statistics.map(s => (
+    const mappedStatistics: Array<IStatistics> = statistics?.map(s => (
       {
           ...s,
           children_id: students.find(c => c.id === s.children_id)?.name || '',
-      }))
+      })) || []
 
-    const onRemove: RemoveCallbackType = id => {
-        dispatch(removeStatistics(id))
-    }
-
-    const { authorized } = useAuth()
-  
-    useEffect(() => {
-      if (authorized) {
-        dispatch(fetchStatistics())      
-      }
-    }, [authorized, dispatch])
-  
+      const onRemove = async (id: string) => {
+        await requestJSONAuth(`/persons/stats/${id}`, 'DELETE')
+        await refresh()
+      } 
 
     return (
         <EnhancedTable<IStatistics>

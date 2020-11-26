@@ -43,7 +43,6 @@ export interface IEnhancedTableToolbarProps {
 export interface IHeadCell<T extends IdentifiedEntity> {
   id: keyof T
   label: string
-  numeric: boolean
 }
 
 export type OrderType = 'asc' | 'desc'
@@ -63,7 +62,7 @@ export interface IEnhancedTableHeadProps<T extends IdentifiedEntity> {
 export type RemoveCallbackType = ((id: Array<IDType> | IDType) => Promise<void> | void)
 
 export interface IEnhancedTableProps<T extends IdentifiedEntity> {
-  onRemove: RemoveCallbackType
+  onRemove: ((id: string) => void) | ((id: string) => Promise<void>)
   rows: Array<T>
   headCells: Array<IHeadCell<T>>
   title: string

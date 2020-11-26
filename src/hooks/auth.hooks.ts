@@ -1,56 +1,70 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { requestJSONAuth } from '../helpers/request.hepler'
 import { ICachedUserData, ILoginCredentials } from '../interfaces/entities.interfaces'
 import { IState } from '../interfaces/redux.interfaces'
-import { createLoginAction, createLogoutAction, setUser } from '../redux/actions/auth.actions'
+import { autoLogin, createLoginAction, createLogoutAction, setToken, setUser } from '../redux/actions/auth.actions'
+import { Nullable } from '../types/common.types'
 import { useLocalStorage } from './local-storage.hook'
-
 
 export function useAuth() {
   const dispatch = useDispatch()
 
-  const [loggedIn, setLoggedIn] = useState(false)
-  const [loggedOut, setLoggedOut] = useState(false)
+  const [credentials, setCredentials, removeCredentials] = useLocalStorage<Nullable<ICachedUserData>>('credentials', null)
+  const [given, setGiven, removeGiven] = useLocalStorage<Nullable<number>>('expires', null)
 
-  const [credentials, setCredentials, removeCredentials] = useLocalStorage<ICachedUserData | null>('credentials', null)
+  const { authorized, token, login: email, user, error, loading } = useSelector((state: IState) => state.auth)
 
-  const { authorized, token, login: email, user } = useSelector((state: IState) => state.auth)
+  const expires = 30
 
   const login = useCallback((credentials: ILoginCredentials) => {
-    dispatch(createLoginAction(credentials))    
+    dispatch(createLoginAction(credentials))
+    setGiven(Date.now())
   }, [])
 
-  const logout = useCallback(() => {
+  const logout = () => {
     dispatch(createLogoutAction())
     removeCredentials()
-    setLoggedOut(true)
-    setLoggedIn(false)
+    removeGiven()
+  }
+
+  useEffect(() => {
+    if (!authorized && credentials) {
+      if (token && given) {
+        if (Date.now() > given + expires * 60e3 * .75) {
+          return logout()
+        }
+      }
+
+      dispatch(autoLogin())
+    }
   }, [])
 
   useEffect(() => {
-    if (!loggedIn) {
-      if (token && email) {
-        setCredentials({ login: email, token })
-        setLoggedIn(true)
-        setLoggedOut(false)
-      }    
-    }
-  }, [loggedIn])
+    if (authorized && token && credentials && !user) {
+      const givenTimeout = window.setTimeout(() => {
+        dispatch(setUser())
+        window.clearTimeout(givenTimeout)
+      }, 500)
 
-  useEffect(() => {
-    if (!loggedOut) {
-      if (!authorized && credentials?.login && credentials?.token) {
-        dispatch(createLoginAction(credentials))
+      if (given) {
+        const timeout = window.setInterval(async () => {
+          dispatch(setToken((await requestJSONAuth('/auth/jwt/refresh', 'POST'))['access_token']))
+          setGiven(Date.now())
+        }, expires * .75 * 60e3)
+
+        return () => {
+          window.clearInterval(timeout)
+        }
       }
     }
-  }, [loggedOut])
-
+  }, [authorized, credentials])
 
   useEffect(() => {
-    if (!user && loggedIn) {
-      dispatch(setUser())
+    if (authorized && email && token) {
+      setCredentials({ login: email, token })
     }
-  }, [user, loggedIn])
+  }, [authorized, email, token])
 
-  return { authorized, token, login, logout }
+  return { token, authorized, login, user, error, logout, loading }
 }

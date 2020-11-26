@@ -8,11 +8,12 @@ import { AdminRoutes } from '../../routes/AdminRoutes'
 import { AuthRoutes } from '../../routes/AuthRoutes'
 import { SuperAdminRoutes } from '../../routes/SuperAdminRoutes'
 import { useRole } from '../../hooks/role.hook'
+import { LoginLoadingView } from '../../views/loading/LoginLoadingView'
 
 export const App: React.FC = () => {
   const { theme } = useTheme()
-  
-  const { authorized } = useAuth()
+
+  const { authorized, user } = useAuth()
   const { isSuperAdmin } = useRole()
 
   return (
@@ -22,9 +23,12 @@ export const App: React.FC = () => {
         {
           !authorized
             ? <AuthRoutes />
-            : isSuperAdmin
-              ? <SuperAdminRoutes />
-              : <AdminRoutes />
+            :
+            !user
+              ? <LoginLoadingView />
+              : isSuperAdmin
+                ? <SuperAdminRoutes />
+                : <AdminRoutes />
         }
       </ThemeProvider>
     </MuiPickersUtilsProvider>

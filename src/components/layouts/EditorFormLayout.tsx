@@ -24,30 +24,33 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-export const EditorFormLayout: React.FC<IEditorFormProps> = ({ isValid, title, redirectTo, children, onAdd, onRemove, onModify, onClearAll, loading, mode = 'edit' }) => {
+export const EditorFormLayout: React.FC<IEditorFormProps> = ({
+    isValid, title, redirectTo, children, onAdd, onRemove, onModify, onClearAll, loading, mode = 'edit'
+}) => {
     const classes = useStyles()
 
-    const isEditing = mode === 'edit'
+    const editing = mode === 'edit'
 
-    const onSave = isEditing ? onModify : onAdd
+    const onSave = editing ? onModify : onAdd
 
     const onSaveAndResume = () => {
         onSave()
-        if (!isEditing) {
+
+        if (!editing) {
             onClearAll()
         }
     }
 
-    const saveLoading = loading[isEditing ? 'update' : 'create']
+    const saveLoading = loading[editing ? 'update' : 'create']
 
-    const buttonSize = !isEditing ? 6 : 4
+    const buttonSize = !editing ? 6 : 4
 
     return (
         <Container component="main" maxWidth="sm">
             <div className={classes.paper}>
                 <Avatar className={classes.avatar}>
                     {
-                        !isEditing
+                        !editing
                             ? <AddOutlined />
                             : <EditOutlined />
                     }
@@ -59,7 +62,7 @@ export const EditorFormLayout: React.FC<IEditorFormProps> = ({ isValid, title, r
                     {children}
                     <Grid container xs={12} spacing={2}>
                         {
-                            isEditing &&
+                            editing &&
                             <Grid item xs={12} sm={buttonSize}>
                                 <Button
                                     fullWidth
@@ -69,7 +72,7 @@ export const EditorFormLayout: React.FC<IEditorFormProps> = ({ isValid, title, r
                                     onClick={onRemove}
                                     disabled={loading.delete}
                                     component={NavLink}
-                                    to={redirectTo}    
+                                    to={redirectTo}
                                 >
                                     {'Удалить'}
                                 </Button>

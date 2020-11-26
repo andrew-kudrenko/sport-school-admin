@@ -50,14 +50,5 @@ export interface IThemeState {
 
 export interface IState {
   auth: IAuthState
-  cities: IStatePartial<ICity>
-  coaches: IStatePartial<ICoach>
-  groups: IStatePartial<IGroup>
-  students: IStatePartial<IStudent>
-  statistics: IStatePartial<IStatistics>
-  tournaments: IStatePartial<ITournament>
-  news: IStatePartial<INews>
-  schools: IStatePartial<ISchool>
-  users: IStatePartial<IUser>
   themes: IThemeState
 }

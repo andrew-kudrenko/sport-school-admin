@@ -1,64 +1,90 @@
-import React, { useEffect, useState } from 'react'
-import { Grid, TextField } from '@material-ui/core'
-import { useDispatch, useSelector } from 'react-redux'
+import React, { useEffect, useRef, useState } from 'react'
+import { Box, Button, Grid, makeStyles, TextField, Theme, Typography } from '@material-ui/core'
+import { useSelector } from 'react-redux'
 import { useFormHandlers } from '../../hooks/form-handlers.hooks'
 import { IEntityEditorProps } from '../../interfaces/components.interfaces'
 import { IState } from '../../interfaces/redux.interfaces'
 import { EditorFormLayout } from '../layouts/EditorFormLayout'
-import { useParams } from 'react-router-dom'
-import { IDType } from '../../interfaces/entities.interfaces'
-import { addNews, modifyNews, removeNews } from '../../redux/actions/news.actions'
+import { useIDParam } from '../../hooks/id-param.hook'
+import { useDeleteQuery, useGetQuery, usePostQuery, usePutQuery } from '../../hooks/query.hook'
+import { INews } from '../../interfaces/entities.interfaces'
+import { validate } from '../../helpers/truthy-validator.helper'
+import { collectCRUDLoading } from '../../helpers/crud-loading.helper'
+import { Nullable } from '../../types/common.types'
 
-export const NewsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
+const useStyles = makeStyles((theme: Theme) => ({
+  preview: {
+    height: 50,
+  },
+  fileLoader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  loaderButtons: {
+    display: 'flex',
+  },
+  button: {
+    marginLeft: theme.spacing(2),
+  },
+  input: {
+    display: 'hidden',
+  },
+}))
+
+export const NewsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title: pageTitle }) => {
+  const classes = useStyles()
   const editing = mode === 'edit'
 
-  const { id } = useParams<{ id?: IDType }>()
-  const { user} = useSelector((state: IState) => state.auth)
-  const { list: news } = useSelector((state: IState) => state.news)
-  const dispatch = useDispatch()
+  const id = useIDParam()
 
-  const author_id = user?.id
-  const [img, setImg] = useState('')
+  const { user } = useSelector((state: IState) => state.auth)
+  const author_id = useRef(user?.id).current
+
+  const { value: news, loading: fetching } = useGetQuery<INews>(`posts/news/${id}`)
+
+  const [title, setTitle] = useState('')
   const [text, setText] = useState('')
+  const [img, setImg] = useState('')
 
-  const { loading } = useSelector((state: IState) => state.news)
-  const { onChange } = useFormHandlers()
+  const [file, setFile] = useState<Nullable<File>>(null)
+  const [previewUrl, setPreviewUrl] = useState<Nullable<string>>(null)
+  const [forSending, setForSending] = useState({ title, text, img, author_id })
 
-  const isValid: boolean = [text, img].reduce((acc: boolean, item) => Boolean(acc) && Boolean(item), true)
+
+  const { onChange, onFileChange } = useFormHandlers()
+  const isValid = validate([text, pageTitle])
+
+  const { execute: onAdd, loading: adding } = usePostQuery('posts/news', forSending)
+  const { execute: onModify, loading: modifying } = usePutQuery(`posts/news/${id}`, forSending)
+  const { execute: onRemove, loading: removing } = useDeleteQuery(`posts/news/${id}`)
+
+  const loading = collectCRUDLoading([fetching, adding, modifying, removing])
 
   const onClearAll = () => {
     setText('')
     setImg('')
-  }
-
-  const onAdd = dispatch.bind(null, addNews({ author_id: author_id as string, img, text }))
-
-  let onModify = () => { }
-  if (!!id?.toString()) {
-    onModify = dispatch.bind(null, modifyNews(id, { author_id: author_id as string, img, text }))
-  }
-
-  let onRemove = () => { }
-
-  if (editing && !!id?.toString()) {
-    onRemove = dispatch.bind(null, removeNews(id))
+    setTitle('')
   }
 
   useEffect(() => {
-    const current = news.find(n => n.id.toString() === id)
+    setForSending({ title, text, img, author_id })
+  }, [title, text, img])
 
-    if (editing && current) {
-      setText(current.text)
-      setImg(current.img)
+  useEffect(() => {
+    if (editing && news) {
+      setTitle(news.title)
+      setText(news.text)
+      setImg(news.img)
     }
-  }, [])
+  }, [news])
 
   return (
     <EditorFormLayout
       mode={mode}
       isValid={isValid}
       redirectTo="/news/"
-      title={title}
+      title={pageTitle}
       loading={loading}
       onAdd={onAdd}
       onClearAll={onClearAll}
@@ -71,10 +97,55 @@ export const NewsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) 
             autoFocus
             variant="outlined"
             fullWidth
-            label="Изображение"
-            value={img}
-            onChange={onChange(setImg)}
+            label="Заголовок"
+            value={title}
+            onChange={onChange(setTitle)}
           />
+        </Grid>
+        <Grid item xs={12}>
+          <Box className={classes.fileLoader}>
+            <Box>
+              {
+                previewUrl
+                  ? <img alt="preview" src={String(previewUrl)} className={classes.preview} />
+                  : <Typography variant="subtitle1">{'Выберите изображение'}</Typography>
+              }
+            </Box>
+            <input
+              accept="image/*"
+              className={classes.input}
+              id="file-loader"
+              type="file"
+              onChange={onFileChange(files => {
+                if (files && files[0]) {
+                  setFile(files[0])
+                  setPreviewUrl(URL.createObjectURL(files[0]))
+                }
+              })}
+            />
+            <Box className={classes.loaderButtons}>
+              <label htmlFor="file-loader">
+                {/* <Button 
+                  variant="outlined" 
+                  color="primary" 
+                  className={classes.button}
+                >
+                  {'Загрузить'}
+                </Button> */}
+              </label>
+              <Button
+                onClick={() => {
+                  setFile(null)
+                  setPreviewUrl(null)
+                }}
+                variant="outlined"
+                color="secondary"
+                className={classes.button}
+              >
+                {'Очистить'}
+              </Button>
+            </Box>
+          </Box>
         </Grid>
         <Grid item xs={12}>
           <TextField

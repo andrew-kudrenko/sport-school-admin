@@ -17,6 +17,7 @@ async function requestBase<T = any>(headers: Headers, endPoint: string, method: 
 
         return json
     } catch (e) {
+        console.log(e)
         throw e
     }
 }
@@ -46,14 +47,9 @@ function createAuthRequest() {
 
             headers.json['Authorization'] = `Bearer ${token}`
 
-            if (token) {
-                await requestBase<any>(headers.json, '/auth/jwt/refresh', 'POST', null)
-            } else {
-                throw new Error('No JWT token!')
-            }
         } catch (e) {
             console.log(e)
-            localStorage.removeItem('credentials')
+            // localStorage.removeItem('credentials')
         }
 
         if (body) {
@@ -69,15 +65,9 @@ function createAuthRequest() {
             const token = userData?.token
 
             headers.formData['Authorization'] = `Bearer ${token}`
-
-            if (token) {
-                await requestBase<any>(headers.formData, '/auth/jwt/refresh', 'POST', null)
-            } else {
-                throw new Error('No JWT token!')
-            }
         } catch (e) {
             console.log(e)
-            localStorage.removeItem('credentials')
+            // localStorage.removeItem('credentials')
         }
 
         if (body) {

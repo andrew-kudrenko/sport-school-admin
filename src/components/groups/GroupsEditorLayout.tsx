@@ -1,30 +1,41 @@
 import React, { useEffect, useState } from 'react'
 import { Grid, MenuItem, Select, TextField } from '@material-ui/core'
-import { useDispatch, useSelector } from 'react-redux'
 import { useFormHandlers } from '../../hooks/form-handlers.hooks'
 import { IEntityEditorProps } from '../../interfaces/components.interfaces'
-import { IState } from '../../interfaces/redux.interfaces'
 import { EditorFormLayout } from '../layouts/EditorFormLayout'
-import { useParams } from 'react-router-dom'
-import { IDType } from '../../interfaces/entities.interfaces'
-import { addGroup, modifyGroup, removeGroup } from '../../redux/actions/groups.actions'
-import { useFoundGroups, useFoundSchools } from '../../hooks/found-by-city.hook'
+import { IDType, IGroup } from '../../interfaces/entities.interfaces'
+import { useFoundCoaches, useFoundSchools } from '../../hooks/found-by-city.hook'
+import { Nullable } from '../../types/common.types'
+import { validate } from '../../helpers/truthy-validator.helper'
+import { useIDParam } from '../../hooks/id-param.hook'
+import { useGetQuery, usePostQuery, usePutQuery, useDeleteQuery } from '../../hooks/query.hook'
+import { collectCRUDLoading } from '../../helpers/crud-loading.helper'
 
 export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
   const editing = mode === 'edit'
 
-  const { id } = useParams<{ id?: IDType }>()
-  const { loading } = useSelector((state: IState) => state.groups)
+  const id = useIDParam()
+  const { value: group, loading: fetching } = useGetQuery<IGroup>(`persons/groups/${id}`)
 
-  const schools = useFoundSchools()
-  const groups = useFoundGroups()
+  const { schools } = useFoundSchools()
+  const { coaches } = useFoundCoaches()
 
-  const [school, setSchool] = useState<IDType | null>(null)
-  const [year, setYear] = useState<number | null>(null)
+  const [school, setSchool] = useState<Nullable<IDType>>(null)
+  const [year, setYear] = useState<Nullable<number>>(null)
   const [schedule, setSchedule] = useState('')
   const [tgUrl, setTgUrl] = useState('')
+  const [coachesID, setCoachesID] = useState<Array<IDType>>([])
 
-  const dispatch = useDispatch()
+  const [forSending, setForSending] = useState({
+    item: {
+      year,
+      schedule,
+      tg_url: tgUrl,
+      school_id: school,
+    },
+    trainer_ids: coachesID
+  })
+
   const { onChange, onSelect } = useFormHandlers()
 
   const onClearAll = () => {
@@ -34,32 +45,34 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
     setTgUrl('')
   }
 
-  const onAdd = dispatch.bind(null, addGroup({ year: year as number, schedule, school_id: school as string, tg_url: tgUrl }))
+  const { execute: onAdd, loading: adding } = usePostQuery('persons/groups', forSending)
+  const { execute: onModify, loading: modifying } = usePutQuery(`persons/groups/${id}`, forSending)
+  const { execute: onRemove, loading: removing } = useDeleteQuery(`persons/groups/${id}`)
 
-  let onModify = () => { }
-  if (!!id?.toString()) {
-    onModify = dispatch.bind(null, modifyGroup(id, { year: year as number, schedule, school_id: school as string, tg_url: tgUrl }))
-  }
+  const isValid = validate([year, schedule, tgUrl, school])
 
-  let onRemove = () => { }
-
-  if (editing && !!id?.toString()) {
-    onRemove = dispatch.bind(null, removeGroup(id))
-  }
-
-  const isValid: boolean = [year, schedule, tgUrl, school].reduce((acc: boolean, item) => Boolean(acc) && Boolean(item), true)
-
+  const loading = collectCRUDLoading([adding, fetching, modifying, removing])
 
   useEffect(() => {
-    const group = groups.find(g => g.id.toString() === id)
+    setForSending({
+      item: {
+        year,
+        schedule,
+        tg_url: tgUrl,
+        school_id: school,
+      },
+      trainer_ids: coachesID
+    })
+  }, [])
 
+  useEffect(() => {
     if (editing && group) {
       setYear(group.year)
       setSchool(group.school_id)
       setTgUrl(group.tg_url)
       setSchedule(group.schedule)
     }
-  }, [])
+  }, [group])
 
   return (
     <EditorFormLayout
@@ -95,6 +108,22 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
             <MenuItem value='' disabled>{'Школа'}</MenuItem>
             {
               schools.map(c =>
+                <MenuItem value={c.id} key={c.id}>{c.name}</MenuItem>
+              )
+            }
+          </Select>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Select
+            variant="outlined"
+            fullWidth
+            value={coachesID || ''}
+            onChange={onSelect(setCoachesID)}
+            displayEmpty
+          >
+            <MenuItem value='' disabled>{'Тренер'}</MenuItem>
+            {
+              coaches.map(c =>
                 <MenuItem value={c.id} key={c.id}>{c.name}</MenuItem>
               )
             }

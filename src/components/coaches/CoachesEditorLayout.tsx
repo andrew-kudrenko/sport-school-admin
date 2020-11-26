@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import { Chip, createStyles, Grid, makeStyles, MenuItem, Select, TextField, Theme } from '@material-ui/core'
 import { KeyboardDatePicker } from '@material-ui/pickers'
-import { useDispatch, useSelector } from 'react-redux'
-import { useParams } from 'react-router-dom'
 import { EditorFormLayout } from '../../components/layouts/EditorFormLayout'
 import { useFormHandlers } from '../../hooks/form-handlers.hooks'
 import { IEntityEditorProps } from '../../interfaces/components.interfaces'
-import { IDType } from '../../interfaces/entities.interfaces'
-import { IState } from '../../interfaces/redux.interfaces'
-import { addCoach, modifyCoach, removeCoach } from '../../redux/actions/coaches.actions'
-import { useFoundCities, useFoundUsers, useFoundGroups, useFoundCoaches } from '../../hooks/found-by-city.hook'
+import { ICoach, IDType } from '../../interfaces/entities.interfaces'
+import { useFoundCities, useFoundUsers, useFoundGroups } from '../../hooks/found-by-city.hook'
+import { useIDParam } from '../../hooks/id-param.hook'
+import { useDeleteQuery, useGetQuery, usePostQuery, usePutQuery } from '../../hooks/query.hook'
+import { validate } from '../../helpers/truthy-validator.helper'
+import { collectCRUDLoading } from '../../helpers/crud-loading.helper'
+import { Nullable } from '../../types/common.types'
+import { splitDate } from '../../helpers/date-splitter.helper'
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     chips: {
       display: 'flex',
@@ -27,29 +29,43 @@ export const CoachesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
   const classes = useStyles()
   const editing = mode === 'edit'
 
-  const { id } = useParams<{ id?: IDType }>()
-  const { onChange, onSelect } = useFormHandlers()
+  const id = useIDParam()
+  const { onChange, onSelect, onDateChange } = useFormHandlers()
 
   const [name, setName] = useState('')
-  const [user, setUser] = useState<IDType | null>(null)
-  const [dob, setDOB] = useState<Date | null>(null)
+  const [user, setUser] = useState<Nullable<IDType>>(null)
+  const [dob, setDOB] = useState<Nullable<Date>>(null)
   const [description, setDescription] = useState('')
   const [address, setAddress] = useState('')
   const [tel, setTel] = useState('')
   const [group, setGroup] = useState<Array<IDType>>([])
-  const [city, setCity] = useState<IDType | null>(null)
+  const [city, setCity] = useState<Nullable<IDType>>(null)
 
+  const [forSending, setForSending] = useState({
+    item: {
+      name,
+      description,
+      address,
+      tel,
+      city_id: city,
+      dob: splitDate(dob || new Date()),
+      user_id: user,
+    }, 
+    group_ids: group
+  })
 
-  const dispatch = useDispatch()
+  const { cities } = useFoundCities()
+  const { users } = useFoundUsers()
+  const { groups } = useFoundGroups()
 
-  const cities = useFoundCities()
-  const users = useFoundUsers()
-  const groups = useFoundGroups()
-  const coaches = useFoundCoaches()
+  const { execute: onAdd, loading: adding } = usePostQuery('persons/trainer', forSending)
+  const { execute: onModify, loading: modifying } = usePutQuery(`persons/trainer/${id}`, forSending)
+  const { execute: onRemove, loading: removing } = useDeleteQuery(`persons/trainer/${id}`)
 
-  const { loading } = useSelector((state: IState) => state.coaches)
+  const { value: coach, loading: fetching } = useGetQuery<ICoach>(`persons/trainer/${id}`)
 
-  const isValid: boolean = [name, dob, String(user), description, address, tel, group, city].reduce((acc: boolean, item) => Boolean(acc) && Boolean(item), true)
+  const isValid = validate([name, dob, String(user), description, address, tel, group, city])
+  const loading = collectCRUDLoading([adding, fetching, modifying, removing])
 
   const onClearAll = () => {
     setName('')
@@ -63,32 +79,22 @@ export const CoachesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
     setCity(null)
   }
 
-  const onAdd = dispatch.bind(null, addCoach({ name, dob: dob?.toJSON().split('T')[0] || '', tel, address, group_id: group, city_id: city as string, description, user_id: user as string }))
-
-  let onModify = () => { }
-
-  if (editing && id) {
-    onModify = dispatch.bind(null, modifyCoach(id, {
-      name,
-      dob: dob?.toJSON().split('T')[0] || '',     
-      tel,
-      address,
-      group_id: group,
-      city_id: city as string,
-      description,
-      user_id: user as string
-    }))
-  }
-
-  let onRemove = () => { }
-
-  if (editing && !!id?.toString()) {
-    onRemove = dispatch.bind(null, removeCoach(id))
-  }
+  useEffect(() => {
+    setForSending({
+      item: {
+        name,
+        description,
+        address,
+        tel,
+        city_id: city,
+        dob: splitDate(dob || new Date()),
+        user_id: user,
+      }, 
+      group_ids: group
+    })
+  }, [name, description, address, tel, city, dob, user, group])
 
   useEffect(() => {
-    const coach = coaches.find(с => с.id === id)
-
     if (editing && coach) {
       setUser(coach.user_id)
       setName(coach.name)
@@ -99,22 +105,8 @@ export const CoachesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
       setTel(coach.tel)
       setGroup(coach.group_id)
     }
-  }, [])
+  }, [coach])
 
-  const handleDateChange = (date: Date | null) => {
-    setDOB(date)
-  }
-
-  const handleChangeMultiple = (event: React.ChangeEvent<{ value: unknown }>) => {
-    const { options } = event.target as HTMLSelectElement
-    const value: string[] = []
-    for (let i = 0, l = options.length; i < l; i += 1) {
-      if (options[i].selected) {
-        value.push(options[i].value)
-      }
-    }
-    setGroup(value)
-  }
 
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     setGroup(event.target.value as string[])
@@ -229,7 +221,7 @@ export const CoachesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
             label="Дата рождения"
             format="MM/dd/yyyy"
             value={dob}
-            onChange={handleDateChange}
+            onChange={onDateChange(setDOB)}
           />
         </Grid>
         <Grid item xs={12}>

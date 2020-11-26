@@ -1,62 +1,58 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Grid, TextField } from '@material-ui/core'
-import { useDispatch, useSelector } from 'react-redux'
-import { useParams } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 import { EditorFormLayout } from '../../components/layouts/EditorFormLayout'
 import { useFormHandlers } from '../../hooks/form-handlers.hooks'
 import { IEntityEditorProps } from '../../interfaces/components.interfaces'
-import { IDType } from '../../interfaces/entities.interfaces'
+import { ITournament, IUser } from '../../interfaces/entities.interfaces'
 import { IState } from '../../interfaces/redux.interfaces'
-import { addTournament, modifyTournament, removeTournament } from '../../redux/actions/tournaments.actions'
+import { collectCRUDLoading } from '../../helpers/crud-loading.helper'
+import { useIDParam } from '../../hooks/id-param.hook'
+import { useGetQuery, usePostQuery, usePutQuery, useDeleteQuery } from '../../hooks/query.hook'
 
 export const TournamentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
     const editing = mode === 'edit'
 
-    const { id } = useParams<{ id?: IDType }>()
+    const id = useIDParam()
     const { onChange } = useFormHandlers()
+    const { user } = useSelector((state: IState) => state.auth)
 
+    const [author, setAuthor] = useState(user?.id || '')
     const [text, setText] = useState('')
-    const [year, setYear] = useState<number | null>(null)
+    const [year, setYear] = useState<number>(new Date().getFullYear())
     const [img, setImg] = useState('')
 
-    const dispatch = useDispatch()
+    const [forSending, setForSending] = useState({ text, year, img, author_id: author })
+    console.log(forSending)
 
-    const { user } = useSelector((state: IState) => state.auth)
-    const { loading, list: tournaments } = useSelector((state: IState) => state.tournaments)
+    const { value: tournament, loading: fetching } = useGetQuery<ITournament & { author: IUser }>(`posts/tournament/${id}`)
 
-    let author_id = useRef(user?.id)
+    const { execute: onAdd, loading: adding } = usePostQuery('posts/tournament', forSending)
+    const { execute: onModify, loading: modifying } = usePutQuery(`posts/tournament/${id}`, forSending)
+    const { execute: onRemove, loading: removing } = useDeleteQuery(`posts/tournament/${id}`)
+
     const isValid: boolean = [text, img, year].reduce((acc: boolean, item) => Boolean(acc) && Boolean(item), true)
+    const loading = collectCRUDLoading([adding, fetching, modifying, removing])
 
     const onClearAll = () => {
+        setAuthor('')
         setText('')
-        setYear(null)
+        setYear(new Date().getFullYear())
         setImg('')
     }
 
-    const onAdd = dispatch.bind(null, addTournament({ text, year: year as number, img, author_id: author_id.current as string }))
-
-    let onModify = () => {}
-
-    if (editing && id) {
-        onModify = dispatch.bind(null, modifyTournament(id, { text, year: year as number, img, author_id: author_id.current as string }))
-    }
-
-    let onRemove = () => {}
-
-    if (editing && !!id?.toString()) {
-        onRemove = dispatch.bind(null, removeTournament(id))
-    }
+    useEffect(() => {
+        if (editing && tournament) {
+            setAuthor(tournament.author.id)
+            setText(tournament.text)
+            setImg(tournament.img)
+            setYear(tournament.year)
+        }
+    }, [tournament])
 
     useEffect(() => {
-        const tournament = tournaments.find(t => t.id.toString() === String(id))
-
-        if (editing && tournament) {
-            author_id.current = tournament.author_id
-            setText(tournament.text)    
-            setImg(tournament.img)    
-            setYear(tournament.year)    
-        }
-    }, [])
+        setForSending({ text, year, img, author_id: author })
+    }, [text, year, img, user])
 
     return (
         <EditorFormLayout

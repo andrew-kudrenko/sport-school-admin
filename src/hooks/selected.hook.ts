@@ -49,10 +49,14 @@ export function useSelected(observable: Array<IdentifiedEntity>) {
             select(id)
         }
     }
+
+    function unselectAll() {
+        setSelected([])
+    }
     
     useEffect(() => {
         setSelected(selected.filter(s => observable.find(o => o.id === s)))
     }, [observable])
 
-    return { selected, has, allSelected, onToggle, onToggleAll }
+    return { selected, has, allSelected, onToggle, onToggleAll, unselectAll }
 }

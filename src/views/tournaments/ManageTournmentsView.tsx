@@ -1,40 +1,27 @@
-import React, { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import React from 'react'
 import { EnhancedTable } from '../../components/tables/EnhancedTable'
-import { useAuth } from '../../hooks/auth.hooks'
-import {  IHeadCell, RemoveCallbackType } from '../../interfaces/components.interfaces'
+import { requestJSONAuth } from '../../helpers/request.hepler'
+import { useGetQuery } from '../../hooks/query.hook'
+import {  IHeadCell } from '../../interfaces/components.interfaces'
 import { ITournament } from '../../interfaces/entities.interfaces'
-import { IState } from '../../interfaces/redux.interfaces'
-import { fetchTournaments, removeTournament } from '../../redux/actions/tournaments.actions'
 
 const headCells: Array<IHeadCell<ITournament>> = [
-    { id: 'year', label: 'Год', numeric: false },
-    { id: 'text', label: 'Описание', numeric: false },
-    { id: 'img', label: 'Изображение', numeric: false }
-
+    { id: 'year', label: 'Год' },
+    { id: 'text', label: 'Описание' }
 ]
 
-export const ManageTournamentsView: React.FC = (props) => {
-    const dispatch = useDispatch()
-    const { list } = useSelector((state: IState) => state.tournaments)
+export const ManageTournamentsView: React.FC = () => {
+    const { value: tournaments, execute: refresh } = useGetQuery<Array<ITournament>>('posts/tournament')  
 
-    const onRemove: RemoveCallbackType = id => {
-        dispatch(removeTournament(id))
-    }
-
-    const { authorized } = useAuth()
-  
-    useEffect(() => {
-      if (authorized) {
-        dispatch(fetchTournaments())
-      }
-    }, [authorized, dispatch])
-  
+    const onRemove = async (id: string) => {
+        await requestJSONAuth(`/posts/tournament/${id}`, 'DELETE')
+        await refresh()
+      } 
 
     return (
         <EnhancedTable<ITournament>
             headCells={headCells}
-            rows={list}
+            rows={tournaments || []}
             title={'Турниры'}
             onRemove={onRemove}
         />

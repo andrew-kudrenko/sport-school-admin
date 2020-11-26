@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react'
-import { Chip, createStyles, Grid, makeStyles, MenuItem, Select, TextField, Theme } from '@material-ui/core'
+import { Chip, createStyles, Grid, makeStyles, MenuItem, Select, TextField } from '@material-ui/core'
 import { KeyboardDatePicker } from '@material-ui/pickers'
-import { useDispatch, useSelector } from 'react-redux'
 import { useFormHandlers } from '../../hooks/form-handlers.hooks'
 import { IEntityEditorProps } from '../../interfaces/components.interfaces'
-import { IState } from '../../interfaces/redux.interfaces'
 import { EditorFormLayout } from '../layouts/EditorFormLayout'
-import { useParams } from 'react-router-dom'
-import { IDType } from '../../interfaces/entities.interfaces'
-import { addStudent, modifyStudent, removeStudent } from '../../redux/actions/students.actions'
+import { IDType, IStudent, IUser } from '../../interfaces/entities.interfaces'
+import { useFoundGroups, useFoundUsers } from '../../hooks/found-by-city.hook'
+import { validate } from '../../helpers/truthy-validator.helper'
+import { Nullable } from '../../types/common.types'
+import { useDeleteQuery, useGetQuery, usePostQuery, usePutQuery } from '../../hooks/query.hook'
+import { useIDParam } from '../../hooks/id-param.hook'
+import { collectCRUDLoading } from '../../helpers/crud-loading.helper'
+import { splitDate } from '../../helpers/date-splitter.helper'
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     chips: {
       display: 'flex',
@@ -22,24 +25,34 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-export const ChildrenEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
+export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
   const classes = useStyles()
   const editing = mode === 'edit'
 
-  const { id } = useParams<{ id?: IDType }>()
-  const { list: users } = useSelector((state: IState) => state.users)
-  const { list: groups } = useSelector((state: IState) => state.groups)
-  const { loading, list: students } = useSelector((state: IState) => state.students)
+  const id = useIDParam()
+  const { users } = useFoundUsers()
+  const { groups } = useFoundGroups()
+  const { value: student, loading: fetching } = useGetQuery<{ parent: Array<IUser> } & IStudent>(`persons/child/${id}`)
 
   const [name, setName] = useState('')
   const [img, setImg] = useState('')
   const [dob, setDOB] = useState<Date | null>(null)
   const [address, setAddress] = useState('')
-  const [group, setGroup] = useState<IDType | null>(null)
+  const [group, setGroup] = useState<Nullable<IDType>>(null)
   const [parents, setParents] = useState<Array<IDType>>([])
 
-  const dispatch = useDispatch()
-  const { onChange, onSelect } = useFormHandlers()
+  const [forSending, setForSending] = useState({
+    item: {
+      name,
+      address,
+      img,
+      group_id: group,
+      dob: splitDate(dob || new Date())
+    },
+    parent_ids: parents
+  })
+
+  const { onChange, onSelect, onDateChange } = useFormHandlers()
 
   const onClearAll = () => {
     setName('')
@@ -50,42 +63,36 @@ export const ChildrenEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
     setParents([])
   }
 
-  const onAdd = dispatch.bind(null, addStudent({ name, address, img, parents_id: parents, group_id: group as string, dob: dob?.toJSON().split('T')[0] as string }))
+  const { execute: onAdd, loading: adding } = usePostQuery('posts/child', forSending)
+  const { execute: onModify, loading: modifying } = usePutQuery(`posts/child/${id}`, forSending)
+  const { execute: onRemove, loading: removing } = useDeleteQuery(`posts/child/${id}`)
 
-  let onModify = () => { }
-  if (!!id?.toString()) {
-    onModify = dispatch.bind(null, modifyStudent(id, { name, img, address, parents_id: parents, group_id: group as string, dob: dob?.toJSON().split('T')[0] as string }))
-  }
-
-  let onRemove = () => { }
-
-  if (editing && !!id?.toString()) {
-    onRemove = dispatch.bind(null, removeStudent(id))
-  }
-
-  const isValid: boolean = [name, address, parents, group, dob].reduce((acc: boolean, item) => Boolean(acc) && Boolean(item), true)
-
+  const loading = collectCRUDLoading([adding, fetching, modifying, removing])
+  const isValid = validate([name, address, parents, group, dob])
 
   useEffect(() => {
-    const child = students.find(g => g.id.toString() === id)
+    setForSending({
+      item: {
+        name,
+        address,
+        img,
+        group_id: group,
+        dob: splitDate(dob || new Date())
+      },
+      parent_ids: parents  
+    })
+  }, [name, img, dob, address, group, parents])
 
-    if (editing && child) {
-      setName(child.name)
-      setDOB(new Date(child.dob))
-      setAddress(child.address)
-      setGroup(child.group_id)
-      setParents(child.parents_id)
-      setImg(child.img)
+  useEffect(() => {
+    if (editing && student) {
+      setName(student.name)
+      setDOB(new Date(student.dob))
+      setAddress(student.address)
+      setGroup(student.group_id)
+      setParents(student.parents_ids)
+      setImg(student.img)
     }
-  }, [])
-
-  const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setGroup(event.target.value as string)
-  }
-
-  const handleDateChange = (date: Date | null) => {
-    setDOB(date)
-  }
+  }, [student])
 
   return (
     <EditorFormLayout
@@ -129,29 +136,20 @@ export const ChildrenEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
           />
         </Grid>
         <Grid item xs={12}>
-          <TextField
-            variant="outlined"
-            fullWidth
-            label="Изображение"
-            value={img}
-            onChange={onChange(setImg)}
-          />
-        </Grid>
-        <Grid item xs={12}>
           <Select
             variant="outlined"
             multiple
             fullWidth
             value={parents || ''}
             displayEmpty
-            onChange={handleChange}
+            onChange={onSelect(setParents)}
             renderValue={(selected) => (
               <div className={classes.chips}>
                 {
                   (selected as string[]).length
                     ?
                     (selected as string[]).map((value) => (
-                      <Chip key={value} label={users.find(g => g.id === value)?.name || ''} className={classes.chip} />
+                      <Chip key={value} label={users.find(u => u.id === value)?.name || ''} className={classes.chip} />
                     ))
                     : 'Родители'
                 }
@@ -188,7 +186,7 @@ export const ChildrenEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
             label="Дата рождения"
             format="MM/dd/yyyy"
             value={dob}
-            onChange={handleDateChange}
+            onChange={onDateChange(setDOB)}
           />
         </Grid>
       </Grid>

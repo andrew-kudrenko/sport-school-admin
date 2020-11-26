@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from 'react'
 import { Grid, TextField, Select, MenuItem } from '@material-ui/core'
-import { useDispatch, useSelector } from 'react-redux'
-import { useParams } from 'react-router-dom'
 import { EditorFormLayout } from '../layouts/EditorFormLayout'
 import { useFormHandlers } from '../../hooks/form-handlers.hooks'
 import { IEntityEditorProps } from '../../interfaces/components.interfaces'
-import { IDType, INonIDUser } from '../../interfaces/entities.interfaces'
-import { IState } from '../../interfaces/redux.interfaces'
-import { addUser, modifyUser, removeUser } from '../../redux/actions/users.actions'
-import { useRole } from '../../hooks/role.hook'
+import { IDType, IUser } from '../../interfaces/entities.interfaces'
 import { useFoundCities, useFoundSchools, useFoundUsers } from '../../hooks/found-by-city.hook'
+import { splitDate } from '../../helpers/date-splitter.helper'
+import { collectCRUDLoading } from '../../helpers/crud-loading.helper'
+import { useIDParam } from '../../hooks/id-param.hook'
+import { useGetQuery, usePostQuery, usePutQuery, useDeleteQuery } from '../../hooks/query.hook'
+import { Nullable } from '../../types/common.types'
+import { validate } from '../../helpers/truthy-validator.helper'
 
 export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
     const editing = mode === 'edit'
 
-    const { id } = useParams<{ id?: IDType }>()
+    const id = useIDParam()
     const { onChange, onSelect } = useFormHandlers()
 
     const [login, setLogin] = useState('')
@@ -25,22 +26,19 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title })
     const [isVerify, setIsVerify] = useState(false)
     const [isWasActivate, setWasActivate] = useState(false)
 
-    const [city, setCity] = useState<IDType | null>(null)
-    const [school, setSchool] = useState<IDType | null>(null)
+    const [city, setCity] = useState<Nullable<IDType>>(null)
+    const [school, setSchool] = useState<Nullable<IDType>>(null)
+    const [children, setChildren] = useState<Array<IDType>>([])
 
     const [address, setAddress] = useState('')
     const [tel, setTel] = useState('')
-    const [date, setDate] = useState<Date | null>(null)
+    const [date, setDate] = useState<Nullable<Date>>(null)
 
-    const dispatch = useDispatch()
+    const { cities } = useFoundCities()
+    const { schools } = useFoundSchools()
+    const { users } = useFoundUsers()
 
-    const cities = useFoundCities()
-    const schools = useFoundSchools()
-    const users = useFoundUsers()
-
-    const { loading } = useSelector(({ users }: IState) => users)
-
-    const isValid: boolean = [login, name, city, school, address, tel, date].reduce((acc: boolean, item) => Boolean(acc) && Boolean(item), true)
+    const { value: user, loading: fetching } = useGetQuery<IUser>(`tg/users/${id}`)
 
     const onClearAll = () => {
         setLogin('')
@@ -60,38 +58,30 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title })
         setDate(null)
     }
 
-    const userState: INonIDUser = { 
+    const forSending = { 
         name, 
-        city_id: city as string || '', 
+        city_id: city, 
         address,
-        date_joined: date?.toString() || '',
+        date_joined: splitDate(date || new Date()),
         is_child: isChild,
         is_trainer: isTrainer,
         is_verify: isVerify,
         login,
-        school_id: school as string || '',
+        school_id: school,
         tel,
-        was_activate: isWasActivate  ,
-        childs_id: []
+        was_activate: isWasActivate,
+        child_id: children
     }
+    console.log(forSending)
 
-    const onAdd = dispatch.bind(null, addUser(userState))
-
-    let onModify = () => {}
-
-    if (editing && id) {
-        onModify = dispatch.bind(null, modifyUser(id, userState))
-    }
-
-    let onRemove = () => {}
-
-    if (editing && !!id?.toString()) {
-        onRemove = dispatch.bind(null, removeUser(id))
-    }
+    const { execute: onAdd, loading: adding } = usePostQuery('persons/trainer', forSending)
+    const { execute: onModify, loading: modifying } = usePutQuery(`persons/trainer/${id}`, forSending)
+    const { execute: onRemove, loading: removing } = useDeleteQuery(`persons/trainer/${id}`)
+  
+    const isValid = validate([login, name, city, school, address, tel, date])
+    const loading = collectCRUDLoading([adding, fetching, modifying, removing])  
 
     useEffect(() => {
-        const user = users.find(u => u.id.toString() === id)
-
         if (editing && user) {
             setLogin(user.login)
             setName(user.name)
@@ -109,7 +99,7 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title })
             
             setDate(new Date(user.date_joined))
         }
-    }, [])
+    }, [user])
 
     return (
         <EditorFormLayout
@@ -154,6 +144,24 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title })
                         <MenuItem value='' disabled>{'Город'}</MenuItem>
                         {
                             cities.map(c =>
+                                <MenuItem value={c.id} key={c.id}>{c.name}</MenuItem>
+                            )
+                        }
+                    </Select>
+                </Grid>
+                <Grid item xs={12}>
+                    <Select
+                        variant="outlined"
+                        fullWidth
+                        value={children}
+                        onChange={onSelect(setChildren)}
+                        displayEmpty
+                    >
+                        <MenuItem value='' disabled>{'Дети'}</MenuItem>
+                        {
+                            users
+                            .filter(u => u.is_child)
+                            .map(c =>
                                 <MenuItem value={c.id} key={c.id}>{c.name}</MenuItem>
                             )
                         }
