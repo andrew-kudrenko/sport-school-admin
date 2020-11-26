@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Grid, MenuItem, Select, TextField } from '@material-ui/core'
+import { Chip, createStyles, Grid, Input, makeStyles, MenuItem, Select, TextField } from '@material-ui/core'
 import { useFormHandlers } from '../../hooks/form-handlers.hooks'
 import { IEntityEditorProps } from '../../interfaces/components.interfaces'
 import { EditorFormLayout } from '../layouts/EditorFormLayout'
@@ -11,7 +11,20 @@ import { useIDParam } from '../../hooks/id-param.hook'
 import { useGetQuery, usePostQuery, usePutQuery, useDeleteQuery } from '../../hooks/query.hook'
 import { collectCRUDLoading } from '../../helpers/crud-loading.helper'
 
+const useStyles = makeStyles(() =>
+  createStyles({
+    chips: {
+      display: 'flex',
+      flexWrap: 'wrap',
+    },
+    chip: {
+      margin: 2,
+    }
+  })
+)
+
 export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
+  const classes = useStyles()
   const editing = mode === 'edit'
 
   const id = useIDParam()
@@ -43,6 +56,7 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
     setYear(null)
     setSchedule('')
     setTgUrl('')
+    setCoachesID([])
   }
 
   const { execute: onAdd, loading: adding } = usePostQuery('persons/groups', forSending)
@@ -63,8 +77,8 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
       },
       trainer_ids: coachesID
     })
-  }, [])
-
+  }, [year, schedule, tgUrl, school, coachesID])
+  console.log(forSending)
   useEffect(() => {
     if (editing && group) {
       setYear(group.year)
@@ -73,6 +87,10 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
       setSchedule(group.schedule)
     }
   }, [group])
+
+  const handleChange = (callback: (value: any) => any) => (event: React.ChangeEvent<{ value: unknown }>) => {
+    callback(event.target.value as string[])
+  }
 
   return (
     <EditorFormLayout
@@ -113,21 +131,37 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
             }
           </Select>
         </Grid>
-        <Grid item xs={12} sm={6}>
-          <Select
-            variant="outlined"
-            fullWidth
-            value={coachesID || ''}
-            onChange={onSelect(setCoachesID)}
-            displayEmpty
-          >
-            <MenuItem value='' disabled>{'Тренер'}</MenuItem>
-            {
-              coaches.map(c =>
-                <MenuItem value={c.id} key={c.id}>{c.name}</MenuItem>
-              )
-            }
-          </Select>
+        <Grid item xs={12}>
+          <Grid item xs={12}>
+            <Select
+              variant="outlined"
+              multiple
+              fullWidth
+              value={coachesID || ''}
+              displayEmpty
+              onChange={handleChange(setCoachesID)}
+              input={<Input />}
+              renderValue={(selected) => (
+                <div className={classes.chips}>
+                  {
+                    (selected as string[])?.length
+                      ?
+                      (selected as string[]).map((value) => (
+                        <Chip key={value} label={coaches.find(c => c.id === value)?.name || ''} className={classes.chip} />
+                      ))
+                      : 'Тренеры'
+                  }
+                </div>
+              )}
+            >
+              <MenuItem value='' disabled>{'Тренеры'}</MenuItem>
+              {
+                coaches.map(c =>
+                  <MenuItem value={c.id} key={c.id}>{c.name}</MenuItem>
+                )
+              }
+            </Select>
+          </Grid>
         </Grid>
         <Grid item xs={12}>
           <TextField

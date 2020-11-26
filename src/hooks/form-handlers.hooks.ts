@@ -12,7 +12,7 @@ export function useFormHandlers() {
 
     function onSelect(callback: EventHandlerType) {
         return (event: ChangeEvent<{ value: unknown }>) => {
-            callback(event.target.value as string)
+            callback(String(event.target.value))
         }
     }
 

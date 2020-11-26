@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { Chip, createStyles, Grid, makeStyles, MenuItem, Select, TextField, Theme } from '@material-ui/core'
+import { Chip, createStyles, Grid, Input, makeStyles, MenuItem, Select, TextField, Theme } from '@material-ui/core'
 import { KeyboardDatePicker } from '@material-ui/pickers'
 import { EditorFormLayout } from '../../components/layouts/EditorFormLayout'
 import { useFormHandlers } from '../../hooks/form-handlers.hooks'
 import { IEntityEditorProps } from '../../interfaces/components.interfaces'
-import { ICoach, IDType } from '../../interfaces/entities.interfaces'
+import { ICoach, IDType, IGroup } from '../../interfaces/entities.interfaces'
 import { useFoundCities, useFoundUsers, useFoundGroups } from '../../hooks/found-by-city.hook'
 import { useIDParam } from '../../hooks/id-param.hook'
 import { useDeleteQuery, useGetQuery, usePostQuery, usePutQuery } from '../../hooks/query.hook'
@@ -50,7 +50,7 @@ export const CoachesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
       city_id: city,
       dob: splitDate(dob || new Date()),
       user_id: user,
-    }, 
+    },
     group_ids: group
   })
 
@@ -62,17 +62,17 @@ export const CoachesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
   const { execute: onModify, loading: modifying } = usePutQuery(`persons/trainer/${id}`, forSending)
   const { execute: onRemove, loading: removing } = useDeleteQuery(`persons/trainer/${id}`)
 
-  const { value: coach, loading: fetching } = useGetQuery<ICoach>(`persons/trainer/${id}`)
-
+  let { value: coach, loading: fetching } = useGetQuery<ICoach & { group: Array<IGroup> }>(`persons/trainer/${id}`)
+  
   const isValid = validate([name, dob, String(user), description, address, tel, group, city])
   const loading = collectCRUDLoading([adding, fetching, modifying, removing])
-
+  
   const onClearAll = () => {
     setName('')
     setDescription('')
     setAddress('')
     setTel('')
-
+    
     setUser(null)
     setDOB(null)
     setGroup([])
@@ -89,13 +89,15 @@ export const CoachesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
         city_id: city,
         dob: splitDate(dob || new Date()),
         user_id: user,
-      }, 
+      },
       group_ids: group
     })
-  }, [name, description, address, tel, city, dob, user, group])
+  }, [coach, name, description, address, tel, city, dob, user, group])
 
   useEffect(() => {
+    
     if (editing && coach) {
+      console.log(coach)
       setUser(coach.user_id)
       setName(coach.name)
       setDOB(new Date(coach.dob))
@@ -103,13 +105,13 @@ export const CoachesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
       setAddress(coach.address)
       setDescription(coach.description)
       setTel(coach.tel)
-      setGroup(coach.group_id)
+      setGroup(coach.group.map(g => g.id))
     }
-  }, [coach])
+  }, [coach, editing, user])
 
 
-  const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setGroup(event.target.value as string[])
+  const handleChange = (callback: (value: any) => any) => (event: React.ChangeEvent<{ value: unknown }>) => {
+    callback(event.target.value as string[])
   }
 
   return (
@@ -153,52 +155,23 @@ export const CoachesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
             onChange={onChange(setAddress)}
           />
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={12} sm={6}>
           <Select
             variant="outlined"
             fullWidth
-            value={String(user) || ''}
+            value={user || ''}
             onChange={onSelect(setUser)}
             displayEmpty
           >
             <MenuItem value='' disabled>{'Пользователь'}</MenuItem>
             {
               users.map(u =>
-                <MenuItem value={u.id} key={u.id}>{u.name}</MenuItem>
+                <MenuItem value={u.tg_id} key={u.tg_id}>{u.name}</MenuItem>
               )
             }
           </Select>
         </Grid>
-        <Grid item xs={12}>
-          <Select
-            variant="outlined"
-            multiple
-            fullWidth
-            value={group || ''}
-            displayEmpty
-            onChange={handleChange}
-            renderValue={(selected) => (
-              <div className={classes.chips}>
-                {
-                  (selected as string[]).length
-                  ?
-                    (selected as string[]).map((value) => (
-                      <Chip key={value} label={groups.find(g => g.id === value)?.year || ''} className={classes.chip} />
-                    ))
-                  : 'Группа'
-                }
-              </div>
-            )}
-          >
-            <MenuItem value='' disabled>{'Группа'}</MenuItem>
-            {
-              groups.map(g =>
-                <MenuItem value={g.id} key={g.id}>{g.year}</MenuItem>
-              )
-            }
-          </Select>
-        </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={12} sm={6}>
           <Select
             variant="outlined"
             fullWidth
@@ -210,6 +183,36 @@ export const CoachesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
             {
               cities.map(c =>
                 <MenuItem value={c.id} key={c.id}>{c.name}</MenuItem>
+              )
+            }
+          </Select>
+        </Grid>
+        <Grid item xs={12}>
+          <Select
+            variant="outlined"
+            multiple
+            fullWidth
+            value={group}
+            displayEmpty
+            onChange={handleChange(setGroup)}
+            input={<Input />}
+            renderValue={(selected) => (
+              <div className={classes.chips}>
+                {
+                  (selected as string[])?.length
+                    ?
+                    (selected as string[]).map((value) => (
+                      <Chip key={value} label={groups.find(g => g.id === value)?.year || ''} className={classes.chip} />
+                    ))
+                    : 'Группа'
+                }
+              </div>
+            )}
+          >
+            <MenuItem value='' disabled>{'Группа'}</MenuItem>
+            {
+              groups.map(g =>
+                <MenuItem value={g.id} key={g.id}>{g.year}</MenuItem>
               )
             }
           </Select>
