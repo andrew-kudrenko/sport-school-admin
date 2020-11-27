@@ -59,6 +59,7 @@ export const setUser = () => async (dispatch: Dispatch) => {
         dispatch({ type: SET_USER, payload: me })
     } catch (e) {
         dispatch(setLoginError(e instanceof Error ? e.message : String(e)))
+        localStorage.removeItem('credentials')
     }
 }
 

@@ -47,7 +47,7 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
       address,
       img,
       group_id: group,
-      dob: splitDate(dob || new Date())
+      dob: dob ? splitDate(dob) : null,
     },
     parent_ids: parents
   })
@@ -71,13 +71,16 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
   const isValid = validate([name, address, parents, group, dob])
 
   useEffect(() => {
+    console.log(dob)    
+    console.log(dob ? splitDate(dob) : null)
+    
     setForSending({
       item: {
         name,
         address,
         img,
         group_id: group,
-        dob: splitDate(dob || new Date())
+        dob: dob ? splitDate(dob) : null
       },
       parent_ids: parents
     })
