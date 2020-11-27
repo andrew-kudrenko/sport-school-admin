@@ -2,6 +2,7 @@ import React from 'react'
 import { EnhancedTable } from '../../components/tables/EnhancedTable'
 import { requestJSONAuth } from '../../helpers/request.hepler'
 import { useFoundCities } from '../../hooks/found-by-city.hook'
+import { useRefresh } from '../../hooks/refresh.hook'
 import {  IHeadCell } from '../../interfaces/components.interfaces'
 import { ICity } from '../../interfaces/entities.interfaces'
 
@@ -17,6 +18,8 @@ export const ManageCitiesView: React.FC = () => {
         await refresh()
     }
 
+    useRefresh(refresh)
+    
     return (
         <EnhancedTable<ICity>
             headCells={headCells}

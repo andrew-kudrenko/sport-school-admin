@@ -66,5 +66,17 @@ export function useAuth() {
     }
   }, [authorized, email, token])
 
+  useEffect(() => {
+    if (!token && authorized) {
+      logout()
+    }
+  }, [token, authorized])
+
+  useEffect(() => {
+    if (authorized && !credentials) {
+      logout()
+    }
+  }, [authorized, credentials])
+
   return { token, authorized, login, user, error, logout, loading }
 }

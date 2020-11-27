@@ -30,7 +30,7 @@ export const CoachesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
   const editing = mode === 'edit'
 
   const id = useIDParam()
-  const { onChange, onSelect, onDateChange } = useFormHandlers()
+  const { onChange, onSelect, onDateChange, onChangeMultiple } = useFormHandlers()
 
   const [name, setName] = useState('')
   const [user, setUser] = useState<Nullable<IDType>>(null)
@@ -97,7 +97,6 @@ export const CoachesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
   useEffect(() => {
     
     if (editing && coach) {
-      console.log(coach)
       setUser(coach.user_id)
       setName(coach.name)
       setDOB(new Date(coach.dob))
@@ -107,12 +106,7 @@ export const CoachesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
       setTel(coach.tel)
       setGroup(coach.group.map(g => g.id))
     }
-  }, [coach, editing, user])
-
-
-  const handleChange = (callback: (value: any) => any) => (event: React.ChangeEvent<{ value: unknown }>) => {
-    callback(event.target.value as string[])
-  }
+  }, [coach, editing])
 
   return (
     <EditorFormLayout
@@ -192,9 +186,9 @@ export const CoachesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
             variant="outlined"
             multiple
             fullWidth
-            value={group}
+            value={group || ''}
             displayEmpty
-            onChange={handleChange(setGroup)}
+            onChange={onChangeMultiple(setGroup)}
             input={<Input />}
             renderValue={(selected) => (
               <div className={classes.chips}>

@@ -19,7 +19,12 @@ export function useGetQuery<T>(endpoint: string, immediate = true) {
     const url = `${urlAPI}/${endpoint}`
 
     const get = useAsync<T>(async () => {
-        return (await axios({ url, headers, method: 'GET' })).data    
+        try {
+            return (await axios({ url, headers, method: 'GET' })).data    
+        } catch (error) {
+            console.log(error)
+            localStorage.removeItem('credentials')
+        }
     }, immediate)
 
     return get
@@ -41,7 +46,13 @@ export function usePutQuery<T, U = any>(endpoint: string, data: U, immediate = f
     const url = `${urlAPI}/${endpoint}`
 
     const put = useAsync<T>(async () => {
-        return (await (await axios({ url, headers, data, method: 'PUT' })).data)    
+        try {
+            const response = await axios({ url, headers, data, method: 'PUT' })
+            console.log(response)
+            return response.data    
+        } catch (e) {
+            console.log('PUT', e)
+        }
     }, immediate)
 
     return put

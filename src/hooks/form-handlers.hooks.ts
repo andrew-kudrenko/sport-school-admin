@@ -28,5 +28,11 @@ export function useFormHandlers() {
         }
     }
 
-    return { onChange, onSelect, onFileChange, onDateChange }
+    function onChangeMultiple(callback: (value: any) => any) {
+        return (event: React.ChangeEvent<{ value: unknown }>) => {
+            callback(event.target.value as string[])
+        }
+    }
+
+    return { onChange, onSelect, onFileChange, onDateChange, onChangeMultiple }
 }

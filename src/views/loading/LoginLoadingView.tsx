@@ -34,13 +34,13 @@ export const LoginLoadingView: React.FC = () => {
         <Box className={classes.root}>
             <LinearProgress className={classes.progress} />
             <Box className={classes.main}>
-                <img
+                {/* <img
                     alt="Login..."
                     src="https://image.flaticon.com/icons/png/128/1960/1960858.png"
                 />
                 <Typography variant="h3">
                     {'Вход в систему...'}
-                </Typography>
+                </Typography> */}
             </Box>
         </Box>
     )

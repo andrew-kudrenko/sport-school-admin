@@ -2,6 +2,7 @@ import React from 'react'
 import { EnhancedTable } from '../../components/tables/EnhancedTable'
 import { requestJSONAuth } from '../../helpers/request.hepler'
 import { useGetQuery } from '../../hooks/query.hook'
+import { useRefresh } from '../../hooks/refresh.hook'
 import {  IHeadCell, RemoveCallbackType } from '../../interfaces/components.interfaces'
 import { INews } from '../../interfaces/entities.interfaces'
 
@@ -18,6 +19,8 @@ export const ManageNewsView: React.FC = () => {
         await refresh()
     }
     
+    useRefresh(refresh)
+
     return (
         <EnhancedTable<INews>
             headCells={headCells}

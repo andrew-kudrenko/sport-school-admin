@@ -2,6 +2,7 @@ import React from 'react'
 import { EnhancedTable } from '../../components/tables/EnhancedTable'
 import { requestJSONAuth } from '../../helpers/request.hepler'
 import { useFoundGroups, useFoundStudents } from '../../hooks/found-by-city.hook'
+import { useRefresh } from '../../hooks/refresh.hook'
 import {  IHeadCell } from '../../interfaces/components.interfaces'
 import { IStudent } from '../../interfaces/entities.interfaces'
 
@@ -27,6 +28,8 @@ export const ManageStudentsView: React.FC = () => {
         await requestJSONAuth(`/persons/child/${id}`, 'DELETE')
         await refresh()
     }    
+
+    useRefresh(refresh)
 
     return (
         <EnhancedTable<IStudent>

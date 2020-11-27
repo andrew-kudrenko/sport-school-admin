@@ -3,7 +3,7 @@ import { Chip, createStyles, Grid, Input, makeStyles, MenuItem, Select, TextFiel
 import { useFormHandlers } from '../../hooks/form-handlers.hooks'
 import { IEntityEditorProps } from '../../interfaces/components.interfaces'
 import { EditorFormLayout } from '../layouts/EditorFormLayout'
-import { IDType, IGroup } from '../../interfaces/entities.interfaces'
+import { ICoach, IDType, IGroup } from '../../interfaces/entities.interfaces'
 import { useFoundCoaches, useFoundSchools } from '../../hooks/found-by-city.hook'
 import { Nullable } from '../../types/common.types'
 import { validate } from '../../helpers/truthy-validator.helper'
@@ -28,7 +28,7 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
   const editing = mode === 'edit'
 
   const id = useIDParam()
-  const { value: group, loading: fetching } = useGetQuery<IGroup>(`persons/groups/${id}`)
+  const { value: group, loading: fetching } = useGetQuery<IGroup & { trainers: Array<ICoach> }>(`persons/groups/${id}`)
 
   const { schools } = useFoundSchools()
   const { coaches } = useFoundCoaches()
@@ -49,7 +49,7 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
     trainer_ids: coachesID
   })
 
-  const { onChange, onSelect } = useFormHandlers()
+  const { onChange, onSelect, onChangeMultiple } = useFormHandlers()
 
   const onClearAll = () => {
     setSchool(null)
@@ -78,19 +78,16 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
       trainer_ids: coachesID
     })
   }, [year, schedule, tgUrl, school, coachesID])
-  console.log(forSending)
+
   useEffect(() => {
     if (editing && group) {
       setYear(group.year)
       setSchool(group.school_id)
       setTgUrl(group.tg_url)
       setSchedule(group.schedule)
+      setCoachesID(group.trainers.map(t => t.id))
     }
   }, [group])
-
-  const handleChange = (callback: (value: any) => any) => (event: React.ChangeEvent<{ value: unknown }>) => {
-    callback(event.target.value as string[])
-  }
 
   return (
     <EditorFormLayout
@@ -139,7 +136,7 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
               fullWidth
               value={coachesID || ''}
               displayEmpty
-              onChange={handleChange(setCoachesID)}
+              onChange={onChangeMultiple(setCoachesID)}
               input={<Input />}
               renderValue={(selected) => (
                 <div className={classes.chips}>
@@ -154,7 +151,6 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
                 </div>
               )}
             >
-              <MenuItem value='' disabled>{'Тренеры'}</MenuItem>
               {
                 coaches.map(c =>
                   <MenuItem value={c.id} key={c.id}>{c.name}</MenuItem>

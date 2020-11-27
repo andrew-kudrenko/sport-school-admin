@@ -52,7 +52,7 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
     parent_ids: parents
   })
 
-  const { onChange, onSelect, onDateChange } = useFormHandlers()
+  const { onChange, onSelect, onDateChange, onChangeMultiple } = useFormHandlers()
 
   const onClearAll = () => {
     setName('')
@@ -63,9 +63,9 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
     setParents([])
   }
 
-  const { execute: onAdd, loading: adding } = usePostQuery('posts/child', forSending)
-  const { execute: onModify, loading: modifying } = usePutQuery(`posts/child/${id}`, forSending)
-  const { execute: onRemove, loading: removing } = useDeleteQuery(`posts/child/${id}`)
+  const { execute: onAdd, loading: adding } = usePostQuery('persons/child', forSending)
+  const { execute: onModify, loading: modifying } = usePutQuery(`persons/child/${id}`, forSending)
+  const { execute: onRemove, loading: removing } = useDeleteQuery(`persons/child/${id}`)
 
   const loading = collectCRUDLoading([adding, fetching, modifying, removing])
   const isValid = validate([name, address, parents, group, dob])
@@ -79,17 +79,18 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
         group_id: group,
         dob: splitDate(dob || new Date())
       },
-      parent_ids: parents  
+      parent_ids: parents
     })
-  }, [name, img, dob, address, group, parents])
+  }, [name, img, dob, address, group, parents, student])
 
   useEffect(() => {
     if (editing && student) {
+      console.log(student)
       setName(student.name)
       setDOB(new Date(student.dob))
       setAddress(student.address)
       setGroup(student.group_id)
-      setParents(student.parents_ids)
+      setParents(student.parent.map(p => String(p.tg_id)))
       setImg(student.img)
     }
   }, [student])
@@ -142,23 +143,27 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
             fullWidth
             value={parents || ''}
             displayEmpty
-            onChange={onSelect(setParents)}
-            renderValue={(selected) => (
-              <div className={classes.chips}>
-                {
-                  (selected as string[]).length
-                    ?
-                    (selected as string[]).map((value) => (
-                      <Chip key={value} label={users.find(u => u.id === value)?.name || ''} className={classes.chip} />
-                    ))
-                    : 'Родители'
-                }
-              </div>
-            )}
+            onChange={onChangeMultiple(setParents)}
+            renderValue={(selected) => {
+              return (
+
+                <div className={classes.chips}>
+                  {
+                    (selected as string[]).length
+                      ?
+                      (selected as string[])?.map((value) => (
+                        <Chip key={value} label={users.find(u => String(u.tg_id) == value)?.name || ''} className={classes.chip} />
+                      ))
+                      : 'Родители'
+                  }
+                </div>
+              )
+            }}
           >
             {
-              users.map(g =>
-                <MenuItem value={g.id} key={g.id}>{g.name}</MenuItem>
+              users.map(u => {
+                return <MenuItem value={u.tg_id} key={u.tg_id}>{u.name}</MenuItem>
+              }
               )
             }
           </Select>

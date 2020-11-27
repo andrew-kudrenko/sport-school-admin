@@ -3,6 +3,7 @@ import { EnhancedTable } from '../../components/tables/EnhancedTable'
 import { requestJSONAuth } from '../../helpers/request.hepler'
 import { useFoundSchools } from '../../hooks/found-by-city.hook'
 import { useGetQuery } from '../../hooks/query.hook'
+import { useRefresh } from '../../hooks/refresh.hook'
 import { IHeadCell } from '../../interfaces/components.interfaces'
 import { IGroup } from '../../interfaces/entities.interfaces'
 
@@ -26,6 +27,8 @@ export const ManageGroupsView: React.FC = () => {
     await requestJSONAuth(`/persons/groups/${id}`, 'DELETE')
     await refresh()
   } 
+
+  useRefresh(refresh)
 
   return (
     <EnhancedTable<IGroup>
