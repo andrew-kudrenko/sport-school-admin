@@ -5,7 +5,6 @@ import { useFormHandlers } from '../../hooks/form-handlers.hooks'
 import { IEntityEditorProps } from '../../interfaces/components.interfaces'
 import { IDType, IStudent, IUser } from '../../interfaces/entities.interfaces'
 import { useFoundCities, useFoundSchools, useFoundUsers } from '../../hooks/found-by-city.hook'
-import { splitDate } from '../../helpers/date-splitter.helper'
 import { collectCRUDLoading } from '../../helpers/crud-loading.helper'
 import { useIDParam } from '../../hooks/id-param.hook'
 import { useGetQuery, usePostQuery, usePutQuery, useDeleteQuery } from '../../hooks/query.hook'
@@ -164,7 +163,7 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title })
                                 (selected as string[])?.length
                                   ?
                                   (selected as string[]).map((value) => (
-                                    <Chip key={value} label={users.find(u => u.tg_id === value)?.name || ''} className={classes.chip} />
+                                    <Chip key={value} label={users.find(u => String(u.tg_id) === value)?.name || ''} className={classes.chip} />
                                   ))
                                   : 'Дети'
                               }
@@ -173,7 +172,7 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title })
                     >
                         {
                             users
-                                .filter(u => u.is_child && u.tg_id !== id)
+                                .filter(u => u.is_child && String(u.tg_id) !== id)
                                 .map(c => <MenuItem value={c.tg_id || ''} key={c.tg_id}>{c.name}</MenuItem>)
                         }
                     </Select>

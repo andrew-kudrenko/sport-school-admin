@@ -10,14 +10,15 @@ import { useDeleteQuery, useGetQuery, usePostQuery, usePutQuery } from '../../ho
 import { INews } from '../../interfaces/entities.interfaces'
 import { validate } from '../../helpers/truthy-validator.helper'
 import { collectCRUDLoading } from '../../helpers/crud-loading.helper'
-import { Nullable } from '../../types/common.types'
+import { useFileUploading } from '../../hooks/file-uploading'
 
 const useStyles = makeStyles((theme: Theme) => ({
   preview: {
-    height: 50,
+    height: 75,
   },
   fileLoader: {
     display: 'flex',
+    flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
@@ -42,18 +43,16 @@ export const NewsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title: pa
   const author_id = useRef(user?.id).current
 
   const { value: news, loading: fetching } = useGetQuery<INews>(`posts/news/${id}`)
+  const { change, clearFile, upload, preview, setPreview, locked } = useFileUploading()
 
   const [title, setTitle] = useState('')
   const [text, setText] = useState('')
-  const [img, setImg] = useState('')
 
-  const [file, setFile] = useState<Nullable<File>>(null)
-  const [previewUrl, setPreviewUrl] = useState<Nullable<string>>(null)
-  const [forSending, setForSending] = useState({ title, text, img, author_id })
+  const [forSending, setForSending] = useState({ title, text, img: preview, author_id })
 
+  const { onChange } = useFormHandlers()
 
-  const { onChange, onFileChange } = useFormHandlers()
-  const isValid = validate([text, pageTitle])
+  const isValid = validate([text, pageTitle, !locked])
 
   const { execute: onAdd, loading: adding } = usePostQuery('posts/news', forSending)
   const { execute: onModify, loading: modifying } = usePutQuery(`posts/news/${id}`, forSending)
@@ -63,19 +62,24 @@ export const NewsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title: pa
 
   const onClearAll = () => {
     setText('')
-    setImg('')
     setTitle('')
+    setPreview(null)
   }
 
   useEffect(() => {
-    setForSending({ title, text, img, author_id })
-  }, [title, text, img])
+    if (isValid) {
+      setForSending({ title, text, img: preview, author_id })
+    }
+  }, [title, text, preview])
 
   useEffect(() => {
     if (editing && news) {
       setTitle(news.title)
       setText(news.text)
-      setImg(news.img)
+
+      if (news.img) {
+        setPreview(news.img)
+      }
     }
   }, [news])
 
@@ -102,51 +106,62 @@ export const NewsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title: pa
             onChange={onChange(setTitle)}
           />
         </Grid>
-        <Grid item xs={12}>
-          <Box className={classes.fileLoader}>
-            <Box>
-              {
-                previewUrl
-                  ? <img alt="preview" src={String(previewUrl)} className={classes.preview} />
-                  : <Typography variant="subtitle1">{'Выберите изображение'}</Typography>
-              }
-            </Box>
-            <input
-              accept="image/*"
-              className={classes.input}
-              id="file-loader"
-              type="file"
-              onChange={onFileChange(files => {
-                if (files && files[0]) {
-                  setFile(files[0])
-                  setPreviewUrl(URL.createObjectURL(files[0]))
-                }
-              })}
-            />
-            <Box className={classes.loaderButtons}>
-              <label htmlFor="file-loader">
-                {/* <Button 
-                  variant="outlined" 
-                  color="primary" 
-                  className={classes.button}
-                >
-                  {'Загрузить'}
-                </Button> */}
-              </label>
-              <Button
-                onClick={() => {
-                  setFile(null)
-                  setPreviewUrl(null)
-                }}
-                variant="outlined"
-                color="secondary"
-                className={classes.button}
-              >
-                {'Очистить'}
-              </Button>
-            </Box>
-          </Box>
-        </Grid>
+        {
+          editing &&
+          <>
+            <Grid item xs={12}>
+              <Box className={classes.fileLoader}>
+                <Box>
+                  {
+                    preview
+                      ? <img alt="preview" src={preview} className={classes.preview} />
+                      : <Typography variant="subtitle1">{'Выберите изображение'}</Typography>
+                  }
+                </Box>
+                <input
+                  style={{ display: 'none' }}
+                  accept="image/*"
+                  className={classes.input}
+                  id="file-loader"
+                  type="file"
+                  onChange={(event) => {
+                    change(event)
+                  }}
+                />
+                <Box className={classes.loaderButtons}>
+                  <Button
+                    onClick={async () => {
+                      await upload(`http://localhost:8000/posts/news/${id}/upload_photo/`)
+                    }}
+                    variant="contained"
+                    color="primary"
+                    className={classes.button}
+                  >
+                    {'Сохранить'}
+                  </Button>
+                  <label htmlFor="file-loader">
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      className={classes.button}
+                      component="span"
+                    >
+                      {'Загрузить'}
+                    </Button>
+                  </label>
+                  <Button
+                    onClick={clearFile}
+                    variant="outlined"
+                    color="secondary"
+                    className={classes.button}
+                  >
+                    {'Очистить'}
+                  </Button>
+                </Box>
+              </Box>
+            </Grid>
+          </>
+        }
         <Grid item xs={12}>
           <TextField
             multiline

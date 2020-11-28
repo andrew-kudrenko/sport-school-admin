@@ -16,12 +16,6 @@ export function useFormHandlers() {
         }
     }
 
-    function onFileChange(callback: EventHandlerType) {
-        return (event: ChangeEvent<HTMLInputElement>) => {
-            callback(event.target.files)
-        }
-    }
-
     function onDateChange(callback: EventHandlerType) {
         return (date: Nullable<Date>) => {
             callback(date)
@@ -34,5 +28,5 @@ export function useFormHandlers() {
         }
     }
 
-    return { onChange, onSelect, onFileChange, onDateChange, onChangeMultiple }
+    return { onChange, onSelect, onDateChange, onChangeMultiple }
 }

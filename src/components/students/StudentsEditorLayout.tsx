@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Chip, createStyles, Grid, makeStyles, MenuItem, Select, TextField } from '@material-ui/core'
+import { Chip, createStyles, Grid, Input, makeStyles, MenuItem, Select, TextField } from '@material-ui/core'
 import { KeyboardDatePicker } from '@material-ui/pickers'
 import { useFormHandlers } from '../../hooks/form-handlers.hooks'
 import { IEntityEditorProps } from '../../interfaces/components.interfaces'
@@ -71,19 +71,18 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
   const isValid = validate([name, address, parents, group, dob])
 
   useEffect(() => {
-    console.log(dob)    
-    console.log(dob ? splitDate(dob) : null)
-    
-    setForSending({
-      item: {
-        name,
-        address,
-        img,
-        group_id: group,
-        dob: dob ? splitDate(dob) : null
-      },
-      parent_ids: parents
-    })
+   if (isValid) {
+     setForSending({
+       item: {
+         name,
+         address,
+         img,
+         group_id: group,
+         dob: splitDate(dob)
+       },
+       parent_ids: parents
+     })
+   }
   }, [name, img, dob, address, group, parents, student])
 
   useEffect(() => {
@@ -146,6 +145,7 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
             fullWidth
             value={parents || ''}
             displayEmpty
+            input={<Input />}
             onChange={onChangeMultiple(setParents)}
             renderValue={(selected) => {
               return (
@@ -155,7 +155,7 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
                     (selected as string[]).length
                       ?
                       (selected as string[])?.map((value) => (
-                        <Chip key={value} label={users.find(u => String(u.tg_id) == value)?.name || ''} className={classes.chip} />
+                        <Chip key={value} label={users.find(u => String(u.tg_id) === value)?.name || ''} className={classes.chip} />
                       ))
                       : 'Родители'
                   }
@@ -165,6 +165,7 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
           >
             {
               users.map(u => {
+                console.log(u)
                 return <MenuItem value={u.tg_id} key={u.tg_id}>{u.name}</MenuItem>
               }
               )

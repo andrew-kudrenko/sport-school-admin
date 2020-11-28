@@ -1,18 +1,8 @@
 import { useAsync } from "./async.hook"
 import axios from 'axios'
-import { useAuth } from "./auth.hooks"
+import { useHeaders } from "./headers.hook"
 
 const urlAPI = 'http://localhost:8000'
-
-function useHeaders() {
-    const { token } = useAuth()
-
-    return {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-    }
-}
 
 export function useGetQuery<T>(endpoint: string, immediate = true) {
     const headers = useHeaders()
