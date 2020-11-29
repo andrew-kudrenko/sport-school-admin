@@ -41,6 +41,7 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
   const [name, setName] = useState('')
   const [dob, setDOB] = useState<Date | null>(null)
   const [address, setAddress] = useState('')
+  const [img, setImg] = useState<Nullable<string>>(null)
   const [group, setGroup] = useState<Nullable<IDType>>(null)
   const [parents, setParents] = useState<Array<IDType>>([])
 
@@ -48,7 +49,7 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
     item: {
       name,
       address,
-      img: preview,
+      img,
       group_id: group,
       dob: dob ? splitDate(dob) : null,
     },
@@ -79,7 +80,7 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
         item: {
           name,
           address,
-          img: preview,
+          img,
           group_id: group,
           dob: splitDate(dob)
         },
@@ -97,6 +98,7 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
       setParents(student.parent.map(p => String(p.tg_id)))
 
       if (student.img) {
+        setImg(student.img)
         setPreview(`http://localhost:8000/${student.img}`)
       }
     }
