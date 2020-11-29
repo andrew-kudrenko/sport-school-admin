@@ -12,6 +12,8 @@ import { useDeleteQuery, useGetQuery, usePostQuery, usePutQuery } from '../../ho
 import { useIDParam } from '../../hooks/id-param.hook'
 import { collectCRUDLoading } from '../../helpers/crud-loading.helper'
 import { splitDate } from '../../helpers/date-splitter.helper'
+import { useFileUploading } from '../../hooks/file-uploading'
+import { FileLoader } from '../file-loader/FileLoader'
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -34,8 +36,9 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
   const { groups } = useFoundGroups()
   const { value: student, loading: fetching } = useGetQuery<{ parent: Array<IUser> } & IStudent>(`persons/child/${id}`)
 
+  const { preview, setPreview, locked, ...rest } = useFileUploading(`/persons/child/${id}/upload_photo/`)
+
   const [name, setName] = useState('')
-  const [img, setImg] = useState('')
   const [dob, setDOB] = useState<Date | null>(null)
   const [address, setAddress] = useState('')
   const [group, setGroup] = useState<Nullable<IDType>>(null)
@@ -45,7 +48,7 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
     item: {
       name,
       address,
-      img,
+      img: preview,
       group_id: group,
       dob: dob ? splitDate(dob) : null,
     },
@@ -56,7 +59,7 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
 
   const onClearAll = () => {
     setName('')
-    setImg('')
+    setPreview(null)
     setDOB(null)
     setAddress('')
     setGroup(null)
@@ -68,32 +71,34 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
   const { execute: onRemove, loading: removing } = useDeleteQuery(`persons/child/${id}`)
 
   const loading = collectCRUDLoading([adding, fetching, modifying, removing])
-  const isValid = validate([name, address, parents, group, dob])
+  const isValid = validate([name, address, parents, group, dob, !locked])
 
   useEffect(() => {
-   if (isValid) {
-     setForSending({
-       item: {
-         name,
-         address,
-         img,
-         group_id: group,
-         dob: splitDate(dob)
-       },
-       parent_ids: parents
-     })
-   }
-  }, [name, img, dob, address, group, parents, student])
+    if (isValid) {
+      setForSending({
+        item: {
+          name,
+          address,
+          img: preview,
+          group_id: group,
+          dob: splitDate(dob)
+        },
+        parent_ids: parents
+      })
+    }
+  }, [name, dob, address, group, parents, student])
 
   useEffect(() => {
     if (editing && student) {
-      console.log(student)
       setName(student.name)
       setDOB(new Date(student.dob))
       setAddress(student.address)
       setGroup(student.group_id)
       setParents(student.parent.map(p => String(p.tg_id)))
-      setImg(student.img)
+
+      if (student.img) {
+        setPreview(`http://localhost:8000/${student.img}`)
+      }
     }
   }, [student])
 
@@ -104,10 +109,16 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
       redirectTo="/students/"
       title={title}
       loading={loading}
-      onAdd={onAdd}
       onClearAll={onClearAll}
+      onAdd={async () => {
+        await onAdd()
+        await rest.onUpload()
+      }}      
+      onModify={async () => {
+        await onModify()
+        await rest.onUpload()
+      }}      
       onRemove={onRemove}
-      onModify={onModify}
     >
       <Grid container spacing={2}>
         <Grid item xs={12}>
@@ -130,13 +141,12 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
           />
         </Grid>
         <Grid item xs={12}>
-          <TextField
-            variant="outlined"
-            fullWidth
-            label="Изображение"
-            value={img}
-            onChange={onChange(setImg)}
-          />
+          {
+            editing &&
+            <Grid item xs={12}>
+              <FileLoader preview={preview} {...rest} />
+            </Grid>
+          }
         </Grid>
         <Grid item xs={12}>
           <Select
@@ -155,7 +165,7 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
                     (selected as string[]).length
                       ?
                       (selected as string[])?.map((value) => (
-                        <Chip key={value} label={users.find(u => String(u.tg_id) === value)?.name || ''} className={classes.chip} />
+                        <Chip key={value} label={users.find(u => String(u.tg_id) === String(value))?.name || ''} className={classes.chip} />
                       ))
                       : 'Родители'
                   }
@@ -164,11 +174,9 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
             }}
           >
             {
-              users.map(u => {
-                console.log(u)
-                return <MenuItem value={u.tg_id} key={u.tg_id}>{u.name}</MenuItem>
-              }
-              )
+              users
+                .filter(u => !u.is_child)
+                .map(u => <MenuItem value={u.tg_id} key={u.tg_id}>{u.name}</MenuItem>)
             }
           </Select>
         </Grid>

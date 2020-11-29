@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Grid, TextField, Select, MenuItem, createStyles, makeStyles, Chip } from '@material-ui/core'
+import { Grid, TextField, Select, MenuItem, createStyles, makeStyles, Chip, Checkbox, FormControlLabel } from '@material-ui/core'
 import { EditorFormLayout } from '../layouts/EditorFormLayout'
 import { useFormHandlers } from '../../hooks/form-handlers.hooks'
 import { IEntityEditorProps } from '../../interfaces/components.interfaces'
@@ -10,17 +10,18 @@ import { useIDParam } from '../../hooks/id-param.hook'
 import { useGetQuery, usePostQuery, usePutQuery, useDeleteQuery } from '../../hooks/query.hook'
 import { Nullable } from '../../types/common.types'
 import { validate } from '../../helpers/truthy-validator.helper'
+import { CheckBoxOutlineBlank, CheckBoxOutlined } from '@material-ui/icons'
 
 const useStyles = makeStyles(() =>
-  createStyles({
-    chips: {
-      display: 'flex',
-      flexWrap: 'wrap',
-    },
-    chip: {
-      margin: 2,
-    }
-  })
+    createStyles({
+        chips: {
+            display: 'flex',
+            flexWrap: 'wrap',
+        },
+        chip: {
+            margin: 2,
+        }
+    })
 )
 
 export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
@@ -28,7 +29,7 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title })
     const editing = mode === 'edit'
 
     const id = useIDParam()
-    const { onChange, onSelect, onChangeMultiple } = useFormHandlers()
+    const { onChange, onSelect, onChangeMultiple, onToggle } = useFormHandlers()
 
     const [login, setLogin] = useState('')
     const [name, setName] = useState('')
@@ -72,21 +73,23 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title })
     }
 
     const forSending = {
-        item: {
-            login,
-            name,
-            is_trainer: isTrainer,
-            is_child: isChild,
-            is_verify: isVerify,
-            was_activate: isWasActivate,
-            city_id: city,
-            address,
-            tel,
-            date_joined: date?.toJSON(),
-            school_id: school,
+        "item": {
+          "login": "LucianDeveloper",
+          "name": "Рыбочкин Михаил Романович",
+          "is_trainer": true,
+          "is_child": false,
+          "is_verify": true,
+          "was_activate": true,
+          "city_id": 1,
+          "address": "гюБелгород",
+          "tel": "+7 915 578 15 55",
+          "date_joined": "2020-11-29T20:57:04.691Z",
+          "school_id": 1
         },
-        child_ids: children
-    }
+        "child_ids": [
+          1
+        ]
+      }
     console.log(forSending)
 
     const { execute: onAdd, loading: adding } = usePostQuery('persons/trainer', forSending)
@@ -106,8 +109,8 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title })
             setIsVerify(user.is_verify)
             setWasActivate(user.was_activate)
 
-            setCity(cities.find(c => c.id === user.city_id)?.id || null)
-            setSchool(schools.find(s => s.id === user.id)?.id || null)
+            setCity(user.city_id)
+            setSchool(user.school_id)
 
             setAddress(user.address)
             setTel(user.tel)
@@ -159,21 +162,21 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title })
                         displayEmpty
                         renderValue={(selected) => (
                             <div className={classes.chips}>
-                              {
-                                (selected as string[])?.length
-                                  ?
-                                  (selected as string[]).map((value) => (
-                                    <Chip key={value} label={users.find(u => String(u.tg_id) === value)?.name || ''} className={classes.chip} />
-                                  ))
-                                  : 'Дети'
-                              }
+                                {
+                                    (selected as string[])?.length
+                                        ?
+                                        (selected as string[]).map((value) => (
+                                            <Chip key={value} label={users.find(u => String(u.tg_id) === String(value))?.name || ''} className={classes.chip} />
+                                        ))
+                                        : 'Дети'
+                                }
                             </div>
-                          )}
+                        )}
                     >
                         {
                             users
                                 .filter(u => u.is_child && String(u.tg_id) !== id)
-                                .map(c => <MenuItem value={c.tg_id || ''} key={c.tg_id}>{c.name}</MenuItem>)
+                                .map(u => <MenuItem value={u.tg_id || ''} key={u.tg_id}>{u.name}</MenuItem>)
                         }
                     </Select>
                 </Grid>
@@ -223,10 +226,60 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title })
                         variant="outlined"
                         fullWidth
                         label="Номер телефона"
-                        multiline
-                        rows={7}
                         value={tel}
                         onChange={onChange(setTel)}
+                    />
+                </Grid>
+                <Grid item xs={6}>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                icon={<CheckBoxOutlineBlank fontSize="small" />}
+                                checkedIcon={<CheckBoxOutlined fontSize="small" />}
+                                checked={isVerify}
+                                onChange={onToggle(setIsVerify, isVerify)}
+                            />
+                        }
+                        label="Подтверждён"
+                    />
+                </Grid>
+                <Grid item xs={6}>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                icon={<CheckBoxOutlineBlank fontSize="small" />}
+                                checkedIcon={<CheckBoxOutlined fontSize="small" />}
+                                checked={isWasActivate}
+                                onChange={onToggle(setWasActivate, isWasActivate)}
+                            />
+                        }
+                        label="Активирован"
+                    />
+                </Grid>
+                <Grid item xs={6}>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                icon={<CheckBoxOutlineBlank fontSize="small" />}
+                                checkedIcon={<CheckBoxOutlined fontSize="small" />}
+                                checked={isTrainer}
+                                onChange={onToggle(setIsTrainer, isTrainer)}
+                            />
+                        }
+                        label="Тренер"
+                    />
+                </Grid>
+                <Grid item xs={6}>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                icon={<CheckBoxOutlineBlank fontSize="small" />}
+                                checkedIcon={<CheckBoxOutlined fontSize="small" />}
+                                checked={isChild}
+                                onChange={onToggle(setIsChild, isChild)}
+                            />
+                        }
+                        label="Ребенок"
                     />
                 </Grid>
             </Grid>

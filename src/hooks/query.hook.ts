@@ -37,11 +37,12 @@ export function usePutQuery<T, U = any>(endpoint: string, data: U, immediate = f
 
     const put = useAsync<T>(async () => {
         try {
+            console.log(data)
             const response = await axios({ url, headers, data, method: 'PUT' })
             console.log(response)
             return response.data    
         } catch (e) {
-            console.log('PUT', e)
+            console.log(e)
         }
     }, immediate)
 

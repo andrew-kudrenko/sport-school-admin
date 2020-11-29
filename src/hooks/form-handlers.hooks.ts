@@ -10,6 +10,12 @@ export function useFormHandlers() {
         }
     }
 
+    function onToggle(setValue: (value: boolean) => void, value: boolean) {
+        return (event: ChangeEvent<HTMLInputElement>) => {
+            setValue(!!value ? false : true)
+        }
+    }
+
     function onSelect(callback: EventHandlerType) {
         return (event: ChangeEvent<{ value: unknown }>) => {
             callback(String(event.target.value))
@@ -28,5 +34,5 @@ export function useFormHandlers() {
         }
     }
 
-    return { onChange, onSelect, onDateChange, onChangeMultiple }
+    return { onChange, onSelect, onDateChange, onChangeMultiple, onToggle }
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Box, Button, Grid, makeStyles, TextField, Theme, Typography } from '@material-ui/core'
+import { Grid, TextField } from '@material-ui/core'
 import { useSelector } from 'react-redux'
 import { useFormHandlers } from '../../hooks/form-handlers.hooks'
 import { IEntityEditorProps } from '../../interfaces/components.interfaces'
@@ -11,30 +11,9 @@ import { INews } from '../../interfaces/entities.interfaces'
 import { validate } from '../../helpers/truthy-validator.helper'
 import { collectCRUDLoading } from '../../helpers/crud-loading.helper'
 import { useFileUploading } from '../../hooks/file-uploading'
-
-const useStyles = makeStyles((theme: Theme) => ({
-  preview: {
-    height: 75,
-  },
-  fileLoader: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  loaderButtons: {
-    display: 'flex',
-  },
-  button: {
-    marginLeft: theme.spacing(2),
-  },
-  input: {
-    display: 'hidden',
-  },
-}))
+import { FileLoader } from '../file-loader/FileLoader'
 
 export const NewsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title: pageTitle }) => {
-  const classes = useStyles()
   const editing = mode === 'edit'
 
   const id = useIDParam()
@@ -43,7 +22,7 @@ export const NewsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title: pa
   const author_id = useRef(user?.id).current
 
   const { value: news, loading: fetching } = useGetQuery<INews>(`posts/news/${id}`)
-  const { change, clearFile, upload, preview, setPreview, locked } = useFileUploading()
+  const { preview, setPreview, locked, ...rest } = useFileUploading(`/posts/news/${id}/upload_photo/`)
 
   const [title, setTitle] = useState('')
   const [text, setText] = useState('')
@@ -70,7 +49,7 @@ export const NewsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title: pa
     if (isValid) {
       setForSending({ title, text, img: preview, author_id })
     }
-  }, [title, text, preview])
+  }, [title, text])
 
   useEffect(() => {
     if (editing && news) {
@@ -78,7 +57,7 @@ export const NewsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title: pa
       setText(news.text)
 
       if (news.img) {
-        setPreview(news.img)
+        setPreview(`http://localhost:8000/${news.img}`)
       }
     }
   }, [news])
@@ -90,10 +69,16 @@ export const NewsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title: pa
       redirectTo="/news/"
       title={pageTitle}
       loading={loading}
-      onAdd={onAdd}
+      onAdd={async () => {
+        await onAdd()
+        await rest.onUpload()
+      }}
       onClearAll={onClearAll}
       onRemove={onRemove}
-      onModify={onModify}
+      onModify={async () => {
+        await onModify()
+        await rest.onUpload()
+      }}
     >
       <Grid container spacing={2}>
         <Grid item xs={12}>
@@ -108,59 +93,9 @@ export const NewsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title: pa
         </Grid>
         {
           editing &&
-          <>
-            <Grid item xs={12}>
-              <Box className={classes.fileLoader}>
-                <Box>
-                  {
-                    preview
-                      ? <img alt="preview" src={preview} className={classes.preview} />
-                      : <Typography variant="subtitle1">{'Выберите изображение'}</Typography>
-                  }
-                </Box>
-                <input
-                  style={{ display: 'none' }}
-                  accept="image/*"
-                  className={classes.input}
-                  id="file-loader"
-                  type="file"
-                  onChange={(event) => {
-                    change(event)
-                  }}
-                />
-                <Box className={classes.loaderButtons}>
-                  <Button
-                    onClick={async () => {
-                      await upload(`http://localhost:8000/posts/news/${id}/upload_photo/`)
-                    }}
-                    variant="contained"
-                    color="primary"
-                    className={classes.button}
-                  >
-                    {'Сохранить'}
-                  </Button>
-                  <label htmlFor="file-loader">
-                    <Button
-                      variant="outlined"
-                      color="primary"
-                      className={classes.button}
-                      component="span"
-                    >
-                      {'Загрузить'}
-                    </Button>
-                  </label>
-                  <Button
-                    onClick={clearFile}
-                    variant="outlined"
-                    color="secondary"
-                    className={classes.button}
-                  >
-                    {'Очистить'}
-                  </Button>
-                </Box>
-              </Box>
-            </Grid>
-          </>
+          <Grid item xs={12}>
+            <FileLoader preview={preview} {...rest} />
+          </Grid>
         }
         <Grid item xs={12}>
           <TextField

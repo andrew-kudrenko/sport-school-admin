@@ -1,4 +1,6 @@
 import { ButtonProps } from "@material-ui/core"
+import { ChangeEvent } from "react"
+import { Nullable } from "../types/common.types"
 import { ErrorType, IdentifiedEntity, IDType } from "./entities.interfaces"
 import { ICRUDActions } from "./redux.interfaces"
 
@@ -91,4 +93,18 @@ export interface InteractiveButtonProps extends ButtonProps {
 export interface IEntityEditorProps {
   mode: EditorModeType
   title: string
+}
+
+export interface IFileLoaderProps {
+  onSelect: (event: ChangeEvent<HTMLInputElement>) => void
+  onClear: () => void
+  onUpload: () => void
+  preview: Nullable<string>
+}
+
+export interface IDocumentFileLoaderProps {
+  onSelect: (event: ChangeEvent<HTMLInputElement>) => void
+  onClear: () => void
+  onUpload: () => void
+  filename: Nullable<string>
 }

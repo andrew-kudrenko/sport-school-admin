@@ -159,9 +159,11 @@ export const CoachesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
           >
             <MenuItem value='' disabled>{'Пользователь'}</MenuItem>
             {
-              users.map(u =>
-                <MenuItem value={u.tg_id} key={u.tg_id}>{u.name}</MenuItem>
-              )
+              users
+                .filter(u => u.is_trainer)
+                .map(u =>
+                  <MenuItem value={u.tg_id} key={u.tg_id}>{u.name}</MenuItem>
+                )
             }
           </Select>
         </Grid>

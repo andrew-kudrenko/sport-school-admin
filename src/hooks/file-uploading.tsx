@@ -3,7 +3,9 @@ import { useState, ChangeEvent, useEffect } from 'react'
 import { Nullable } from '../types/common.types'
 import { useHeaders } from './headers.hook'
 
-export function useFileUploading() {
+const apiURL = 'http://localhost:8000'
+
+export function useFileUploading(url: string) {
     const [file, setFile] = useState<Nullable<File>>(null)
     const [preview, setPreview] = useState<Nullable<string>>(null)
     const [formData, setFormData] = useState<Nullable<FormData>>(null)
@@ -13,9 +15,9 @@ export function useFileUploading() {
 
     const headers = useHeaders()
 
-    async function upload(url: string) {
+    async function onUpload() {
         if (formData) {
-            return await axios.post(url, formData, {
+            return await axios.post(apiURL.concat(url), formData, {
                 headers,
                 onUploadProgress: (progressEvent: any) => {
                     const totalLength = progressEvent.lengthComputable
@@ -30,7 +32,7 @@ export function useFileUploading() {
         }
     }
 
-    async function change(event: ChangeEvent<HTMLInputElement>) {
+    async function onSelect(event: ChangeEvent<HTMLInputElement>) {
         if (event.target?.files) {
             setFile(event.target.files[0])
             setPreview(null)
@@ -38,7 +40,7 @@ export function useFileUploading() {
         }
     }
 
-    function clearFile() {
+    function onClear() {
         setPreview(null)
         setFile(null)
         setFormData(null)
@@ -51,7 +53,7 @@ export function useFileUploading() {
             formData.append('file', file)
             
             setFormData(formData)
-            setPreview(`${isInitial ? 'http://localhost:8000/' : ''}${URL.createObjectURL(file)}`)
+            setPreview(`${isInitial ? apiURL : ''}${URL.createObjectURL(file)}`)
         }
     }, [file, isInitial])
     
@@ -65,5 +67,70 @@ export function useFileUploading() {
         }
     }, [isInitial, preview, progress])
     
-    return { upload, progress, change, clearFile, preview, setPreview, locked }
+    return { onUpload, progress, onSelect, onClear, preview, setPreview, locked }
+}
+
+export function useDocumentFileUploading(url: string) {
+    const [file, setFile] = useState<Nullable<File>>(null)
+    const [filename, setPreview] = useState<Nullable<string>>(null)
+    const [formData, setFormData] = useState<Nullable<FormData>>(null)
+    const [progress, setProgress] = useState(0)
+    const [isInitial, setIsInitial] = useState(true)
+    const [locked, setLocked] = useState(true)
+
+    const headers = useHeaders()
+
+    async function onUpload() {
+        if (formData) {
+            return await axios.post(apiURL.concat(url), formData, {
+                headers,
+                onUploadProgress: (progressEvent: any) => {
+                    const totalLength = progressEvent.lengthComputable
+                        ? progressEvent.total
+                        : progressEvent.target.getResponseHeader('content-length') || progressEvent.target.getResponseHeader('x-decompressed-content-length')
+                    if (totalLength) {
+                        console.log(Math.round((progressEvent.loaded * 100) / totalLength))
+                        setProgress(Math.round((progressEvent.loaded * 100) / totalLength))
+                    }
+                }
+            })
+        }
+    }
+
+    async function onSelect(event: ChangeEvent<HTMLInputElement>) {
+        if (event.target?.files) {
+            setFile(event.target.files[0])
+            setPreview(null)
+            setIsInitial(false)
+        }
+    }
+
+    function onClear() {
+        setPreview(null)
+        setFile(null)
+        setFormData(null)
+        setProgress(0)
+    }
+
+    useEffect(() => {
+        if (file) {
+            const formData = new FormData()
+            formData.append('file', file)
+            
+            setFormData(formData)
+            setPreview(`${isInitial ? apiURL : ''}${URL.createObjectURL(file)}`)
+        }
+    }, [file, isInitial])
+    
+    useEffect(() => {
+        if (!isInitial && filename) {
+            setLocked(progress < 100 ? true : false)
+        }
+
+        if (isInitial || !filename) {
+            setLocked(false)
+        }
+    }, [isInitial, filename, progress])
+    
+    return { onUpload, progress, onSelect, onClear, filename, setPreview, locked }
 }

@@ -9,6 +9,9 @@ import { IState } from '../../interfaces/redux.interfaces'
 import { collectCRUDLoading } from '../../helpers/crud-loading.helper'
 import { useIDParam } from '../../hooks/id-param.hook'
 import { useGetQuery, usePostQuery, usePutQuery, useDeleteQuery } from '../../hooks/query.hook'
+import { useFileUploading } from '../../hooks/file-uploading'
+import { validate } from '../../helpers/truthy-validator.helper'
+import { FileLoader } from '../file-loader/FileLoader'
 
 export const TournamentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
     const editing = mode === 'edit'
@@ -17,13 +20,13 @@ export const TournamentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, ti
     const { onChange } = useFormHandlers()
     const { user } = useSelector((state: IState) => state.auth)
 
+    const { preview, setPreview, locked, ...rest } = useFileUploading(`/posts/tournament/${id}/upload_photo/`)
+
     const [author, setAuthor] = useState(user?.id || '')
     const [text, setText] = useState('')
     const [year, setYear] = useState<number>(new Date().getFullYear())
-    const [img, setImg] = useState('')
 
-    const [forSending, setForSending] = useState({ text, year, img, author_id: author })
-    console.log(forSending)
+    const [forSending, setForSending] = useState({ text, year, img: preview, author_id: author })
 
     const { value: tournament, loading: fetching } = useGetQuery<ITournament & { author: IUser }>(`posts/tournament/${id}`)
 
@@ -31,34 +34,45 @@ export const TournamentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, ti
     const { execute: onModify, loading: modifying } = usePutQuery(`posts/tournament/${id}`, forSending)
     const { execute: onRemove, loading: removing } = useDeleteQuery(`posts/tournament/${id}`)
 
-    const isValid: boolean = [text, img, year].reduce((acc: boolean, item) => Boolean(acc) && Boolean(item), true)
+    const isValid: boolean = validate([text, !locked, year])
     const loading = collectCRUDLoading([adding, fetching, modifying, removing])
 
     const onClearAll = () => {
         setAuthor('')
         setText('')
         setYear(new Date().getFullYear())
-        setImg('')
+        setPreview(null)
     }
 
     useEffect(() => {
         if (editing && tournament) {
             setAuthor(tournament.author.id)
             setText(tournament.text)
-            setImg(tournament.img)
             setYear(tournament.year)
+
+            if (tournament.img) {
+                setPreview(`http://localhost:8000/${tournament.img}`)
+            }
         }
     }, [tournament])
 
     useEffect(() => {
-        setForSending({ text, year, img, author_id: author })
-    }, [text, year, img, user])
+        if (isValid) {
+            setForSending({ text, year, img: preview, author_id: author })
+        }
+    }, [text, year, user])
 
     return (
         <EditorFormLayout
             mode={mode}
-            onAdd={onAdd}
-            onModify={onModify}
+            onAdd={async () => {
+                await onAdd()
+                await rest.onUpload()
+            }}
+            onModify={async () => {
+                await onModify()
+                await rest.onUpload()
+            }}            
             onRemove={onRemove}
             onClearAll={onClearAll}
             isValid={isValid}
@@ -77,15 +91,12 @@ export const TournamentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, ti
                         onChange={onChange(setYear)}
                     />
                 </Grid>
-                <Grid item xs={12}>
-                    <TextField
-                        variant="outlined"
-                        fullWidth
-                        label="Изображение"
-                        value={img}
-                        onChange={onChange(setImg)}
-                    />
-                </Grid>
+                {
+                    editing &&
+                    <Grid item xs={12}>
+                        <FileLoader preview={preview} {...rest} />
+                    </Grid>
+                }
                 <Grid item xs={12}>
                     <TextField
                         variant="outlined"

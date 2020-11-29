@@ -10,6 +10,8 @@ import { validate } from '../../helpers/truthy-validator.helper'
 import { useIDParam } from '../../hooks/id-param.hook'
 import { useGetQuery, usePostQuery, usePutQuery, useDeleteQuery } from '../../hooks/query.hook'
 import { collectCRUDLoading } from '../../helpers/crud-loading.helper'
+import { FileLoader } from '../file-loader/FileLoader'
+import { useFileUploading } from '../../hooks/file-uploading'
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -28,6 +30,8 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
   const editing = mode === 'edit'
 
   const id = useIDParam()
+
+  const { preview: schedule, setPreview: setSchedule, locked, ...rest } = useFileUploading(`/persons/groups/${id}/upload_schedule/`)
   const { value: group, loading: fetching } = useGetQuery<IGroup & { trainers: Array<ICoach> }>(`persons/groups/${id}`)
 
   const { schools } = useFoundSchools()
@@ -35,7 +39,6 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
 
   const [school, setSchool] = useState<Nullable<IDType>>(null)
   const [year, setYear] = useState<Nullable<number>>(null)
-  const [schedule, setSchedule] = useState('')
   const [tgUrl, setTgUrl] = useState('')
   const [coachesID, setCoachesID] = useState<Array<IDType>>([])
 
@@ -54,7 +57,7 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
   const onClearAll = () => {
     setSchool(null)
     setYear(null)
-    setSchedule('')
+    setSchedule(null)
     setTgUrl('')
     setCoachesID([])
   }
@@ -63,31 +66,38 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
   const { execute: onModify, loading: modifying } = usePutQuery(`persons/groups/${id}`, forSending)
   const { execute: onRemove, loading: removing } = useDeleteQuery(`persons/groups/${id}`)
 
-  const isValid = validate([year, schedule, tgUrl, school])
+  const isValid = validate([year, !locked, tgUrl, school])
 
   const loading = collectCRUDLoading([adding, fetching, modifying, removing])
 
   useEffect(() => {
-    setForSending({
-      item: {
-        year,
-        schedule,
-        tg_url: tgUrl,
-        school_id: school,
-      },
-      trainer_ids: coachesID
-    })
-  }, [year, schedule, tgUrl, school, coachesID])
+    if (isValid) {
+      setForSending({
+        item: {
+          year,
+          schedule,
+          tg_url: tgUrl,
+          school_id: school,
+        },
+        trainer_ids: coachesID
+      })
+    }
+  }, [year, tgUrl, school, coachesID])
 
   useEffect(() => {
     if (editing && group) {
       setYear(group.year)
       setSchool(group.school_id)
       setTgUrl(group.tg_url)
-      setSchedule(group.schedule)
       setCoachesID(group.trainers.map(t => t.id))
+
+      if (group.schedule) {
+        setSchedule(`http://localhost:8000/${group.schedule}`)
+      }
     }
   }, [group])
+
+  console.log(schedule)
 
   return (
     <EditorFormLayout
@@ -96,10 +106,16 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
       redirectTo="/groups/"
       title={title}
       loading={loading}
-      onAdd={onAdd}
+      onAdd={async () => {
+        await onAdd()
+        await rest.onUpload()
+      }}
+      onModify={async () => {
+        await onModify()
+        await rest.onUpload()
+      }}
       onClearAll={onClearAll}
       onRemove={onRemove}
-      onModify={onModify}
     >
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6}>
@@ -160,13 +176,12 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
           </Grid>
         </Grid>
         <Grid item xs={12}>
-          <TextField
-            variant="outlined"
-            fullWidth
-            label="Расписание"
-            value={schedule}
-            onChange={onChange(setSchedule)}
-          />
+        {
+          editing &&
+          <Grid item xs={12}>
+            <FileLoader preview={schedule} {...rest} />
+          </Grid>
+        }
         </Grid>
         <Grid item xs={12}>
           <TextField

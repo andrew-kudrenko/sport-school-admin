@@ -10,8 +10,7 @@ const headCells: Array<IHeadCell<IStudent>> = [
     { id: 'name', label: 'Имя' },
     { id: 'dob', label: 'Дата рождения' },
     { id: 'address', label: 'Адрес' },
-    { id: 'group_id', label: 'Группа' },
-    { id: 'img', label: 'Изображение' }
+    { id: 'group_id', label: 'Группа' }
 ]
 
 export const ManageStudentsView: React.FC = () => {
