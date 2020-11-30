@@ -73,28 +73,26 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title })
     }
 
     const forSending = {
-        "item": {
-          "login": "LucianDeveloper",
-          "name": "Рыбочкин Михаил Романович",
-          "is_trainer": true,
-          "is_child": false,
-          "is_verify": true,
-          "was_activate": true,
-          "city_id": 1,
-          "address": "гюБелгород",
-          "tel": "+7 915 578 15 55",
-          "date_joined": "2020-11-29T20:57:04.691Z",
-          "school_id": 1
+        item: {
+            login,
+            name,
+            is_trainer: isTrainer,
+            is_child: isChild,
+            is_verify: isVerify,
+            was_activate: isWasActivate,
+            city_id: city,
+            address,
+            tel,
+            date_joined: date?.toJSON(),
+            school_id: school,
         },
-        "child_ids": [
-          1
-        ]
-      }
+        child_ids: children
+    }
     console.log(forSending)
 
-    const { execute: onAdd, loading: adding } = usePostQuery('persons/trainer', forSending)
-    const { execute: onModify, loading: modifying } = usePutQuery(`persons/trainer/${id}`, forSending)
-    const { execute: onRemove, loading: removing } = useDeleteQuery(`persons/trainer/${id}`)
+    const { execute: onAdd, loading: adding } = usePostQuery('tg/users', forSending)
+    const { execute: onModify, loading: modifying } = usePutQuery(`tg/users/${id}`, forSending)
+    const { execute: onRemove, loading: removing } = useDeleteQuery(`tg/users/${id}`)
 
     const isValid = validate([login, name, city, school, address, tel, date])
     const loading = collectCRUDLoading([adding, fetching, modifying, removing])
@@ -119,6 +117,8 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title })
             setDate(new Date(user.date_joined))
         }
     }, [user])
+
+    console.log(children)
 
     return (
         <EditorFormLayout
