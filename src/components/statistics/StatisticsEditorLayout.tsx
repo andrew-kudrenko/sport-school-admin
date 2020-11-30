@@ -4,16 +4,16 @@ import { Grid, Select, MenuItem } from '@material-ui/core'
 import { EditorFormLayout } from '../../components/layouts/EditorFormLayout'
 import { useFormHandlers } from '../../hooks/form-handlers.hooks'
 import { IEntityEditorProps } from '../../interfaces/components.interfaces'
-import { IDType, IStatistics } from '../../interfaces/entities.interfaces'
+import { IDType, IStatistics, IStudent } from '../../interfaces/entities.interfaces'
 import { useFoundStudents } from '../../hooks/found-by-city.hook'
 import { collectCRUDLoading } from '../../helpers/crud-loading.helper'
 import { splitDate } from '../../helpers/date-splitter.helper'
 import { useIDParam } from '../../hooks/id-param.hook'
 import { usePostQuery, usePutQuery, useDeleteQuery, useGetQuery } from '../../hooks/query.hook'
-import { useFileUploading } from '../../hooks/file-uploading'
+import { useDocumentFileUploading } from '../../hooks/file-uploading'
 import { Nullable } from '../../types/common.types'
 import { validate } from '../../helpers/truthy-validator.helper'
-import { FileLoader } from '../file-loader/FileLoader'
+import { DocumentFileLoader } from '../file-loader/DocumentFileLoader'
 
 export const StatisticsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
   const editing = mode === 'edit'
@@ -21,12 +21,13 @@ export const StatisticsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, tit
   const id = useIDParam()
   const { onSelect, onDateChange } = useFormHandlers()
 
-  const { preview, setPreview, locked, ...rest } = useFileUploading(`/persons/stats/${id}/upload_stats_pdf/`)
+  const { preview, setPreview, locked, ...rest } = useDocumentFileUploading(`/persons/stats/${id}/upload_stats_pdf/`)
 
   const [child, setChild] = useState<Nullable<IDType>>(null)
   const [date, setDate] = useState<Nullable<Date>>(new Date())
+  const [img, setImg] = useState<Nullable<string>>(null)
 
-  const forSending = { children_id: child, date: splitDate(date || new Date()), file: preview }
+  const forSending = { children_id: Number.parseInt(child || ''), date: splitDate(date || new Date()), file: preview ? img : null }
 
   const { students } = useFoundStudents()
 
@@ -34,7 +35,7 @@ export const StatisticsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, tit
   const { execute: onModify, loading: modifying } = usePutQuery(`persons/stats/${id}`, forSending)
   const { execute: onRemove, loading: removing } = useDeleteQuery(`persons/stats/${id}`)
 
-  const { value: stats, loading: fetching } = useGetQuery<IStatistics>(`persons/stats/${id}`)
+  const { value: stats, loading: fetching } = useGetQuery<IStatistics & { children: IStudent }>(`persons/stats/${id}`)
 
   const isValid = validate([child, date, !locked])
   const loading = collectCRUDLoading([adding, fetching, modifying, removing])
@@ -43,21 +44,40 @@ export const StatisticsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, tit
     setChild(null)
     setDate(new Date())
     setPreview(null)
+    setImg(null)
   }
 
   useEffect(() => {
     if (editing && stats) {
-      setChild(students.find(s => s.id === child)?.id || null)
+      setChild(stats.children.id)
       setDate(new Date(stats.date))
-      setPreview(stats.file)
+      
+      if (stats.file) {
+        setImg(stats.file)
+        setPreview(`http://localhost:8000/${stats.file}`)
+      }
     }
-  }, [])
+  }, [stats])
+
+  console.log(preview, img)
 
   return (
     <EditorFormLayout
       mode={mode}
-      onAdd={onAdd}
-      onModify={onModify}
+      onAdd={async () => {
+        await onAdd()
+
+        window.setTimeout(async () => {
+          await rest.onUpload()
+        }, 500)
+      }}
+      onModify={async () => {
+        await onModify()
+
+        window.setTimeout(async () => {
+          await rest.onUpload()
+        }, 500)
+      }}
       onRemove={onRemove}
       onClearAll={onClearAll}
       isValid={isValid}
@@ -85,7 +105,7 @@ export const StatisticsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, tit
         {
           editing &&
           <Grid item xs={12}>
-            <FileLoader preview={preview} {...rest} />
+            <DocumentFileLoader preview={preview} {...rest} />
           </Grid>
         }
         <Grid item xs={12}>

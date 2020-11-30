@@ -49,7 +49,7 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
     item: {
       name,
       address,
-      img,
+      img: preview ? img : null,
       group_id: group,
       dob: dob ? splitDate(dob) : null,
     },
@@ -65,6 +65,7 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
     setAddress('')
     setGroup(null)
     setParents([])
+    setImg(null)
   }
 
   const { execute: onAdd, loading: adding } = usePostQuery('persons/child', forSending)
@@ -80,14 +81,14 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
         item: {
           name,
           address,
-          img,
+          img: preview ? img : null,
           group_id: group,
           dob: splitDate(dob)
         },
         parent_ids: parents
       })
     }
-  }, [name, dob, address, group, parents, student])
+  }, [name, dob, address, group, parents, student, img, preview])
 
   useEffect(() => {
     if (editing && student) {
@@ -114,12 +115,18 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
       onClearAll={onClearAll}
       onAdd={async () => {
         await onAdd()
-        await rest.onUpload()
-      }}      
+
+        window.setTimeout(async () => {
+          await rest.onUpload()
+        }, 500)
+      }}
       onModify={async () => {
         await onModify()
-        await rest.onUpload()
-      }}      
+
+        window.setTimeout(async () => {
+          await rest.onUpload()
+        }, 500)
+      }}
       onRemove={onRemove}
     >
       <Grid container spacing={2}>

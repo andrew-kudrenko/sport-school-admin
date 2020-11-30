@@ -12,6 +12,7 @@ import { validate } from '../../helpers/truthy-validator.helper'
 import { collectCRUDLoading } from '../../helpers/crud-loading.helper'
 import { useFileUploading } from '../../hooks/file-uploading'
 import { FileLoader } from '../file-loader/FileLoader'
+import { Nullable } from '../../types/common.types'
 
 export const NewsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title: pageTitle }) => {
   const editing = mode === 'edit'
@@ -26,8 +27,9 @@ export const NewsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title: pa
 
   const [title, setTitle] = useState('')
   const [text, setText] = useState('')
+  const [img, setImg] = useState<Nullable<string>>(null)
 
-  const [forSending, setForSending] = useState({ title, text, img: preview, author_id })
+  const [forSending, setForSending] = useState({ title, text, img, author_id })
 
   const { onChange } = useFormHandlers()
 
@@ -43,13 +45,14 @@ export const NewsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title: pa
     setText('')
     setTitle('')
     setPreview(null)
+    setImg(null)
   }
 
   useEffect(() => {
     if (isValid) {
-      setForSending({ title, text, img: preview, author_id })
+      setForSending({ title, text, img: preview ? img : null, author_id })
     }
-  }, [title, text])
+  }, [title, text, preview, img, isValid])
 
   useEffect(() => {
     if (editing && news) {
@@ -58,6 +61,7 @@ export const NewsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title: pa
 
       if (news.img) {
         setPreview(`http://localhost:8000/${news.img}`)
+        setImg(news.img)
       }
     }
   }, [news])
@@ -71,13 +75,19 @@ export const NewsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title: pa
       loading={loading}
       onAdd={async () => {
         await onAdd()
-        await rest.onUpload()
+
+        window.setTimeout(async () => {
+          await rest.onUpload()
+        }, 500)
       }}
       onClearAll={onClearAll}
       onRemove={onRemove}
       onModify={async () => {
         await onModify()
-        await rest.onUpload()
+
+        window.setTimeout(async () => {
+          await rest.onUpload()
+        }, 500)
       }}
     >
       <Grid container spacing={2}>

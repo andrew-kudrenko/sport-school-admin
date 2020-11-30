@@ -72,7 +72,7 @@ export function useFileUploading(url: string) {
 
 export function useDocumentFileUploading(url: string) {
     const [file, setFile] = useState<Nullable<File>>(null)
-    const [filename, setPreview] = useState<Nullable<string>>(null)
+    const [preview, setPreview] = useState<Nullable<string>>(null)
     const [formData, setFormData] = useState<Nullable<FormData>>(null)
     const [progress, setProgress] = useState(0)
     const [isInitial, setIsInitial] = useState(true)
@@ -123,14 +123,14 @@ export function useDocumentFileUploading(url: string) {
     }, [file, isInitial])
     
     useEffect(() => {
-        if (!isInitial && filename) {
+        if (!isInitial && preview) {
             setLocked(progress < 100 ? true : false)
         }
 
-        if (isInitial || !filename) {
+        if (isInitial || !preview) {
             setLocked(false)
         }
-    }, [isInitial, filename, progress])
+    }, [isInitial, preview, progress])
     
-    return { onUpload, progress, onSelect, onClear, filename, setPreview, locked }
+    return { onUpload, progress, onSelect, onClear, preview, setPreview, locked }
 }

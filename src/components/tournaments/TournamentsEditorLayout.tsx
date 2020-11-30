@@ -12,6 +12,7 @@ import { useGetQuery, usePostQuery, usePutQuery, useDeleteQuery } from '../../ho
 import { useFileUploading } from '../../hooks/file-uploading'
 import { validate } from '../../helpers/truthy-validator.helper'
 import { FileLoader } from '../file-loader/FileLoader'
+import { Nullable } from '../../types/common.types'
 
 export const TournamentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
     const editing = mode === 'edit'
@@ -25,8 +26,9 @@ export const TournamentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, ti
     const [author, setAuthor] = useState(user?.id || '')
     const [text, setText] = useState('')
     const [year, setYear] = useState<number>(new Date().getFullYear())
+    const [img, setImg] = useState<Nullable<string>>(null)
 
-    const [forSending, setForSending] = useState({ text, year, img: preview, author_id: author })
+    const [forSending, setForSending] = useState({ text, year, img: preview ? img : null, author_id: author })
 
     const { value: tournament, loading: fetching } = useGetQuery<ITournament & { author: IUser }>(`posts/tournament/${id}`)
 
@@ -42,6 +44,7 @@ export const TournamentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, ti
         setText('')
         setYear(new Date().getFullYear())
         setPreview(null)
+        setImg(null)
     }
 
     useEffect(() => {
@@ -51,6 +54,7 @@ export const TournamentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, ti
             setYear(tournament.year)
 
             if (tournament.img) {
+                setImg(tournament.img)
                 setPreview(`http://localhost:8000/${tournament.img}`)
             }
         }
@@ -58,21 +62,27 @@ export const TournamentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, ti
 
     useEffect(() => {
         if (isValid) {
-            setForSending({ text, year, img: preview, author_id: author })
+            setForSending({ text, year, img: preview ? img : null, author_id: author })
         }
-    }, [text, year, user])
+    }, [text, year, user, img, preview])
 
     return (
         <EditorFormLayout
             mode={mode}
             onAdd={async () => {
                 await onAdd()
-                await rest.onUpload()
+
+                window.setTimeout(async () => {
+                    await rest.onUpload()
+                }, 500)
             }}
             onModify={async () => {
                 await onModify()
-                await rest.onUpload()
-            }}            
+
+                window.setTimeout(async () => {
+                    await rest.onUpload()
+                }, 250)
+            }}
             onRemove={onRemove}
             onClearAll={onClearAll}
             isValid={isValid}

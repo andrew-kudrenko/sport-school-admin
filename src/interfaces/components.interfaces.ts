@@ -106,5 +106,5 @@ export interface IDocumentFileLoaderProps {
   onSelect: (event: ChangeEvent<HTMLInputElement>) => void
   onClear: () => void
   onUpload: () => void
-  filename: Nullable<string>
+  preview: Nullable<string>
 }

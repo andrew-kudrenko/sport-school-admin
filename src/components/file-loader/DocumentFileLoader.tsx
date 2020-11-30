@@ -23,17 +23,16 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
   }))
 
-export const DocumentFileLoader: React.FC<IDocumentFileLoaderProps> = ({ onClear, onUpload, onSelect, filename }) => {
+export const DocumentFileLoader: React.FC<IDocumentFileLoaderProps> = ({ onClear, onUpload, onSelect, preview }) => {
     const classes = useStyles()
     
     return (
         <Box className={classes.fileLoader}>
-            {/* <Box>
-                {
-                        ? <img alt="preview" src={preview} className={classes.preview} />
-                        : <Typography variant="subtitle1">{'Выберите изображение'}</Typography>
-                }
-            </Box> */}
+            <Box>
+                <Typography variant="subtitle1">
+                    {preview ? preview :'Выберите изображение'}
+                </Typography>
+            </Box>
             <input
                 style={{ display: 'none' }}
                 accept="application/pdf,application/vnd.ms-excel"

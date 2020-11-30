@@ -41,11 +41,12 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
   const [year, setYear] = useState<Nullable<number>>(null)
   const [tgUrl, setTgUrl] = useState('')
   const [coachesID, setCoachesID] = useState<Array<IDType>>([])
+  const [img, setImg] = useState<Nullable<string>>(null)
 
   const [forSending, setForSending] = useState({
     item: {
       year,
-      schedule,
+      schedule: schedule ? img : null,
       tg_url: tgUrl,
       school_id: school,
     },
@@ -57,6 +58,7 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
   const onClearAll = () => {
     setSchool(null)
     setYear(null)
+    setImg(null)
     setSchedule(null)
     setTgUrl('')
     setCoachesID([])
@@ -75,14 +77,14 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
       setForSending({
         item: {
           year,
-          schedule,
+          schedule: schedule ? img : null,
           tg_url: tgUrl,
           school_id: school,
         },
         trainer_ids: coachesID
       })
     }
-  }, [year, tgUrl, school, coachesID])
+  }, [year, tgUrl, school, coachesID, img, isValid, schedule])
 
   useEffect(() => {
     if (editing && group) {
@@ -93,11 +95,10 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
 
       if (group.schedule) {
         setSchedule(`http://localhost:8000/${group.schedule}`)
+        setImg(group.schedule)
       }
     }
   }, [group])
-
-  console.log(schedule)
 
   return (
     <EditorFormLayout
@@ -108,11 +109,17 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
       loading={loading}
       onAdd={async () => {
         await onAdd()
-        await rest.onUpload()
+
+        window.setTimeout(async () => {
+          await rest.onUpload()
+        }, 250)
       }}
       onModify={async () => {
         await onModify()
-        await rest.onUpload()
+
+        window.setTimeout(async () => {
+          await rest.onUpload()
+        }, 250)
       }}
       onClearAll={onClearAll}
       onRemove={onRemove}
