@@ -69,7 +69,7 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
   const { execute: onModify, loading: modifying } = usePutQuery(`persons/groups/${id}`, forSending)
   const { execute: onRemove, loading: removing } = useDeleteQuery(`persons/groups/${id}`)
 
-  const isValid = validate([year, !locked, tgUrl, school])
+  const isValid = validate([year, !locked, school])
 
   const loading = collectCRUDLoading([adding, fetching, modifying, removing])
 
