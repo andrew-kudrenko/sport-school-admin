@@ -1,12 +1,11 @@
 import { useAsync } from "./async.hook"
 import axios from 'axios'
 import { useHeaders } from "./headers.hook"
-
-const urlAPI = 'http://localhost:8000'
+import { API_URL } from '../helpers/api.helper'
 
 export function useGetQuery<T>(endpoint: string, immediate = true) {
     const headers = useHeaders()
-    const url = `${urlAPI}/${endpoint}`
+    const url = `${API_URL}/${endpoint}`
 
     const get = useAsync<T>(async () => {
         try {
@@ -22,7 +21,7 @@ export function useGetQuery<T>(endpoint: string, immediate = true) {
 
 export function usePostQuery<T, U = any>(endpoint: string, data: U, immediate = false) {
     const headers = useHeaders()
-    const url = `${urlAPI}/${endpoint}`
+    const url = `${API_URL}/${endpoint}`
 
     const post = useAsync<T>(async (): Promise<T> => {
         return (await (await axios({ url, headers, data, method: 'POST' })).data)    
@@ -33,7 +32,7 @@ export function usePostQuery<T, U = any>(endpoint: string, data: U, immediate = 
 
 export function usePutQuery<T, U = any>(endpoint: string, data: U, immediate = false) {
     const headers = useHeaders()
-    const url = `${urlAPI}/${endpoint}`
+    const url = `${API_URL}/${endpoint}`
 
     const put = useAsync<T>(async () => {
         try {
@@ -51,7 +50,7 @@ export function usePutQuery<T, U = any>(endpoint: string, data: U, immediate = f
 
 export function useDeleteQuery(endpoint: string, immediate = false) {
     const headers = useHeaders()
-    const url = `${urlAPI}/${endpoint}`
+    const url = `${API_URL}/${endpoint}`
 
     const remove = useAsync(async () => {
         await (await axios({ url, headers, method: 'DELETE' })).data    

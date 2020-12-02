@@ -14,6 +14,7 @@ import { collectCRUDLoading } from '../../helpers/crud-loading.helper'
 import { splitDate } from '../../helpers/date-splitter.helper'
 import { useFileUploading } from '../../hooks/file-uploading'
 import { FileLoader } from '../file-loader/FileLoader'
+import { API_URL } from '../../helpers/api.helper'
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -100,7 +101,7 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title
 
       if (student.img) {
         setImg(student.img)
-        setPreview(`http://localhost:8000/${student.img}`)
+        setPreview(`${API_URL}/${student.img}`)
       }
     }
   }, [student])

@@ -13,6 +13,7 @@ import { collectCRUDLoading } from '../../helpers/crud-loading.helper'
 import { useFileUploading } from '../../hooks/file-uploading'
 import { FileLoader } from '../file-loader/FileLoader'
 import { Nullable } from '../../types/common.types'
+import { API_URL } from '../../helpers/api.helper'
 
 export const NewsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title: pageTitle }) => {
   const editing = mode === 'edit'
@@ -60,7 +61,7 @@ export const NewsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title: pa
       setText(news.text)
 
       if (news.img) {
-        setPreview(`http://localhost:8000/${news.img}`)
+        setPreview(`${API_URL}/${news.img}`)
         setImg(news.img)
       }
     }

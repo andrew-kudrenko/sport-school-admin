@@ -12,6 +12,7 @@ import { useGetQuery, usePostQuery, usePutQuery, useDeleteQuery } from '../../ho
 import { collectCRUDLoading } from '../../helpers/crud-loading.helper'
 import { FileLoader } from '../file-loader/FileLoader'
 import { useFileUploading } from '../../hooks/file-uploading'
+import { API_URL } from '../../helpers/api.helper'
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -94,7 +95,7 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }
       setCoachesID(group.trainers.map(t => t.id))
 
       if (group.schedule) {
-        setSchedule(`http://localhost:8000/${group.schedule}`)
+        setSchedule(`${API_URL}/${group.schedule}`)
         setImg(group.schedule)
       }
     }

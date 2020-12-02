@@ -2,8 +2,7 @@ import axios from 'axios'
 import { useState, ChangeEvent, useEffect } from 'react'
 import { Nullable } from '../types/common.types'
 import { useHeaders } from './headers.hook'
-
-const apiURL = 'http://localhost:8000'
+import { API_URL } from '../helpers/api.helper'
 
 export function useFileUploading(url: string) {
     const [file, setFile] = useState<Nullable<File>>(null)
@@ -17,7 +16,7 @@ export function useFileUploading(url: string) {
 
     async function onUpload() {
         if (formData) {
-            return await axios.post(apiURL.concat(url), formData, {
+            return await axios.post(API_URL.concat(url), formData, {
                 headers,
                 onUploadProgress: (progressEvent: any) => {
                     const totalLength = progressEvent.lengthComputable
@@ -53,7 +52,7 @@ export function useFileUploading(url: string) {
             formData.append('file', file)
             
             setFormData(formData)
-            setPreview(`${isInitial ? apiURL : ''}${URL.createObjectURL(file)}`)
+            setPreview(`${isInitial ? API_URL : ''}${URL.createObjectURL(file)}`)
         }
     }, [file, isInitial])
     
@@ -82,7 +81,7 @@ export function useDocumentFileUploading(url: string) {
 
     async function onUpload() {
         if (formData) {
-            return await axios.post(apiURL.concat(url), formData, {
+            return await axios.post(API_URL.concat(url), formData, {
                 headers,
                 onUploadProgress: (progressEvent: any) => {
                     const totalLength = progressEvent.lengthComputable
@@ -118,7 +117,7 @@ export function useDocumentFileUploading(url: string) {
             formData.append('file', file)
             
             setFormData(formData)
-            setPreview(`${isInitial ? apiURL : ''}${URL.createObjectURL(file)}`)
+            setPreview(`${isInitial ? API_URL : ''}${URL.createObjectURL(file)}`)
         }
     }, [file, isInitial])
     

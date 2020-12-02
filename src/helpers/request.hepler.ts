@@ -1,6 +1,5 @@
 import { ICachedUserData } from "../interfaces/entities.interfaces"
-
-const apiUrl: string = 'http://localhost:8000'
+import { API_URL } from './api.helper'
 
 type HTTPMethodType = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE' | 'OPTIONS'
 
@@ -12,7 +11,7 @@ async function requestBase<T = any>(headers: Headers, endPoint: string, method: 
             options.body = body
         }
 
-        const response = await fetch(apiUrl.concat(endPoint), options)
+        const response = await fetch(API_URL.concat(endPoint), options)
         const json = await response.json()
 
         return json

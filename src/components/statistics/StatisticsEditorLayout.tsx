@@ -14,6 +14,7 @@ import { useDocumentFileUploading } from '../../hooks/file-uploading'
 import { Nullable } from '../../types/common.types'
 import { validate } from '../../helpers/truthy-validator.helper'
 import { DocumentFileLoader } from '../file-loader/DocumentFileLoader'
+import { API_URL } from '../../helpers/api.helper'
 
 export const StatisticsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
   const editing = mode === 'edit'
@@ -54,7 +55,7 @@ export const StatisticsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, tit
       
       if (stats.file) {
         setImg(stats.file)
-        setPreview(`http://localhost:8000/${stats.file}`)
+        setPreview(`${API_URL}/${stats.file}`)
       }
     }
   }, [stats])

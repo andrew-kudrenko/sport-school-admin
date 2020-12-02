@@ -13,6 +13,7 @@ import { useFileUploading } from '../../hooks/file-uploading'
 import { validate } from '../../helpers/truthy-validator.helper'
 import { FileLoader } from '../file-loader/FileLoader'
 import { Nullable } from '../../types/common.types'
+import { API_URL } from '../../helpers/api.helper'
 
 export const TournamentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
     const editing = mode === 'edit'
@@ -55,7 +56,7 @@ export const TournamentsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, ti
 
             if (tournament.img) {
                 setImg(tournament.img)
-                setPreview(`http://localhost:8000/${tournament.img}`)
+                setPreview(`${API_URL}/${tournament.img}`)
             }
         }
     }, [tournament])
