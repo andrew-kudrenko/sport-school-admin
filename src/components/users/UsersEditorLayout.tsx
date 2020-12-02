@@ -243,7 +243,7 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title })
                         label="Подтверждён"
                     />
                 </Grid>
-                <Grid item xs={6}>
+                {/* <Grid item xs={6}>
                     <FormControlLabel
                         control={
                             <Checkbox
@@ -255,7 +255,7 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title })
                         }
                         label="Активирован"
                     />
-                </Grid>
+                </Grid> */}
                 <Grid item xs={6}>
                     <FormControlLabel
                         control={
