@@ -70,3 +70,12 @@ export function useFoundStudents() {
 
   return { students, ...rest }
 }
+
+export function useFoundTickets() {
+  let { value: tickets, ...rest } = useGetQuery<Array<any>>('shop/season_tickets')
+  // const { cities } = useFoundCities()
+   console.log(tickets)
+  // tickets = tickets?.filter(t => cities.find(c => c.id === t.city_id)) || []
+
+  return { tickets, ...rest }
+}

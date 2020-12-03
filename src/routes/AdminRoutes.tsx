@@ -15,6 +15,9 @@ import { ManageStatisticsView } from '../views/statistics/ManageStatisticsView'
 import { AddStudentView } from '../views/students/AddStudentView'
 import { EditStudentView } from '../views/students/EditStudentView'
 import { ManageStudentsView } from '../views/students/ManageStudentsView'
+import { AddTicketView } from '../views/tickets/AddTicketView'
+import { EditTicketView } from '../views/tickets/EditTicketView'
+import { ManageTicketsView } from '../views/tickets/ManageTicketsView'
 import { AddUserView } from '../views/users/AddUserView'
 import { EditUserView } from '../views/users/EditUserView'
 import { ManageUsersView } from '../views/users/ManageUsersView'
@@ -45,6 +48,10 @@ export const AdminRoutes: React.FC = () =>
             <Route exact path="/statistics/edit/:id" component={EditStatisticsView} />
             <Route exact path="/statistics/add" component={AddStatisticsView} />
             <Route exact path="/statistics" component={ManageStatisticsView} />
+
+            <Route exact path="/tickets/edit/:id" component={EditTicketView} />
+            <Route exact path="/tickets/add" component={AddTicketView} />
+            <Route exact path="/tickets" component={ManageTicketsView} />
 
             <Redirect from="/auth/*" to="/schools/" />
         </Switch>

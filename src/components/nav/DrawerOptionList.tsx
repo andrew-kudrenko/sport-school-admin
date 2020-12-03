@@ -1,7 +1,7 @@
 import React from 'react'
 import { List } from '@material-ui/core'
 import { DrawerOption } from './DrawerOption'
-import { AssignmentIndOutlined, ChildCareOutlined, EmojiEventsOutlined, EventNoteOutlined, GroupOutlined, RoomOutlined, SchoolOutlined, SportsOutlined, SportsSoccerOutlined, StarsOutlined, TrendingUpOutlined } from '@material-ui/icons'
+import { AssignmentIndOutlined, ChildCareOutlined, EmojiEventsOutlined, EventNoteOutlined, MoneyOutlined, RoomOutlined, SchoolOutlined, SportsOutlined, SportsSoccerOutlined, TrendingUpOutlined } from '@material-ui/icons'
 import { IDrawerOptionProps } from '../../interfaces/components.interfaces'
 import { useRole } from '../../hooks/role.hook'
 
@@ -11,7 +11,8 @@ const adminOptions: Array<IDrawerOptionProps> = [
   { text: 'Статистика', to: '/statistics/', icon: <TrendingUpOutlined /> },
   { text: 'Тренеры', to: '/coaches/', icon: <SportsOutlined /> },
   { text: 'Ученики', to: '/students/', icon: <ChildCareOutlined /> },
-  { text: 'Школы', to: '/schools/', icon: <SchoolOutlined /> }
+  { text: 'Школы', to: '/schools/', icon: <SchoolOutlined /> },
+  { text: 'Абонементы', to: '/tickets/', icon: <MoneyOutlined /> }
 ]
 
 const superAdminOptions: Array<IDrawerOptionProps> = [

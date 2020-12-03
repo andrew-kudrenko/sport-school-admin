@@ -28,6 +28,9 @@ import { ManageTournamentsView } from '../views/tournaments/ManageTournmentsView
 import { AddUserView } from '../views/users/AddUserView'
 import { EditUserView } from '../views/users/EditUserView'
 import { ManageUsersView } from '../views/users/ManageUsersView'
+import { EditTicketView } from '../views/tickets/EditTicketView'
+import { ManageTicketsView } from '../views/tickets/ManageTicketsView'
+import { AddTicketView } from '../views/tickets/AddTicketView'
 
 export const SuperAdminRoutes: React.FC = () =>
     <RootLayout>
@@ -67,6 +70,10 @@ export const SuperAdminRoutes: React.FC = () =>
             <Route exact path="/statistics/edit/:id" component={EditStatisticsView} />
             <Route exact path="/statistics/add" component={AddStatisticsView} />
             <Route exact path="/statistics" component={ManageStatisticsView} />
+
+            <Route exact path="/tickets/edit/:id" component={EditTicketView} />
+            <Route exact path="/tickets/add" component={AddTicketView} />
+            <Route exact path="/tickets" component={ManageTicketsView} />
 
             <Redirect from="/auth/*" to="/cities/" />
         </Switch>
