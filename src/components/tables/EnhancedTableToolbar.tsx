@@ -1,7 +1,7 @@
 import React from 'react'
 import clsx from 'clsx'
 import { makeStyles, Theme, createStyles, lighten, Toolbar, Typography, Tooltip, IconButton } from '@material-ui/core'
-import { Add, Delete, FilterList } from '@material-ui/icons'
+import { Add, Delete } from '@material-ui/icons'
 import { IEnhancedTableToolbarProps } from '../../interfaces/components.interfaces'
 import { NavLink } from 'react-router-dom'
 
@@ -52,11 +52,11 @@ export const EnhancedTableToolbar: React.FC<IEnhancedTableToolbarProps> = ({ num
                 </Tooltip>
             ) : (   
                     <>
-                        <Tooltip title="Фильтры">
+                        {/* <Tooltip title="Фильтры">
                             <IconButton>
                                 <FilterList />
                             </IconButton>
-                        </Tooltip>
+                        </Tooltip> */}
                         <Tooltip title="Добавить">
                             <IconButton to="add" component={NavLink}>
                                 <Add />

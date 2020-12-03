@@ -1,22 +1,21 @@
 import React from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import { EnhancedTable } from '../../components/tables/EnhancedTable'
-import { IHeadCell, RemoveCallbackType } from '../../interfaces/components.interfaces'
+import { requestJSONAuth } from '../../helpers/request.hepler'
+import { useFoundCities, useFoundSchools } from '../../hooks/found-by-city.hook'
+import { useRefresh } from '../../hooks/refresh.hook'
+import { IHeadCell } from '../../interfaces/components.interfaces'
 import { ISchool } from '../../interfaces/entities.interfaces'
-import { IState } from '../../interfaces/redux.interfaces'
-import { removeSchool } from '../../redux/actions/schools.actions'
 
 const headCells: Array<IHeadCell<ISchool>> = [
-    { id: 'name', label: 'Название', numeric: false },
-    { id: 'city_id', label: 'Город', numeric: false },
-    { id: 'address', label: 'Адрес', numeric: false },
-    { id: 'description', label: 'Описание', numeric: false }
+    { id: 'name', label: 'Название' },
+    { id: 'city_id', label: 'Город' },
+    { id: 'address', label: 'Адрес' },
+    { id: 'description', label: 'Описание' }
 ]
 
 export const ManageSchoolsView: React.FC = () => {
-    const dispatch = useDispatch()
-    const { list: schools } = useSelector((state: IState) => state.schools)
-    const { list: cities } = useSelector((state: IState) => state.cities)
+    const { cities } = useFoundCities()
+    const { schools, execute: refresh } = useFoundSchools()
 
     const mappedSchools: Array<ISchool> = schools.map(s => (
         {
@@ -24,9 +23,12 @@ export const ManageSchoolsView: React.FC = () => {
             city_id: cities.find(c => c.id === s.city_id)?.name || ''
         }))
 
-    const onRemove: RemoveCallbackType = id => {
-        dispatch(removeSchool(id))
-    }
+    const onRemove = async (id: string) => {
+        await requestJSONAuth(`/structures/schools/${id}`, 'DELETE')
+        await refresh()
+    }    
+
+    useRefresh(refresh)
 
     return (
         <EnhancedTable<ISchool>

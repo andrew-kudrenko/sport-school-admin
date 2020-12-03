@@ -1,44 +1,82 @@
 import { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { requestJSONAuth } from '../helpers/request.hepler'
 import { ICachedUserData, ILoginCredentials } from '../interfaces/entities.interfaces'
 import { IState } from '../interfaces/redux.interfaces'
-import { createLoginAction, createLogoutAction } from '../redux/actions/auth.actions'
-
-const collectionName: string = 'user-data'
+import { autoLogin, createLoginAction, createLogoutAction, setToken, setUser } from '../redux/actions/auth.actions'
+import { Nullable } from '../types/common.types'
+import { useLocalStorage } from './local-storage.hook'
 
 export function useAuth() {
   const dispatch = useDispatch()
-  const { authorized, token, user } = useSelector((state: IState) => state.auth)
+
+  const [credentials, setCredentials, removeCredentials] = useLocalStorage<Nullable<ICachedUserData>>('credentials', null)
+  const [given, setGiven, removeGiven] = useLocalStorage<Nullable<number>>('expires', null)
+
+  const { authorized, token, login: email, user, error, loading } = useSelector((state: IState) => state.auth)
+
+  const expires = 30
 
   const login = useCallback((credentials: ILoginCredentials) => {
     dispatch(createLoginAction(credentials))
-
-    const updatedData: ICachedUserData = { login: credentials.login }
-    localStorage.setItem(collectionName, JSON.stringify(updatedData))
-
-    localStorage.setItem('me', JSON.stringify(user))
+    setGiven(Date.now())
   }, [])
 
-  const logout = useCallback(() => {
-    localStorage.removeItem(collectionName)
+  const logout = () => {
     dispatch(createLogoutAction())
+    removeCredentials()
+    removeGiven()
+  }
+
+  useEffect(() => {
+    if (!authorized && credentials) {
+      if (token && given) {
+        if (Date.now() > given + expires * 60e3 * .75) {
+          return logout()
+        }
+      }
+
+      dispatch(autoLogin())
+    }
   }, [])
 
   useEffect(() => {
-    const cachedData: ICachedUserData = JSON.parse(localStorage.getItem(collectionName) || '{}')
+    if (authorized && token && credentials && !user) {
+      const givenTimeout = window.setTimeout(() => {
+        dispatch(setUser())
+        window.clearTimeout(givenTimeout)
+      }, 500)
 
-    if (!authorized) {
-      if (cachedData.token) {
-        dispatch(createLoginAction(cachedData.token))
-        localStorage.setItem(collectionName, JSON.stringify(cachedData))
+      if (given) {
+        const timeout = window.setInterval(async () => {
+          dispatch(setToken((await requestJSONAuth('/auth/jwt/refresh', 'POST'))['access_token']))
+          setGiven(Date.now())
+        }, expires * .75 * 60e3)
+
+        return () => {
+          window.clearInterval(timeout)
+        }
       }
     }
+  }, [authorized, credentials])
 
-    if (token) {
-      cachedData.token = token
-      localStorage.setItem(collectionName, JSON.stringify(cachedData))
+  useEffect(() => {
+    if (authorized && email && token) {
+      setCredentials({ login: email, token })
     }
-  }, [authorized, dispatch, token])
+  }, [authorized, email, token])
 
-  return { authorized, token, login, logout }
+  useEffect(() => {
+    if (!token && authorized) {
+      logout()
+    }
+  }, [token, authorized])
+
+  useEffect(() => {
+    if (authorized && !credentials) {
+      logout()
+    }
+  }, [authorized, credentials])
+
+  return { token, authorized, login, user, error, logout, loading }
 }

@@ -37,6 +37,7 @@ export interface INonIDGroup {
   schedule: string
   tg_url: string
   school_id: IDType
+  trainer_ids: Array<IDType>
 }
 
 export interface ICoach extends INonIDGroup {
@@ -53,9 +54,10 @@ export interface INews extends INonIDNews {
 
 export interface INonIDNews {
   id?: IDType
+  title: string
   author_id: string
   text: string
-  img: string
+  img?: any
 }
 
 export interface ICoach extends INonIDCoach {
@@ -100,7 +102,7 @@ export interface INonIDStudent {
   dob: string
   address: string
   group_id: IDType
-  parents_id: Array<IDType>
+  parents_ids: Array<IDType>
 }
 
 export interface INonIDStatistics {
@@ -148,6 +150,7 @@ export interface INonIDUser {
   date_joined: string
   school_id: IDType
   childs_id: Array<IDType>
+  tg_id?: IDType
 }
 
 export interface ILoginCredentials {
@@ -156,8 +159,8 @@ export interface ILoginCredentials {
 }
 
 export interface ICachedUserData {
-  login?: string
-  token?: string
+  login: string
+  token: string
 }
 
 export type TokenType = string

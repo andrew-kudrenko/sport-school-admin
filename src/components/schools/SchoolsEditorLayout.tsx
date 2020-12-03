@@ -1,30 +1,33 @@
 import React, { useEffect, useState } from 'react'
 import { Grid, TextField, Select, MenuItem } from '@material-ui/core'
-import { useDispatch, useSelector } from 'react-redux'
-import { useParams } from 'react-router-dom'
 import { EditorFormLayout } from '../../components/layouts/EditorFormLayout'
 import { useFormHandlers } from '../../hooks/form-handlers.hooks'
 import { IEntityEditorProps } from '../../interfaces/components.interfaces'
-import { IDType } from '../../interfaces/entities.interfaces'
-import { IState } from '../../interfaces/redux.interfaces'
-import { addSchool, modifySchool, removeSchool } from '../../redux/actions/schools.actions'
+import { IDType, ISchool } from '../../interfaces/entities.interfaces'
+import { useFoundCities } from '../../hooks/found-by-city.hook'
+import { useIDParam } from '../../hooks/id-param.hook'
+import { validate } from '../../helpers/truthy-validator.helper'
+import { useDeleteQuery, useGetQuery, usePostQuery, usePutQuery } from '../../hooks/query.hook'
+import { Nullable } from '../../types/common.types'
+import { collectCRUDLoading } from '../../helpers/crud-loading.helper'
 
 export const SchoolsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
     const editing = mode === 'edit'
+    const id = useIDParam()
 
-    const { id } = useParams<{ id?: IDType }>()
     const { onChange, onSelect } = useFormHandlers()
 
     const [name, setName] = useState('')
-    const [city, setCity] = useState<IDType | null>(null)
+    const [city, setCity] = useState<Nullable<IDType>>(null)
     const [address, setAddress] = useState('')
     const [description, setDescription] = useState('')
 
-    const dispatch = useDispatch()
-    const { list: cities } = useSelector((state: IState) => state.cities)
-    const { loading, list: schools } = useSelector((state: IState) => state.schools)
+    const [forSending, setForSending] = useState({ name, city_id: city, address, description })
 
-    const isValid: boolean = !!name && !!address && !!description && !!city
+    const { cities, loading: fetching } = useFoundCities()
+    const { value: school } = useGetQuery<ISchool & { city: { id: IDType, name: string } }>(`structures/schools/${id}`)
+
+    const isValid = validate([name, city, address, description])
 
     const onClearAll = () => {
         setName('')
@@ -33,30 +36,24 @@ export const SchoolsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title 
         setDescription('')
     }
 
-    const onAdd = dispatch.bind(null, addSchool({ name, city_id: city as string, address, description }))
+    const { execute: onAdd, loading: adding } = usePostQuery('structures/schools', forSending)
+    const { execute: onModify, loading: modifying } = usePutQuery(`structures/schools/${id}`, forSending)
+    const { execute: onRemove, loading: removing } = useDeleteQuery(`structures/schools/${id}`)
 
-    let onModify = () => {}
-
-    if (editing && id) {
-        onModify = dispatch.bind(null, modifySchool(id, { name, city_id: city as string, address, description }))
-    }
-
-    let onRemove = () => {}
-
-    if (editing && !!id?.toString()) {
-        onRemove = dispatch.bind(null, removeSchool(id))
-    }
+    const loading = collectCRUDLoading([adding, fetching, modifying, removing])
 
     useEffect(() => {
-        const school = schools.find(c => c.id.toString() === id)
-
         if (editing && school) {
-            setName(school.name)    
-            setCity(school.city_id)    
-            setDescription(school.description)    
-            setAddress(school.address)    
+            setName(school.name)
+            setCity(school.city.id)
+            setDescription(school.description)
+            setAddress(school.address)
         }
-    }, [])
+    }, [school])
+
+    useEffect(() => {
+        setForSending({ name, city_id: city, address, description })
+    }, [name, address, city, description])
 
     return (
         <EditorFormLayout

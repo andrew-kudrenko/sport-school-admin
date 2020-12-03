@@ -1,28 +1,30 @@
 import React from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import { EnhancedTable } from '../../components/tables/EnhancedTable'
+import { requestJSONAuth } from '../../helpers/request.hepler'
+import { useGetQuery } from '../../hooks/query.hook'
+import { useRefresh } from '../../hooks/refresh.hook'
 import {  IHeadCell, RemoveCallbackType } from '../../interfaces/components.interfaces'
 import { INews } from '../../interfaces/entities.interfaces'
-import { IState } from '../../interfaces/redux.interfaces'
-import { removeNews } from '../../redux/actions/news.actions'
 
 const headCells: Array<IHeadCell<INews>> = [
-    { id: 'text', label: 'Текст', numeric: false },
-    { id: 'img', label: 'Изображение', numeric: false }
+    { id: 'title', label: 'Заголовок' },
+    { id: 'text', label: 'Текст' }
 ]
 
-export const ManageNewsView: React.FC = (props) => {
-    const dispatch = useDispatch()
-    const { list } = useSelector((state: IState) => state.news)
+export const ManageNewsView: React.FC = () => {
+    const { value: news, execute: refresh } = useGetQuery<Array<INews>>('posts/news')
 
-    const onRemove: RemoveCallbackType = id => {
-        dispatch(removeNews(id))
+    const onRemove: RemoveCallbackType = async (id) => {
+        await requestJSONAuth(`/posts/news/${id}`, 'DELETE')
+        await refresh()
     }
+    
+    useRefresh(refresh)
 
     return (
         <EnhancedTable<INews>
             headCells={headCells}
-            rows={list}
+            rows={news || []}
             title={'Список новостей'}
             onRemove={onRemove}
         />

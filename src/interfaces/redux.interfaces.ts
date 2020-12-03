@@ -1,5 +1,5 @@
 import { Action } from "redux"
-import { ErrorType, ICity, ICoach, IdentifiedEntity, IGroup, INews, ISchool, IStatistics, IStudent, ITournament, IUser } from "./entities.interfaces"
+import { ErrorType, ICity, ICoach, IdentifiedEntity, IDType, IGroup, INews, ISchool, IStatistics, IStudent, ITournament, IUser } from "./entities.interfaces"
 
 export interface IAction<T = any> extends Action {
   payload?: T
@@ -31,8 +31,9 @@ export interface IAuthActions<T> {
 }
 
 export interface IAuthState {
-  user: IdentifiedEntity | null
+  user: { is_superuser: boolean, is_staff: boolean, city_id: IDType } & IdentifiedEntity | null
   token: string | null
+  login: string | null
   authorized: boolean
   loading: IAuthActions<boolean>
   error: IAuthActions<ErrorType>
@@ -49,14 +50,5 @@ export interface IThemeState {
 
 export interface IState {
   auth: IAuthState
-  cities: IStatePartial<ICity>
-  coaches: IStatePartial<ICoach>
-  groups: IStatePartial<IGroup>
-  students: IStatePartial<IStudent>
-  statistics: IStatePartial<IStatistics>
-  tournaments: IStatePartial<ITournament>
-  news: IStatePartial<INews>
-  schools: IStatePartial<ISchool>
-  users: IStatePartial<IUser>
   themes: IThemeState
 }

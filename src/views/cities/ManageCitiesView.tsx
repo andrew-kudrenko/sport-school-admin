@@ -1,28 +1,30 @@
 import React from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import { EnhancedTable } from '../../components/tables/EnhancedTable'
-import {  IHeadCell, RemoveCallbackType } from '../../interfaces/components.interfaces'
+import { requestJSONAuth } from '../../helpers/request.hepler'
+import { useFoundCities } from '../../hooks/found-by-city.hook'
+import { useRefresh } from '../../hooks/refresh.hook'
+import {  IHeadCell } from '../../interfaces/components.interfaces'
 import { ICity } from '../../interfaces/entities.interfaces'
-import { IState } from '../../interfaces/redux.interfaces'
-import { removeCity } from '../../redux/actions/cities.actions'
 
 const headCells: Array<IHeadCell<ICity>> = [
-    { id: 'name', label: 'Название', numeric: false }
+    { id: 'name', label: 'Название' }
 ]
 
-export const ManageCitiesView: React.FC = (props) => {
-    const dispatch = useDispatch()
-    const { list } = useSelector((state: IState) => state.cities)
+export const ManageCitiesView: React.FC = () => {
+    const { cities, execute: refresh } = useFoundCities()
 
-    const onRemove: RemoveCallbackType = id => {
-        dispatch(removeCity(id))
+    const onRemove = async (id: string) => {
+        await requestJSONAuth(`/structures/cities/${id}`, 'DELETE')
+        await refresh()
     }
 
+    useRefresh(refresh)
+    
     return (
         <EnhancedTable<ICity>
             headCells={headCells}
-            rows={list}
-            title={'Список городов'}
+            rows={cities}
+            title="Список городов"
             onRemove={onRemove}
         />
     )

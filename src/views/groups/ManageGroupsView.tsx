@@ -1,34 +1,34 @@
 import React from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import { EnhancedTable } from '../../components/tables/EnhancedTable'
-import { IHeadCell, RemoveCallbackType } from '../../interfaces/components.interfaces'
+import { requestJSONAuth } from '../../helpers/request.hepler'
+import { useFoundSchools } from '../../hooks/found-by-city.hook'
+import { useGetQuery } from '../../hooks/query.hook'
+import { useRefresh } from '../../hooks/refresh.hook'
+import { IHeadCell } from '../../interfaces/components.interfaces'
 import { IGroup } from '../../interfaces/entities.interfaces'
-import { IState } from '../../interfaces/redux.interfaces'
-import { removeGroup } from '../../redux/actions/groups.actions'
 
 const headCells: Array<IHeadCell<IGroup>> = [
-  { id: 'year', label: 'Год', numeric: false },
-  { id: 'school_id', label: 'Школа', numeric: false },
-  { id: 'tg_url', label: 'Ссылка на телеграм', numeric: false },
-  { id: 'schedule', label: 'Расписание', numeric: false }
+  { id: 'year', label: 'Год' },
+  { id: 'school_id', label: 'Школа' },
+  { id: 'tg_url', label: 'Ссылка на телеграм' }
 ]
 
-export const ManageGroupsView: React.FC = (props) => {
-  const dispatch = useDispatch()
+export const ManageGroupsView: React.FC = () => {
+  const { schools } = useFoundSchools()
+  const { value: groups, execute: refresh } = useGetQuery<Array<IGroup>>(`persons/groups`)  
 
-  const { list: groups } = useSelector((state: IState) => state.groups)
-  const { list: schools } = useSelector((state: IState) => state.schools)
-
-  const mappedGroups: Array<IGroup> = groups.map(g => (
+  const mappedGroups: Array<IGroup> = groups?.map(g => (
     {
       ...g,
-      school_id: schools.find(c => c.id === g.school_id)?.name || ''
-    }))
+      school_id: schools?.find(c => c.id === g.school_id)?.name || ''
+    })) || []
 
+  const onRemove = async (id: string) => {
+    await requestJSONAuth(`/persons/groups/${id}`, 'DELETE')
+    await refresh()
+  } 
 
-  const onRemove: RemoveCallbackType = id => {
-    dispatch(removeGroup(id))
-  }
+  useRefresh(refresh)
 
   return (
     <EnhancedTable<IGroup>

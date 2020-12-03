@@ -1,69 +1,95 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Grid, TextField } from '@material-ui/core'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { useFormHandlers } from '../../hooks/form-handlers.hooks'
 import { IEntityEditorProps } from '../../interfaces/components.interfaces'
 import { IState } from '../../interfaces/redux.interfaces'
 import { EditorFormLayout } from '../layouts/EditorFormLayout'
-import { useParams } from 'react-router-dom'
-import { IDType } from '../../interfaces/entities.interfaces'
-import { addNews, modifyNews, removeNews } from '../../redux/actions/news.actions'
+import { useIDParam } from '../../hooks/id-param.hook'
+import { useDeleteQuery, useGetQuery, usePostQuery, usePutQuery } from '../../hooks/query.hook'
+import { INews } from '../../interfaces/entities.interfaces'
+import { validate } from '../../helpers/truthy-validator.helper'
+import { collectCRUDLoading } from '../../helpers/crud-loading.helper'
+import { useFileUploading } from '../../hooks/file-uploading'
+import { FileLoader } from '../file-loader/FileLoader'
+import { Nullable } from '../../types/common.types'
+import { API_URL } from '../../helpers/api.helper'
 
-export const NewsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
+export const NewsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title: pageTitle }) => {
   const editing = mode === 'edit'
 
-  const { id } = useParams<{ id?: IDType }>()
-  const { user} = useSelector((state: IState) => state.auth)
-  const { list: news } = useSelector((state: IState) => state.news)
-  const dispatch = useDispatch()
+  const id = useIDParam()
 
-  const author_id = user?.id
-  const [img, setImg] = useState('')
+  const { user } = useSelector((state: IState) => state.auth)
+  const author_id = useRef(user?.id).current
+
+  const { value: news, loading: fetching } = useGetQuery<INews>(`posts/news/${id}`)
+  const { preview, setPreview, locked, ...rest } = useFileUploading(`/posts/news/${id}/upload_photo/`)
+
+  const [title, setTitle] = useState('')
   const [text, setText] = useState('')
+  const [img, setImg] = useState<Nullable<string>>(null)
 
-  const { loading } = useSelector((state: IState) => state.news)
+  const [forSending, setForSending] = useState({ title, text, img, author_id })
+
   const { onChange } = useFormHandlers()
 
-  const isValid: boolean = [text, img].reduce((acc: boolean, item) => Boolean(acc) && Boolean(item), true)
+  const isValid = validate([text, pageTitle, !locked])
+
+  const { execute: onAdd, loading: adding } = usePostQuery('posts/news', forSending)
+  const { execute: onModify, loading: modifying } = usePutQuery(`posts/news/${id}`, forSending)
+  const { execute: onRemove, loading: removing } = useDeleteQuery(`posts/news/${id}`)
+
+  const loading = collectCRUDLoading([fetching, adding, modifying, removing])
 
   const onClearAll = () => {
     setText('')
-    setImg('')
-  }
-
-  const onAdd = dispatch.bind(null, addNews({ author_id: author_id as string, img, text }))
-
-  let onModify = () => { }
-  if (!!id?.toString()) {
-    onModify = dispatch.bind(null, modifyNews(id, { author_id: author_id as string, img, text }))
-  }
-
-  let onRemove = () => { }
-
-  if (editing && !!id?.toString()) {
-    onRemove = dispatch.bind(null, removeNews(id))
+    setTitle('')
+    setPreview(null)
+    setImg(null)
   }
 
   useEffect(() => {
-    const current = news.find(n => n.id.toString() === id)
-
-    if (editing && current) {
-      setText(current.text)
-      setImg(current.img)
+    if (isValid) {
+      setForSending({ title, text, img: preview ? img : null, author_id })
     }
-  }, [])
+  }, [title, text, preview, img, isValid])
+
+  useEffect(() => {
+    if (editing && news) {
+      setTitle(news.title)
+      setText(news.text)
+
+      if (news.img) {
+        setPreview(`${API_URL}/${news.img}`)
+        setImg(news.img)
+      }
+    }
+  }, [news])
 
   return (
     <EditorFormLayout
       mode={mode}
       isValid={isValid}
       redirectTo="/news/"
-      title={title}
+      title={pageTitle}
       loading={loading}
-      onAdd={onAdd}
+      onAdd={async () => {
+        await onAdd()
+
+        window.setTimeout(async () => {
+          await rest.onUpload()
+        }, 500)
+      }}
       onClearAll={onClearAll}
       onRemove={onRemove}
-      onModify={onModify}
+      onModify={async () => {
+        await onModify()
+
+        window.setTimeout(async () => {
+          await rest.onUpload()
+        }, 500)
+      }}
     >
       <Grid container spacing={2}>
         <Grid item xs={12}>
@@ -71,11 +97,17 @@ export const NewsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) 
             autoFocus
             variant="outlined"
             fullWidth
-            label="Изображение"
-            value={img}
-            onChange={onChange(setImg)}
+            label="Заголовок"
+            value={title}
+            onChange={onChange(setTitle)}
           />
         </Grid>
+        {
+          editing &&
+          <Grid item xs={12}>
+            <FileLoader preview={preview} {...rest} />
+          </Grid>
+        }
         <Grid item xs={12}>
           <TextField
             multiline

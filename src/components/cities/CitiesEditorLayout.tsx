@@ -1,58 +1,51 @@
 import React, { useEffect, useState } from 'react'
 import { Grid, TextField } from '@material-ui/core'
-import { useDispatch, useSelector } from 'react-redux'
 import { useFormHandlers } from '../../hooks/form-handlers.hooks'
 import { IEntityEditorProps } from '../../interfaces/components.interfaces'
-import { IState } from '../../interfaces/redux.interfaces'
-import { addCity, modifyCity, removeCity } from '../../redux/actions/cities.actions'
 import { EditorFormLayout } from '../layouts/EditorFormLayout'
-import { useParams } from 'react-router-dom'
-import { IDType } from '../../interfaces/entities.interfaces'
+import { useIDParam } from '../../hooks/id-param.hook'
+import { useFoundCities } from '../../hooks/found-by-city.hook'
+import { useDeleteQuery, usePostQuery, usePutQuery } from '../../hooks/query.hook'
+import { validate } from '../../helpers/truthy-validator.helper'
 
 export const CitiesEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
     const editing = mode === 'edit'
-
-    const { id } = useParams<{ id?: IDType }>()
-    const { list: cities } = useSelector((state: IState) => state.cities)
+    
+    const id = useIDParam()
+    let { cities, loading, execute: fetchCities } = useFoundCities()
+    
     const [name, setName] = useState('')
-
-    const dispatch = useDispatch()
-    const { loading } = useSelector((state: IState) => state.cities)
+    
     const { onChange } = useFormHandlers()
-
     const onClearAll = setName.bind(null, '')
 
-    const onAdd = dispatch.bind(null, addCity({ name }))
+    const { execute: onAdd, loading: adding } = usePostQuery('structures/cities', { name })
+    const { execute: onModify, loading: modifying } = usePutQuery(`structures/cities/${id}`, { name })
+    const { execute: onRemove, loading: removing } = useDeleteQuery(`structures/cities/${id}`)
 
-    let onModify = () => {}
-    if (!!id?.toString()) {
-        onModify = dispatch.bind(null, modifyCity(id, { name }))
-    }
-    
-    let onRemove = () => {}
-
-    if (editing && !!id?.toString()) {
-        onRemove = dispatch.bind(null, removeCity(id))
-    }
+    const isValid = validate([name])
 
     useEffect(() => {
-        const city = cities.find(c => c.id.toString() === id)
+        const city = cities?.find(c => String(c.id) === id)
 
         if (editing && city) {
             setName(city.name)    
         }
-    }, [])
+    }, [cities])
 
     return (
         <EditorFormLayout
             mode={mode}
-            isValid={!!name}
+            isValid={isValid}
             redirectTo="/cities/"
             title={title}
-            loading={loading}
+            loading={{ read: loading, create: adding, update: modifying, delete: removing}}
             onAdd={onAdd}
             onClearAll={onClearAll}
-            onRemove={onRemove}
+            onRemove={async () => {
+                await onRemove()
+                await fetchCities()
+            }}
             onModify={onModify}
         >
             <Grid container spacing={2}>

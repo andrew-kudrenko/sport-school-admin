@@ -1,5 +1,5 @@
 import React from 'react'
-import { ChildrenEditorLayout } from '../../components/children/ChildrenEditorLayout'
+import { StudentsEditorLayout } from '../../components/students/StudentsEditorLayout'
 
 export const AddStudentView: React.FC = () => 
-    <ChildrenEditorLayout mode="add" title="Добавить ученика" />
+    <StudentsEditorLayout mode="add" title="Добавить ученика" />

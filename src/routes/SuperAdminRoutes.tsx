@@ -4,6 +4,7 @@ import { RootLayout } from '../components/layouts/RootLayout'
 import { AddCityView } from '../views/cities/AddCityView'
 import { EditCityView } from '../views/cities/EditCityView'
 import { ManageCitiesView } from '../views/cities/ManageCitiesView'
+import { EditCoachView } from '../views/coaches/EditCoachView'
 import { AddCoachView } from '../views/coaches/AddCoachView'
 import { ManageCoachesView } from '../views/coaches/ManageCoachesView'
 import { AddGroupView } from '../views/groups/AddGroupView'
@@ -38,7 +39,7 @@ export const SuperAdminRoutes: React.FC = () =>
             <Route exact path="/schools/edit/:id" component={EditSchoolView} />
             <Route exact path="/schools/add" component={AddSchoolView} />
             <Route exact path="/schools" component={ManageSchoolsView} />
-
+            
             <Route exact path="/users/edit/:id" component={EditUserView} />
             <Route exact path="/users/add" component={AddUserView} />
             <Route exact path="/users" component={ManageUsersView} />
@@ -51,7 +52,7 @@ export const SuperAdminRoutes: React.FC = () =>
             <Route exact path="/tournaments/add" component={AddTournamentView} />
             <Route exact path="/tournaments" component={ManageTournamentsView} />
             
-            <Route exact path="/coaches/edit/:id" component={AddCoachView} />
+            <Route exact path="/coaches/edit/:id" component={EditCoachView} />
             <Route exact path="/coaches/add" component={AddCoachView} />
             <Route exact path="/coaches" component={ManageCoachesView} />
 

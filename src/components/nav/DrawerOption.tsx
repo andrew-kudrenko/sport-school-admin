@@ -9,9 +9,9 @@ export const DrawerOption: React.FC<IDrawerOptionProps> = ({ icon, text, to }) =
     component={NavLink}
     button
   >
-    <Box width={"100%"} display="flex" justifyContent="space-between" alignItems="center">
+    <Box width={'100%'} display="flex" justifyContent="space-between" alignItems="center">
       <Tooltip title={text}>
-        <ListItemIcon>{icon}</ListItemIcon>
+        <ListItemIcon >{icon}</ListItemIcon>
       </Tooltip>
       <ListItemText primary={text} />
     </Box>

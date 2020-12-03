@@ -1,40 +1,44 @@
 import React from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import { EnhancedTable } from '../../components/tables/EnhancedTable'
-import { IHeadCell, RemoveCallbackType } from '../../interfaces/components.interfaces'
+import { requestJSONAuth } from '../../helpers/request.hepler'
+import { useFoundCities, useFoundSchools } from '../../hooks/found-by-city.hook'
+import { useGetQuery } from '../../hooks/query.hook'
+import { useRefresh } from '../../hooks/refresh.hook'
+import { IHeadCell } from '../../interfaces/components.interfaces'
 import { IUser } from '../../interfaces/entities.interfaces'
-import { IState } from '../../interfaces/redux.interfaces'
-import { removeSchool } from '../../redux/actions/schools.actions'
 
 const headCells: Array<IHeadCell<IUser>> = [
-    { id: 'name', label: 'ФИО', numeric: false },
-    { id: 'city_id', label: 'Город', numeric: false },
-    { id: 'is_trainer', label: 'Тренер', numeric: false },
-    { id: 'is_child', label: 'Ученик', numeric: false },
-    { id: 'school_id', label: 'Школа', numeric: false },
-    { id: 'date_joined', label: 'Дата регистрации', numeric: false },
-    { id: 'is_verify', label: 'Подтверждён', numeric: false }
+    { id: 'name', label: 'ФИО' },
+    { id: 'city_id', label: 'Город' },
+    { id: 'is_trainer', label: 'Тренер' },
+    { id: 'is_child', label: 'Ученик' },
+    { id: 'school_id', label: 'Школа' },
+    { id: 'date_joined', label: 'Дата регистрации' },
+    { id: 'is_verify', label: 'Подтверждён' }
 
 ]
 
 export const ManageUsersView: React.FC = () => {
-    const dispatch = useDispatch()
+    const { value: users, execute: refresh } = useGetQuery<Array<IUser>>(`tg/users`)
 
-    const { list: users } = useSelector((state: IState) => state.users)
-    const { list: schools } = useSelector((state: IState) => state.schools)
-    const { list: cities } = useSelector((state: IState) => state.cities)
+    const { schools } = useFoundSchools()
+    const { cities } = useFoundCities()
 
-    const mappedUsers: Array<IUser> = users.map(u => (
+    const mappedUsers: Array<IUser> = users?.map(u => (
         {
             ...u,
+            id: String(u.tg_id),
             city_id: cities.find(c => c.id === u.city_id)?.name || '',
             school_id: schools.find(s => s.id === u.school_id)?.name || '',
             date_joined: new Date(u.date_joined).toLocaleString()
-        }))
+        })) || []
 
-    const onRemove: RemoveCallbackType = id => {
-        dispatch(removeSchool(id))
+    const onRemove = async (id: string) => {
+        await requestJSONAuth(`/persons/groups/${id}`, 'DELETE')
+        await refresh()
     }
+    
+    useRefresh(refresh)
 
     return (
         <EnhancedTable<IUser>

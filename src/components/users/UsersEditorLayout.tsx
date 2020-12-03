@@ -1,47 +1,62 @@
 import React, { useEffect, useState } from 'react'
-import { Grid, TextField, Select, MenuItem } from '@material-ui/core'
-import { useDispatch, useSelector } from 'react-redux'
-import { useParams } from 'react-router-dom'
+import { Grid, TextField, Select, MenuItem, createStyles, makeStyles, Chip, Checkbox, FormControlLabel } from '@material-ui/core'
 import { EditorFormLayout } from '../layouts/EditorFormLayout'
 import { useFormHandlers } from '../../hooks/form-handlers.hooks'
 import { IEntityEditorProps } from '../../interfaces/components.interfaces'
-import { IDType, INonIDUser } from '../../interfaces/entities.interfaces'
-import { IState } from '../../interfaces/redux.interfaces'
-import { addUser, modifyUser, removeUser } from '../../redux/actions/users.actions'
+import { IDType, IStudent, IUser } from '../../interfaces/entities.interfaces'
+import { useFoundCities, useFoundSchools, useFoundUsers } from '../../hooks/found-by-city.hook'
+import { collectCRUDLoading } from '../../helpers/crud-loading.helper'
+import { useIDParam } from '../../hooks/id-param.hook'
+import { useGetQuery, usePostQuery, usePutQuery, useDeleteQuery } from '../../hooks/query.hook'
+import { Nullable } from '../../types/common.types'
+import { validate } from '../../helpers/truthy-validator.helper'
+import { CheckBoxOutlineBlank, CheckBoxOutlined } from '@material-ui/icons'
+
+const useStyles = makeStyles(() =>
+    createStyles({
+        chips: {
+            display: 'flex',
+            flexWrap: 'wrap',
+        },
+        chip: {
+            margin: 2,
+        }
+    })
+)
 
 export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title }) => {
+    const classes = useStyles()
     const editing = mode === 'edit'
 
-    const { id } = useParams<{ id?: IDType }>()
-    const { onChange, onSelect } = useFormHandlers()
+    const id = useIDParam()
+    const { onChange, onSelect, onChangeMultiple, onToggle } = useFormHandlers()
 
     const [login, setLogin] = useState('')
     const [name, setName] = useState('')
-    
+
     const [isTrainer, setIsTrainer] = useState(false)
     const [isChild, setIsChild] = useState(false)
     const [isVerify, setIsVerify] = useState(false)
     const [isWasActivate, setWasActivate] = useState(false)
 
-    const [city, setCity] = useState<IDType | null>(null)
-    const [school, setSchool] = useState<IDType | null>(null)
+    const [city, setCity] = useState<Nullable<IDType>>(null)
+    const [school, setSchool] = useState<Nullable<IDType>>(null)
+    const [children, setChildren] = useState<Array<IDType>>([])
 
     const [address, setAddress] = useState('')
     const [tel, setTel] = useState('')
-    const [date, setDate] = useState<Date | null>(null)
+    const [date, setDate] = useState<Nullable<Date>>(null)
 
-    const dispatch = useDispatch()
+    const { cities } = useFoundCities()
+    const { schools } = useFoundSchools()
+    const { users } = useFoundUsers()
 
-    const { list: cities } = useSelector(({ cities }: IState) => cities)
-    const { list: schools } = useSelector(({ schools }: IState) => schools)
-    const { loading, list: users } = useSelector(({ users }: IState) => users)
-
-    const isValid: boolean = [login, name, city, school, address, tel, date].reduce((acc: boolean, item) => Boolean(acc) && Boolean(item), true)
+    const { value: user, loading: fetching } = useGetQuery<IUser & { childs: Array<IStudent> }>(`tg/users/${id}`)
 
     const onClearAll = () => {
         setLogin('')
         setName('')
-        
+
         setIsTrainer(false)
         setIsChild(false)
         setIsVerify(false)
@@ -49,63 +64,61 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title })
 
         setCity(null)
         setSchool(null)
-        
+        setChildren([])
+
         setAddress('')
         setTel('')
 
         setDate(null)
     }
 
-    const userState: INonIDUser = { 
-        name, 
-        city_id: city as string || '', 
-        address,
-        date_joined: date?.toString() || '',
-        is_child: isChild,
-        is_trainer: isTrainer,
-        is_verify: isVerify,
-        login,
-        school_id: school as string || '',
-        tel,
-        was_activate: isWasActivate  ,
-        childs_id: []
+    const forSending = {
+        item: {
+            login,
+            name,
+            is_trainer: isTrainer,
+            is_child: isChild,
+            is_verify: isVerify,
+            was_activate: isWasActivate,
+            city_id: city,
+            address,
+            tel,
+            date_joined: date?.toJSON(),
+            school_id: school,
+        },
+        child_ids: children
     }
+    console.log(forSending)
 
-    const onAdd = dispatch.bind(null, addUser(userState))
+    const { execute: onAdd, loading: adding } = usePostQuery('tg/users', forSending)
+    const { execute: onModify, loading: modifying } = usePutQuery(`tg/users/${id}`, forSending)
+    const { execute: onRemove, loading: removing } = useDeleteQuery(`tg/users/${id}`)
 
-    let onModify = () => {}
-
-    if (editing && id) {
-        onModify = dispatch.bind(null, modifyUser(id, userState))
-    }
-
-    let onRemove = () => {}
-
-    if (editing && !!id?.toString()) {
-        onRemove = dispatch.bind(null, removeUser(id))
-    }
+    const isValid = validate([login, name, city, school, address, tel, date])
+    const loading = collectCRUDLoading([adding, fetching, modifying, removing])
 
     useEffect(() => {
-        const user = users.find(u => u.id.toString() === id)
-
         if (editing && user) {
             setLogin(user.login)
             setName(user.name)
-            
+
             setIsTrainer(user.is_trainer)
             setIsChild(user.is_child)
             setIsVerify(user.is_verify)
             setWasActivate(user.was_activate)
-    
-            setCity(cities.find(c => c.id === user.city_id)?.id || null)
-            setSchool(schools.find(s => s.id === user.id)?.id || null)
-            
+
+            setCity(user.city_id)
+            setSchool(user.school_id)
+
             setAddress(user.address)
             setTel(user.tel)
-            
+            setChildren(user?.childs?.map(c => c.id) || [])
+
             setDate(new Date(user.date_joined))
         }
-    }, [])
+    }, [user])
+
+    console.log(children)
 
     return (
         <EditorFormLayout
@@ -134,10 +147,38 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title })
                     <TextField
                         variant="outlined"
                         fullWidth
-                        label="Название"
+                        label="ФИО"
                         value={name}
                         onChange={onChange(setName)}
                     />
+                </Grid>
+                <Grid item xs={12}>
+                    <Select
+                        variant="outlined"
+                        fullWidth
+                        multiple
+                        value={children || ''}
+                        onChange={onChangeMultiple(setChildren)}
+                        displayEmpty
+                        renderValue={(selected) => (
+                            <div className={classes.chips}>
+                                {
+                                    (selected as string[])?.length
+                                        ?
+                                        (selected as string[]).map((value) => (
+                                            <Chip key={value} label={users.find(u => String(u.tg_id) === String(value))?.name || ''} className={classes.chip} />
+                                        ))
+                                        : 'Дети'
+                                }
+                            </div>
+                        )}
+                    >
+                        {
+                            users
+                                .filter(u => u.is_child && String(u.tg_id) !== id)
+                                .map(u => <MenuItem value={u.tg_id || ''} key={u.tg_id}>{u.name}</MenuItem>)
+                        }
+                    </Select>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                     <Select
@@ -185,10 +226,60 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title })
                         variant="outlined"
                         fullWidth
                         label="Номер телефона"
-                        multiline
-                        rows={7}
                         value={tel}
                         onChange={onChange(setTel)}
+                    />
+                </Grid>
+                <Grid item xs={6}>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                icon={<CheckBoxOutlineBlank fontSize="small" />}
+                                checkedIcon={<CheckBoxOutlined fontSize="small" />}
+                                checked={isVerify}
+                                onChange={onToggle(setIsVerify, isVerify)}
+                            />
+                        }
+                        label="Подтверждён"
+                    />
+                </Grid>
+                {/* <Grid item xs={6}>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                icon={<CheckBoxOutlineBlank fontSize="small" />}
+                                checkedIcon={<CheckBoxOutlined fontSize="small" />}
+                                checked={isWasActivate}
+                                onChange={onToggle(setWasActivate, isWasActivate)}
+                            />
+                        }
+                        label="Активирован"
+                    />
+                </Grid> */}
+                <Grid item xs={6}>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                icon={<CheckBoxOutlineBlank fontSize="small" />}
+                                checkedIcon={<CheckBoxOutlined fontSize="small" />}
+                                checked={isTrainer}
+                                onChange={onToggle(setIsTrainer, isTrainer)}
+                            />
+                        }
+                        label="Тренер"
+                    />
+                </Grid>
+                <Grid item xs={6}>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                icon={<CheckBoxOutlineBlank fontSize="small" />}
+                                checkedIcon={<CheckBoxOutlined fontSize="small" />}
+                                checked={isChild}
+                                onChange={onToggle(setIsChild, isChild)}
+                            />
+                        }
+                        label="Ребенок"
                     />
                 </Grid>
             </Grid>
