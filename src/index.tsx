@@ -6,10 +6,10 @@ import { applyMiddleware, createStore } from 'redux'
 import { App } from './components/app/App'
 import { rootReducer } from './redux/reducers/root.reducer'
 import reportWebVitals from './reportWebVitals'
-import { composeWithDevTools } from 'redux-devtools-extension'
+// import { composeWithDevTools } from 'redux-devtools-extension'
 import thunk from 'redux-thunk'
 
-const store = createStore(rootReducer, composeWithDevTools(applyMiddleware(thunk)))
+const store = createStore(rootReducer, applyMiddleware(thunk))
 
 ReactDOM.render(
   <React.StrictMode>
