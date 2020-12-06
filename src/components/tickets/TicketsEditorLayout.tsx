@@ -23,10 +23,10 @@ export const TicketsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title:
   const [title, setTitle] = useState('')
   const [cost, setCost] = useState(0)
   const [lessons, setLessons] = useState<Nullable<number>>(null)
-  const [date, setDate] = useState<Nullable<Date>>()
+  const [date, setDate] = useState<Nullable<Date>>(null)
   const [city, setCity] = useState<Nullable<IDType>>(null)
 
-  const forSending = { title, cost, lessons, city_id: city, to_date: splitDate(date || new Date()) }
+  const forSending = { title, cost, lessons, city_id: city, to_date: date ? splitDate(date) : null }
 
   const { onChange, onDateChange, onSelect } = useFormHandlers()
   const onClearAll = () => {
@@ -41,7 +41,7 @@ export const TicketsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title:
   const { execute: onModify, loading: modifying } = usePutQuery(`${baseURL}/${id}`, forSending)
   const { execute: onRemove, loading: removing } = useDeleteQuery(`${baseURL}/${id}`)
 
-  const isValid = validate([title, String(cost), city])
+  const isValid = validate([title, String(cost)])
 
   useEffect(() => {
     const current = tickets?.find(t => String(t.id) === id)
@@ -49,7 +49,10 @@ export const TicketsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title:
     if (editing && current) {
       setTitle(current.title)
       setCost(current.cost)
-      setCity(current.city_id)
+
+      if (current.city) {
+        setCity(current.city_id)
+      }
 
       if (current.date) {
         setDate(current.date)
