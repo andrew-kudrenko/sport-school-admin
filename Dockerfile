@@ -6,6 +6,7 @@ WORKDIR /app
 
 COPY package.json /app
 
-RUN yarn install
+RUN yarn
+RUN yarn run build
 
 COPY . .
