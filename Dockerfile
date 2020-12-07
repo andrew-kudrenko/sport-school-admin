@@ -1,10 +1,10 @@
 # pull official base image
-FROM node:12.19.0-alpine
+
+FROM node:alpine
 
 WORKDIR /app
 
-COPY yarn.lock /app
+COPY . .
 
 RUN yarn
 
-COPY . /app
