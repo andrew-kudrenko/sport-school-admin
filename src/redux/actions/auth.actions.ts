@@ -27,6 +27,8 @@ export const createLoginAction = (data: ILoginCredentials) =>
 
             const token: string = response['access_token']
 
+            localStorage.setItem('credentials', JSON.stringify({ login: data.login, token }))
+
             dispatch({ type: LOGIN, payload: { login: data.login, token } })
         } catch (e) {
             dispatch(setLoginError(e instanceof Error ? e.message : String(e)))

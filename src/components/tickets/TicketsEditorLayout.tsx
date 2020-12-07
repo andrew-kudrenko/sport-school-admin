@@ -120,7 +120,7 @@ export const TicketsEditorLayout: React.FC<IEntityEditorProps> = ({ mode, title:
             variant="outlined"
             fullWidth
             label="Уроки"
-            value={lessons}
+            value={String(lessons)}
             onChange={onChange(setLessons)}
           />
         </Grid>

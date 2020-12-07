@@ -73,7 +73,7 @@ export function useAuth() {
   }, [token, authorized])
 
   useEffect(() => {
-    if (authorized && !credentials) {
+    if (authorized && user && !credentials) {
       logout()
     }
   }, [authorized, credentials])
