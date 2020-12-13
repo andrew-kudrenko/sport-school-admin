@@ -1,7 +1,7 @@
 import React from 'react'
 import { List } from '@material-ui/core'
 import { DrawerOption } from './DrawerOption'
-import { AssignmentIndOutlined, ChildCareOutlined, EmojiEventsOutlined, EventNoteOutlined, MoneyOutlined, RoomOutlined, SchoolOutlined, SportsOutlined, SportsSoccerOutlined, TrendingUpOutlined } from '@material-ui/icons'
+import { AssignmentIndOutlined, ChildCareOutlined, EmojiEventsOutlined, EventNoteOutlined, LabelOutlined, MergeTypeOutlined, MoneyOutlined, RoomOutlined, SchoolOutlined, SportsOutlined, SportsSoccerOutlined, TrendingUpOutlined } from '@material-ui/icons'
 import { IDrawerOptionProps } from '../../interfaces/components.interfaces'
 import { useRole } from '../../hooks/role.hook'
 
@@ -18,7 +18,9 @@ const adminOptions: Array<IDrawerOptionProps> = [
 const superAdminOptions: Array<IDrawerOptionProps> = [
   { text: 'Города', to: '/cities/', icon: <RoomOutlined /> },
   { text: 'Новости', to: '/news/', icon: <EventNoteOutlined /> },
-  { text: 'Турниры', to: '/tournaments/', icon: <EmojiEventsOutlined /> }
+  { text: 'Турниры', to: '/tournaments/', icon: <EmojiEventsOutlined /> },
+  { text: 'Типы', to: '/types/', icon: <MergeTypeOutlined /> },  
+  { text: 'Транзакции', to: '/logs/', icon: <LabelOutlined /> }
 ]
 
 export const DrawerOptionList: React.FC = () => {

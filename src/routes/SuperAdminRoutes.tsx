@@ -31,6 +31,10 @@ import { ManageUsersView } from '../views/users/ManageUsersView'
 import { EditTicketView } from '../views/tickets/EditTicketView'
 import { ManageTicketsView } from '../views/tickets/ManageTicketsView'
 import { AddTicketView } from '../views/tickets/AddTicketView'
+import { AddTransactionView } from '../views/transactions/AddTransactionView'
+import { EditTransactionView } from '../views/transactions/EditTransactionView'
+import { ManageTransactionsView } from '../views/transactions/ManageTransactionsView'
+import { ManageLogsView } from '../views/logs/ManageLogsView'
 
 export const SuperAdminRoutes: React.FC = () =>
     <RootLayout>
@@ -75,6 +79,13 @@ export const SuperAdminRoutes: React.FC = () =>
             <Route exact path="/tickets/add" component={AddTicketView} />
             <Route exact path="/tickets" component={ManageTicketsView} />
 
+            <Route exact path="/types/edit/:id" component={EditTransactionView} />
+            <Route exact path="/types/add" component={AddTransactionView} />
+            <Route exact path="/types" component={ManageTransactionsView} />
+
+            <Route exact path="/logs/" component={ManageLogsView} />
+            
+            <Redirect from="/logs/*" to="/logs/" />
             <Redirect from="/auth/*" to="/cities/" />
         </Switch>
     </RootLayout>

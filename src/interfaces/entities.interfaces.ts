@@ -15,6 +15,15 @@ export interface INonIDCity {
   name: string
 }
 
+export interface ITransaction extends INonIDTransaction {
+  id: IDType
+}
+
+export interface INonIDTransaction {
+  id?: IDType
+  title: string
+}
+
 export interface ISchool extends INonIDSchool {
   id: IDType
 }
@@ -164,3 +173,13 @@ export interface ICachedUserData {
 }
 
 export type TokenType = string
+
+export type ID<T extends object> = { id: IDType } & { [K in keyof T]: T[K] } 
+
+export interface ILog {
+  is_add: Boolean
+  cost: number
+  text: string
+  user_id: IDType
+  type_transaction_id: IDType
+}
