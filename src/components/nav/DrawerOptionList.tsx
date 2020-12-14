@@ -12,15 +12,15 @@ const adminOptions: Array<IDrawerOptionProps> = [
   { text: 'Тренеры', to: '/coaches/', icon: <SportsOutlined /> },
   { text: 'Ученики', to: '/students/', icon: <ChildCareOutlined /> },
   { text: 'Школы', to: '/schools/', icon: <SchoolOutlined /> },
-  { text: 'Абонементы', to: '/tickets/', icon: <MoneyOutlined /> }
+  { text: 'Абонементы', to: '/tickets/', icon: <MoneyOutlined /> },
+  { text: 'Логи', to: '/logs/', icon: <LabelOutlined /> }
 ]
 
 const superAdminOptions: Array<IDrawerOptionProps> = [
   { text: 'Города', to: '/cities/', icon: <RoomOutlined /> },
   { text: 'Новости', to: '/news/', icon: <EventNoteOutlined /> },
   { text: 'Турниры', to: '/tournaments/', icon: <EmojiEventsOutlined /> },
-  { text: 'Типы', to: '/types/', icon: <MergeTypeOutlined /> },  
-  { text: 'Транзакции', to: '/logs/', icon: <LabelOutlined /> }
+  { text: 'Типы транзакций', to: '/types/', icon: <MergeTypeOutlined /> }
 ]
 
 export const DrawerOptionList: React.FC = () => {

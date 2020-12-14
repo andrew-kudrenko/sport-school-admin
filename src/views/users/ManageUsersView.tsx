@@ -1,8 +1,7 @@
 import React from 'react'
 import { EnhancedTable } from '../../components/tables/EnhancedTable'
 import { requestJSONAuth } from '../../helpers/request.hepler'
-import { useFoundCities, useFoundSchools } from '../../hooks/found-by-city.hook'
-import { useGetQuery } from '../../hooks/query.hook'
+import { useFoundCities, useFoundSchools, useFoundUsers } from '../../hooks/found-by-city.hook'
 import { useRefresh } from '../../hooks/refresh.hook'
 import { IHeadCell } from '../../interfaces/components.interfaces'
 import { IUser } from '../../interfaces/entities.interfaces'
@@ -19,7 +18,7 @@ const headCells: Array<IHeadCell<IUser>> = [
 ]
 
 export const ManageUsersView: React.FC = () => {
-    const { value: users, execute: refresh } = useGetQuery<Array<IUser>>(`tg/users`)
+    const { users, execute: refresh } = useFoundUsers()
 
     const { schools } = useFoundSchools()
     const { cities } = useFoundCities()

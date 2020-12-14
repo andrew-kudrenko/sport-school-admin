@@ -8,7 +8,7 @@ import { ILog, ID, ITransaction } from '../../interfaces/entities.interfaces'
 
 const headCells: Array<IHeadCell<ID<ILog>>> = [
     { id: 'is_add', label: '' },
-    { id: 'cost', label: 'Цена' },
+    { id: 'cost', label: 'Сумма' },
     { id: 'text', label: 'Комментарий' },
     { id: 'user_id', label: 'Пользователь' },
     { id: 'type_transaction_id', label: 'Тип' }

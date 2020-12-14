@@ -39,7 +39,7 @@ export function useFoundUsers() {
   const { cities } = useFoundCities()
   let { value: users, ...rest } = useGetQuery<Array<IUser>>('tg/users')
 
-  users = users?.filter(u => cities.find(c => c.id === u.city_id)) || []
+  users = users?.filter(u => cities.find(c => String(c.id) === String(u.city_id))) || []
 
   return { users, ...rest }
 }
@@ -72,10 +72,22 @@ export function useFoundStudents() {
 }
 
 export function useFoundTickets() {
+  const { cities } = useFoundCities()
   let { value: tickets, ...rest } = useGetQuery<Array<any>>('shop/season_tickets')
-  // const { cities } = useFoundCities()
-   console.log(tickets)
-  // tickets = tickets?.filter(t => cities.find(c => c.id === t.city_id)) || []
+  tickets = tickets?.filter(t => cities.find(c => c.id === t.city_id)) || []
 
   return { tickets, ...rest }
+}
+
+export function useFoundLogs() {
+  const { city_id, isSuperAdmin } = useRole()
+
+  const { value: logs, ...rest } = useGetQuery<Array<any>>('transactions/log')
+  const { value: logsWithParams, ...restWithParams } = useGetQuery<Array<any>>(`transactions/log?city_id=${city_id}`)    
+
+  if (isSuperAdmin) {
+    return { logs, ...rest }
+  }
+
+  return { logs: logsWithParams, ...restWithParams }
 }
