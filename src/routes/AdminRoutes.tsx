@@ -6,6 +6,7 @@ import { ManageCoachesView } from '../views/coaches/ManageCoachesView'
 import { AddGroupView } from '../views/groups/AddGroupView'
 import { EditGroupView } from '../views/groups/EditGroupView'
 import { ManageGroupsView } from '../views/groups/ManageGroupsView'
+import { ManageLogsView } from '../views/logs/ManageLogsView'
 import { AddSchoolView } from '../views/schools/AddSchoolView'
 import { EditSchoolView } from '../views/schools/EditSchoolView'
 import { ManageSchoolsView } from '../views/schools/ManageSchoolsView'
@@ -53,6 +54,9 @@ export const AdminRoutes: React.FC = () =>
             <Route exact path="/tickets/add" component={AddTicketView} />
             <Route exact path="/tickets" component={ManageTicketsView} />
 
+            <Route exact path="/logs/" component={ManageLogsView} />
+            
+            <Redirect from="/logs/*" to="/logs/" />
             <Redirect from="/auth/*" to="/schools/" />
         </Switch>
     </RootLayout>
