@@ -1,7 +1,8 @@
 import React from 'react'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
+import * as colors from '@material-ui/core/colors'
 import { TableHead, TableRow, TableCell, Checkbox, TableSortLabel, Paper, TableContainer, Table, TableBody, TablePagination, IconButton, Tooltip } from '@material-ui/core'
-import { EditOutlined } from '@material-ui/icons'
+import { CheckCircleOutlined, EditOutlined, HighlightOffOutlined } from '@material-ui/icons'
 import { IdentifiedEntity } from '../../interfaces/entities.interfaces'
 import { useSelected } from '../../hooks/selected.hook'
 import { EnhancedTableToolbar } from './EnhancedTableToolbar'
@@ -74,6 +75,12 @@ const useStyles = makeStyles((theme: Theme) =>
       top: 20,
       width: 1,
     },
+    success: {
+      color: colors.lightGreen[500],
+    },
+    danger: {
+      color: colors.red[500],
+    }
   }),
 )
 
@@ -157,8 +164,8 @@ export function EnhancedTable<T extends IdentifiedEntity>(props: IEnhancedTableP
                                 typeof row[cell.id] === 'boolean'
                                 ? 
                                   row[cell.id]
-                                    ? 'Да'
-                                    : 'Нет'
+                                    ? <CheckCircleOutlined className={classes.success} />
+                                    : <HighlightOffOutlined className={classes.danger} />
                                 :
                                   row[cell.id]
                               }

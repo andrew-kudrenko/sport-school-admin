@@ -7,11 +7,11 @@ import { IHeadCell } from '../../interfaces/components.interfaces'
 import { ILog, ID, ITransaction } from '../../interfaces/entities.interfaces'
 
 const headCells: Array<IHeadCell<ID<ILog>>> = [
+    { id: 'is_add', label: '' },
     { id: 'cost', label: 'Цена' },
-    { id: 'is_add', label: 'Добавлен' },
-    { id: 'text', label: 'Текст' },
+    { id: 'text', label: 'Комментарий' },
     { id: 'user_id', label: 'Пользователь' },
-    { id: 'type_transaction_id', label: 'Вид' }
+    { id: 'type_transaction_id', label: 'Тип' }
 ]
 
 export const ManageLogsView: React.FC = () => {
@@ -23,7 +23,7 @@ export const ManageLogsView: React.FC = () => {
     const mappedLogs: Array<ID<ILog>> = logs?.map(l => (
         {
             ...l,
-            user_id: users.find(u => u.id === l.user_id)?.name || '',
+            user_id: users.find(u => u.tg_id === l.user_id)?.name || '',
             type_transaction_id: types?.find(t => t.id === l.type_transaction_id)?.title || ''
         })) || []
 
