@@ -1,6 +1,6 @@
 import React from 'react'
 import { EnhancedTable } from '../../components/tables/EnhancedTable'
-import { useFoundUsers } from '../../hooks/found-by-city.hook'
+import { useFoundLogs, useFoundUsers } from '../../hooks/found-by-city.hook'
 import { useGetQuery } from '../../hooks/query.hook'
 import { useRefresh } from '../../hooks/refresh.hook'
 import { IHeadCell } from '../../interfaces/components.interfaces'
@@ -15,7 +15,7 @@ const headCells: Array<IHeadCell<ID<ILog>>> = [
 ]
 
 export const ManageLogsView: React.FC = () => {
-    const { value: logs, execute: refresh } = useGetQuery<Array<ID<ILog>>>('transactions/log')
+    const { logs, execute: refresh } = useFoundLogs()
     const { value: types } = useGetQuery<Array<ID<ITransaction>>>('transactions/types')
 
     const { users } = useFoundUsers()
