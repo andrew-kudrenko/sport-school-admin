@@ -125,7 +125,7 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({
     `tg/users/${id}`
   );
 
-  const isValid = validate([login, name, city, school, date]);
+  const isValid = validate([name, city, school, date]);
   const loading = collectCRUDLoading([adding, fetching, modifying, removing]);
 
   useEffect(() => {
@@ -150,7 +150,7 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({
   }, [user]);
 
   useEffect(() => {
-    console.log("Effect");
+    console.log("Effect", children);
     if (
       children.length &&
       !users.find((u) => children.find((c) => String(c) === String(u.tg_id)))
