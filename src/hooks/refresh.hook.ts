@@ -1,9 +1,9 @@
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect } from "react";
 
-export function useRefresh(callback: () => Promise<void>) {
-    const refresh =  useCallback(() => {
-        callback()
-    }, [])
+export function useRefresh(callback: () => Promise<any>) {
+  const refresh = useCallback(() => {
+    callback();
+  }, []);
 
-    useEffect(refresh, [])
+  useEffect(refresh, []);
 }

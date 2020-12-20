@@ -17,6 +17,7 @@ import { IDType, IStudent, IUser } from "../../interfaces/entities.interfaces";
 import {
   useFoundCities,
   useFoundSchools,
+  useFoundStudents,
   useFoundUsers,
 } from "../../hooks/found-by-city.hook";
 import { collectCRUDLoading } from "../../helpers/crud-loading.helper";
@@ -71,11 +72,12 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({
 
   const { cities } = useFoundCities();
   const { schools } = useFoundSchools();
-  const { users } = useFoundUsers();
 
   const { value: user, loading: fetching } = useGetQuery<
     IUser & { childs: Array<IStudent> }
   >(`tg/users/${id}`);
+
+  const { students, loading: studentsLoading } = useFoundStudents();
 
   const onClearAll = () => {
     setLogin("");
@@ -125,9 +127,8 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({
     `tg/users/${id}`
   );
 
-  const isValid = validate([name, city, school, date]);
+  const isValid = validate([name, city, school]);
   const loading = collectCRUDLoading([adding, fetching, modifying, removing]);
-
   useEffect(() => {
     if (editing && user) {
       setLogin(user.login);
@@ -150,14 +151,14 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({
   }, [user]);
 
   useEffect(() => {
-    console.log("Effect", children);
-    if (
-      children.length &&
-      !users.find((u) => children.find((c) => String(c) === String(u.tg_id)))
-    ) {
-      setChildren([]);
+    const actual = students.filter((s) =>
+      children.find((c) => String(c) === String(s.id))
+    );
+
+    if (children.length && !studentsLoading && !fetching && !actual.length) {
+      setChildren(actual.map((a) => String(a.id)));
     }
-  }, [users]);
+  }, [user, students, studentsLoading, fetching]);
 
   return (
     <EditorFormLayout
@@ -202,27 +203,27 @@ export const UsersEditorLayout: React.FC<IEntityEditorProps> = ({
             renderValue={(selected) => (
               <div className={classes.chips}>
                 {(selected as string[])?.length
-                  ? (selected as string[]).map((value) => (
-                      <Chip
-                        key={value}
-                        label={
-                          users.find(
-                            (u) =>
-                              u.is_child && String(u.tg_id) === String(value)
-                          )?.name || ""
-                        }
-                        className={classes.chip}
-                      />
-                    ))
+                  ? (selected as string[]).map((value) => {
+                      return (
+                        <Chip
+                          key={value}
+                          label={
+                            students.find((u) => String(u.id) === String(value))
+                              ?.name || ""
+                          }
+                          className={classes.chip}
+                        />
+                      );
+                    })
                   : "Дети"}
               </div>
             )}
           >
-            {users
-              .filter((u) => u.is_child && String(u.tg_id) !== String(id))
-              .map((u) => (
-                <MenuItem value={u.tg_id || ""} key={u.tg_id}>
-                  {u.name}
+            {students
+              .filter((s) => String(s.id) !== String(id))
+              .map((s) => (
+                <MenuItem value={s.id || ""} key={s.id}>
+                  {s.name}
                 </MenuItem>
               ))}
           </Select>
