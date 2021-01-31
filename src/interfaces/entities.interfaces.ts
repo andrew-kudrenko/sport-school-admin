@@ -113,6 +113,7 @@ export interface INonIDStudent {
   address: string;
   group_id: IDType;
   parents_ids: Array<IDType>;
+  base_price: number | null;
 }
 
 export interface INonIDStatistics {

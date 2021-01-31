@@ -67,6 +67,7 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({
   const [img, setImg] = useState<Nullable<string>>(null);
   const [group, setGroup] = useState<Nullable<IDType>>(null);
   const [parents, setParents] = useState<Array<IDType>>([]);
+  const [basePrice, setBasePrice] = useState<Nullable<number>>(null);
 
   const [forSending, setForSending] = useState({
     item: {
@@ -75,6 +76,7 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({
       img: preview ? img : null,
       group_id: group,
       dob: dob ? splitDate(dob) : null,
+      base_price: basePrice,
     },
     parent_ids: parents,
   });
@@ -120,6 +122,7 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({
           img: preview ? img : null,
           group_id: group,
           dob: splitDate(dob),
+          base_price: basePrice,
         },
         parent_ids: parents,
       });
@@ -133,6 +136,7 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({
       setAddress(student.address);
       setGroup(student.group_id);
       setParents(student.parent.map((p) => String(p.tg_id)));
+      setBasePrice(student.base_price);
 
       if (student.img) {
         setImg(student.img);
@@ -257,6 +261,15 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({
               </MenuItem>
             ))}
           </Select>
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            variant="outlined"
+            fullWidth
+            label="Цена"
+            value={basePrice}
+            onChange={onChange(setBasePrice)}
+          />
         </Grid>
         <Grid item xs={12}>
           <KeyboardDatePicker
