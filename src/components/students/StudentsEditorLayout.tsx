@@ -122,12 +122,12 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({
           img: preview ? img : null,
           group_id: group,
           dob: splitDate(dob),
-          base_price: basePrice,
+          base_price: Number.isSafeInteger(basePrice) ? basePrice : null,
         },
         parent_ids: parents,
       });
     }
-  }, [name, dob, address, group, parents, student, img, preview]);
+  }, [name, dob, address, group, parents, student, img, preview, basePrice]);
 
   useEffect(() => {
     if (editing && student) {
@@ -266,8 +266,8 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({
           <TextField
             variant="outlined"
             fullWidth
-            label="Цена"
-            value={basePrice}
+            label="Базовая стоимость"
+            value={basePrice || ""}
             onChange={onChange(setBasePrice)}
           />
         </Grid>
