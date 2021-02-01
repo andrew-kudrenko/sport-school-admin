@@ -122,7 +122,9 @@ export const StudentsEditorLayout: React.FC<IEntityEditorProps> = ({
           img: preview ? img : null,
           group_id: group,
           dob: splitDate(dob),
-          base_price: Number.isSafeInteger(basePrice) ? basePrice : null,
+          base_price: !Number.isNaN(Number.parseInt(String(basePrice)))
+            ? basePrice
+            : null,
         },
         parent_ids: parents,
       });
