@@ -66,7 +66,7 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({
   const { coaches } = useFoundCoaches();
 
   const [school, setSchool] = useState<Nullable<IDType>>(null);
-  const [year, setYear] = useState<Nullable<number>>(null);
+  const [year, setYear] = useState<string>("");
   const [tgUrl, setTgUrl] = useState("");
   const [coachesID, setCoachesID] = useState<Array<IDType>>([]);
   const [img, setImg] = useState<Nullable<string>>(null);
@@ -85,7 +85,7 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({
 
   const onClearAll = () => {
     setSchool(null);
-    setYear(null);
+    setYear("");
     setImg(null);
     setSchedule(null);
     setTgUrl("");
@@ -124,7 +124,7 @@ export const GroupsEditorLayout: React.FC<IEntityEditorProps> = ({
 
   useEffect(() => {
     if (editing && group) {
-      setYear(group.year);
+      setYear(String(group.year));
       setSchool(group.school_id);
       setTgUrl(group.tg_url);
       setCoachesID(group.trainers.map((t) => t.id));

@@ -103,16 +103,7 @@ export const CoachesEditorLayout: React.FC<IEntityEditorProps> = ({
     ICoach & { group: Array<IGroup> }
   >(`persons/trainer/${id}`);
 
-  const isValid = validate([
-    name,
-    dob,
-    String(user),
-    description,
-    address,
-    tel,
-    group,
-    city,
-  ]);
+  const isValid = validate([name, String(user), tel, group, city]);
   const loading = collectCRUDLoading([adding, fetching, modifying, removing]);
 
   const onClearAll = () => {
